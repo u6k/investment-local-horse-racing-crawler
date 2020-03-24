@@ -6,8 +6,11 @@ addons:
     packages:
       - docker-ce
 
-
 script:
   - docker-compose build
   - docker-compose run app pipenv run lint
   - docker-compose run app pipenv run test
+
+notifications:
+  slack:
+    secure: IeiOVdlR7EF3zbgNlZ1w/LozBhvtZd00Fi6XtElDO2Ti01a9UhBX6sE8y+4f99MQ8dB2MMrG4m1y2dviOjEkMxWCXgevMcn2xm+YbL9aqRy/xn9d7sv800U4GswK8em3aPC3PdBiXkRteKV9EaBkzJIEYr03IODQb8c/O6Ysst8SsbSxDvuWwMSxwkNA7Pz0Z3cQNmQubZ24B/U68rNurQL76Wnt/iktwwgwVOqXbC2wofIZ7m+oDo4gmY4Bx11dXgyYafxMXcDZG5veH894wSMYLjwkuwBOOs9RKOwyDQUFaUphMOoRn+rJeWREwKDXdkrOlEUYrtRphcLXd+tops0mAMQmioqWYRa3NeF57inM5ZRvO+FYOgfsRSdAnuVKQ5T6bdappCsAJSjayP1RPKhYXYaRcnIS7O794soRuecgIzRerkgj3Tc1CDteII0Z1+cc1C/9U7MnKW86zBmkH71lr+mOTb146uBNqUS9OO1TNDxCHHwm+iC38TFjyYjqiljyovnWnAK3+28L2zRCCTMf5hcjp9h+GK4XkKnBwhPknCOk2KG1FVveT3i4l76zyB7pJusEfDxJRMG7LKN2g5k0mfS9qCj9V/Yq3Z34rKWlCsNMOene2R4L4hKYD/+VAKWc9kcpetipIa6ntAIpy1HDxS1MW666+CApJnNIlYY=
