@@ -9,7 +9,18 @@ addons:
 script:
   - docker-compose build
   - docker-compose run app pipenv run lint
+  - docker-compose run app pipenv run check
   - docker-compose run app pipenv run test
+  - docker build -t u6kapps/investment-local-horse-racing-crawler -f Dockerfile.production .
+
+after_success:
+  - if [ -n "$TRAVIS_TAG" ]; then
+      echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin;
+      docker tag u6kapps/investment-local-horse-racing-crawler u6kapps/investment-local-horse-racing-crawler:$TRAVIS_TAG;
+      docker push u6kapps/investment-local-horse-racing-crawler;
+    else
+      echo skip docker push;
+    fi
 
 notifications:
   slack:
