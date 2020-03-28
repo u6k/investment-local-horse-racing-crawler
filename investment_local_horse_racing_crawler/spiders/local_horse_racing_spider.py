@@ -9,7 +9,13 @@ class LocalHorseRacingSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        self.logger.debug(f"#parse: start: url={response.url}")
+        """ Parse calendar page.
+
+        @url https://www.oddspark.com/keiba/KaisaiCalendar.do
+        @test
+        """
+
+        self.logger.info(f"#parse: start: url={response.url}")
 
         title = response.xpath("//title").get()
-        self.logger.debug(f"#parse: title={title}")
+        self.logger.info(f"#parse: title={title}")
