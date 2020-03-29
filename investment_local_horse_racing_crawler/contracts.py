@@ -100,3 +100,11 @@ class RaceDenmaContract(Contract):
                 continue
 
             raise ContractFail(f"Unknown url: {r.url}")
+
+
+class OddsWinContract(Contract):
+    name = "odds_win"
+
+    def post_process(self, output):
+        if len(output) != 0:
+            raise ContractFail("Unknown output")
