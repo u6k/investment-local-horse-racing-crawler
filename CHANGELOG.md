@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#8112: オッズ(単勝)ページをスクレイピングする](https://redmine.u6k.me/issues/8112)
 - [#8113: レース結果ページをスクレイピングする](https://redmine.u6k.me/issues/8113)
 - [#8114: 競走馬ページをスクレイピングする](https://redmine.u6k.me/issues/8114)
+- [#8115: 騎手ページをスクレイピングする](https://redmine.u6k.me/issues/8115)
 
 ## [0.3.0] - 2020-03-29
 ### Added
