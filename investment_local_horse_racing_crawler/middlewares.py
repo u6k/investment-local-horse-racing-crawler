@@ -5,7 +5,18 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import logging
+import os
+import boto3
+import pickle
 from scrapy import signals
+from scrapy.http import Headers
+from scrapy.responsetypes import responsetypes
+from scrapy.utils.request import request_fingerprint
+from botocore.exceptions import ClientError
+
+
+logger = logging.getLogger(__name__)
 
 
 class InvestmentLocalHorseRacingCrawlerSpiderMiddleware(object):
@@ -101,3 +112,91 @@ class InvestmentLocalHorseRacingCrawlerDownloaderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class S3CacheStorage(object):
+
+    def __init__(self, settings):
+        logger.debug("#init: start")
+
+        self.s3_endpoint = settings["S3_ENDPOINT"]
+        self.s3_region = settings["S3_REGION"]
+        self.s3_access_key = settings["S3_ACCESS_KEY"]
+        self.s3_secret_key = settings["S3_SECRET_KEY"]
+        self.s3_bucket = settings["S3_BUCKET"]
+        self.s3_folder = settings["S3_FOLDER"]
+
+        logger.debug("#init: endpoint=%s, region=%s, bucket=%s, folder=%s" % (self.s3_endpoint, self.s3_region, self.s3_bucket, self.s3_folder))
+
+    def open_spider(self, spider):
+        logger.debug("#open_spider: start: spider=%s" % spider)
+
+        self.s3_client = boto3.resource(
+            "s3",
+            endpoint_url=self.s3_endpoint,
+            aws_access_key_id=self.s3_access_key,
+            aws_secret_access_key=self.s3_secret_key,
+            region_name=self.s3_region)
+
+        self.s3_bucket_obj = self.s3_client.Bucket(self.s3_bucket)
+        if self.s3_bucket_obj.creation_date:
+            logger.debug("#open_spider: bucket exist")
+        else:
+            self.s3_bucket_obj.create()
+            logger.debug("#open_spider: bucket created")
+
+    def close_spider(self, spider):
+        logger.debug("#close_spider")
+
+    def retrieve_response(self, spider, request):
+        logger.debug("#retrieve_response: start: url=%s" % request.url)
+
+        rpath = self._get_request_path(spider, request)
+        logger.debug("#retrieve_response: cache path=%s" % rpath)
+
+        s3_obj = self.s3_bucket_obj.Object(rpath)
+
+        try:
+            s3_obj.last_modified
+        except ClientError as err:
+            if err.response["Error"]["Code"] == "404":
+                logger.debug("#retrieve_response: cache_nothing")
+                return
+            else:
+                raise err
+
+        data = pickle.loads(s3_obj.get()["Body"].read())
+
+        url = data["url"]
+        status = data["status"]
+        headers = Headers(data["headers"])
+        body = data["body"]
+        respcls = responsetypes.from_args(headers=headers, url=url)
+        response = respcls(url=url, headers=headers, status=status, body=body)
+
+        logger.debug("#retrieve_response: cache_exist")
+
+        return response
+
+    def store_response(self, spider, request, response):
+        logger.debug("#store_response: start: url=%s" % response.url)
+
+        rpath = self._get_request_path(spider, request)
+        logger.debug("#store_response: cache path=%s" % rpath)
+
+        data = {
+            "status": response.status,
+            "url": response.url,
+            "headers": dict(response.headers),
+            "body": response.body,
+        }
+
+        data_obj = pickle.dumps(data)
+
+        self.s3_bucket_obj.Object(rpath).put(Body=data_obj)
+
+        logger.debug("#store_response: data put")
+
+    def _get_request_path(self, spider, request):
+        key = request_fingerprint(request)
+        return os.path.join(self.s3_folder, key[0:2], key)
