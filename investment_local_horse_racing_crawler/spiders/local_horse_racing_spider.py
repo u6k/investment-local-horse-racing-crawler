@@ -50,6 +50,67 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
     def parse_race_denma(self, response):
         """ Parse race denma page.
+
+        @url https://www.oddspark.com/keiba/RaceList.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
+        @returns items 0
+        @returns requests 1
+        @race_denma
         """
 
         self.logger.info(f"#parse_race_denma: start: url={response.url}")
+
+        for a in response.xpath("//a"):
+            href = a.xpath("@href").get()
+
+            if href is None:
+                continue
+
+            if href.startswith("/keiba/Odds.do?"):
+                self.logger.info(f"#parse_race_denma: found odds page: href={href}")
+                yield response.follow(a, callback=self.parse_odds_win)
+
+            if href.startswith("/keiba/RaceResult.do?"):
+                self.logger.info(f"#parse_race_denma: found race result page: href={href}")
+                yield response.follow(a, callback=self.parse_race_result)
+
+            if href.startswith("/keiba/HorseDetail.do?"):
+                self.logger.info(f"#parse_race_denma: found horse page: href={href}")
+                yield response.follow(a, callback=self.parse_horse)
+
+            if href.startswith("/keiba/JockeyDetail.do?"):
+                self.logger.info(f"#parse_race_denma: found jockey page: href={href}")
+                yield response.follow(a, callback=self.parse_jockey)
+
+            if href.startswith("/keiba/TrainerDetail.do?"):
+                self.logger.info(f"#parse_race_denma: found trainer page: href={href}")
+                yield response.follow(a, callback=self.parse_trainer)
+
+    def parse_odds_win(self, response):
+        """ Parse odds(win) page.
+        """
+
+        self.logger.info(f"#parse_odds_win: start: url={response.url}")
+
+    def parse_race_result(self, response):
+        """ Parse race result page.
+        """
+
+        self.logger.info(f"#parse_race_result: start: url={response.url}")
+
+    def parse_horse(self, response):
+        """ Parse horse page.
+        """
+
+        self.logger.info(f"#parse_horse: start: url={response.url}")
+
+    def parse_jockey(self, response):
+        """ Parse jockey page.
+        """
+
+        self.logger.info(f"#parse_jockey: start: url={response.url}")
+
+    def parse_trainer(self, response):
+        """ Parse trainer page.
+        """
+
+        self.logger.info(f"#parse_trainer: start: url={response.url}")

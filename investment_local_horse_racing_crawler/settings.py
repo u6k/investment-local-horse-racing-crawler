@@ -33,6 +33,7 @@ HTTPCACHE_STORAGE = 'investment_local_horse_racing_crawler.middlewares.S3CacheSt
 SPIDER_CONTRACTS = {
     "investment_local_horse_racing_crawler.contracts.ScheduleListContract": 10,
     "investment_local_horse_racing_crawler.contracts.RaceRefundListContract": 10,
+    "investment_local_horse_racing_crawler.contracts.RaceDenmaContract": 10,
 }
 
 logging.getLogger("boto3").setLevel(logging.INFO)

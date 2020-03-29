@@ -52,3 +52,51 @@ class RaceRefundListContract(Contract):
                 continue
 
             raise ContractFail(f"Unknown url: {r.url}")
+
+
+class RaceDenmaContract(Contract):
+    name = "race_denma"
+
+    def post_process(self, output):
+        # Check requests
+        requests = [o for o in output if isinstance(o, Request)]
+
+        # Check url pattern
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/Odds.do?") for r in requests)
+        if count != 1:
+            raise ContractFail("Odds page not found")
+
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/RaceResult.do?") for r in requests)
+        if count != 1:
+            raise ContractFail("Race result page not found")
+
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/HorseDetail.do?") for r in requests)
+        if count == 0:
+            raise ContractFail("Horse page not found")
+
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/JockeyDetail.do?") for r in requests)
+        if count == 0:
+            raise ContractFail("Jockey page not found")
+
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/TrainerDetail.do?") for r in requests)
+        if count == 0:
+            raise ContractFail("Trainer page not found")
+
+        # Check unknown url
+        for r in requests:
+            if r.url.startswith("https://www.oddspark.com/keiba/Odds.do?"):
+                continue
+
+            if r.url.startswith("https://www.oddspark.com/keiba/RaceResult.do?"):
+                continue
+
+            if r.url.startswith("https://www.oddspark.com/keiba/HorseDetail.do?"):
+                continue
+
+            if r.url.startswith("https://www.oddspark.com/keiba/JockeyDetail.do?"):
+                continue
+
+            if r.url.startswith("https://www.oddspark.com/keiba/TrainerDetail.do?"):
+                continue
+
+            raise ContractFail(f"Unknown url: {r.url}")
