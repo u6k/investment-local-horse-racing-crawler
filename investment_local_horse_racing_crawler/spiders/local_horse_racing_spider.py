@@ -109,6 +109,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
     def parse_horse(self, response):
         """ Parse horse page.
+
+        @url https://www.oddspark.com/keiba/HorseDetail.do?lineageNb=2280190375
+        @returns items 0 0
+        @returns requests 0 0
+        @horse
         """
 
         self.logger.info(f"#parse_horse: start: url={response.url}")
