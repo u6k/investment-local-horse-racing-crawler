@@ -31,7 +31,7 @@ HTTPCACHE_ENABLED = True
 HTTPCACHE_STORAGE = 'investment_local_horse_racing_crawler.middlewares.S3CacheStorage'
 
 SPIDER_CONTRACTS = {
-    "investment_local_horse_racing_crawler.contracts.TestContract": 10,
+    "investment_local_horse_racing_crawler.contracts.ScheduleListContract": 10,
 }
 
 logging.getLogger("boto3").setLevel(logging.INFO)
