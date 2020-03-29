@@ -12,7 +12,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse calendar page.
 
         @url https://www.oddspark.com/keiba/KaisaiCalendar.do
-        @returns items 0
+        @returns items 0 0
         @returns requests 1
         @schedule_list
         """
@@ -34,7 +34,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse race refund list page.
 
         @url https://www.oddspark.com/keiba/RaceRefund.do?opTrackCd=03&raceDy=20200301&sponsorCd=04
-        @returns items 0
+        @returns items 0 0
         @returns requests 1
         @race_refund_list
         """
@@ -52,7 +52,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse race denma page.
 
         @url https://www.oddspark.com/keiba/RaceList.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
-        @returns items 0
+        @returns items 0 0
         @returns requests 1
         @race_denma
         """
@@ -87,6 +87,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
     def parse_odds_win(self, response):
         """ Parse odds(win) page.
+
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
+        @returns items 0 0
+        @returns requests 0
+        @odds_win
         """
 
         self.logger.info(f"#parse_odds_win: start: url={response.url}")
