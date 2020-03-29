@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [#8110: 払戻金一覧ページをスクレイピングする](https://redmine.u6k.me/issues/8110)
 - [#8111: レース別出走表ページをスクレイピングする](https://redmine.u6k.me/issues/8111)
+- [#8112: オッズ(単勝)ページをスクレイピングする](https://redmine.u6k.me/issues/8112)
 
 ## [0.3.0] - 2020-03-29
 ### Added
