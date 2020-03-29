@@ -131,6 +131,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
     def parse_trainer(self, response):
         """ Parse trainer page.
+
+        @url https://www.oddspark.com/keiba/TrainerDetail.do?trainerNb=018052
+        @returns items 0 0
+        @returns requests 0 0
+        @trainer
         """
 
         self.logger.info(f"#parse_trainer: start: url={response.url}")
