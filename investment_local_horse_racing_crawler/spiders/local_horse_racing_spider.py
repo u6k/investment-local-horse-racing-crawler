@@ -32,6 +32,24 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
     def parse_race_refund_list(self, response):
         """ Parse race refund list page.
+
+        @url https://www.oddspark.com/keiba/RaceRefund.do?opTrackCd=03&raceDy=20200301&sponsorCd=04
+        @returns items 0
+        @returns requests 1
+        @race_refund_list
         """
 
         self.logger.info(f"#parse_race_refund_list: start: url={response.url}")
+
+        for a in response.xpath("//a"):
+            href = a.xpath("@href").get()
+
+            if href is not None and href.startswith("/keiba/RaceList.do?"):
+                self.logger.info(f"#parse_race_refund_list: found race denma page: href={href}")
+                yield response.follow(a, callback=self.parse_race_denma)
+
+    def parse_race_denma(self, response):
+        """ Parse race denma page.
+        """
+
+        self.logger.info(f"#parse_race_denma: start: url={response.url}")
