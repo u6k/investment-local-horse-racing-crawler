@@ -35,6 +35,7 @@ SPIDER_CONTRACTS = {
     "investment_local_horse_racing_crawler.contracts.RaceRefundListContract": 10,
     "investment_local_horse_racing_crawler.contracts.RaceDenmaContract": 10,
     "investment_local_horse_racing_crawler.contracts.OddsWinContract": 10,
+    "investment_local_horse_racing_crawler.contracts.RaceResultContract": 10,
 }
 
 logging.getLogger("boto3").setLevel(logging.INFO)
