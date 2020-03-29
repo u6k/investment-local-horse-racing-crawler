@@ -124,3 +124,11 @@ class HorseContract(Contract):
     def post_process(self, output):
         if len(output) != 0:
             raise ContractFail("Unknown output")
+
+
+class JockeyContract(Contract):
+    name = "jockey"
+
+    def post_process(self, output):
+        if len(output) != 0:
+            raise ContractFail("Unknown output")

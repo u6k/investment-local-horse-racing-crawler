@@ -120,6 +120,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
     def parse_jockey(self, response):
         """ Parse jockey page.
+
+        @url https://www.oddspark.com/keiba/JockeyDetail.do?jkyNb=038071
+        @returns items 0 0
+        @returns requests 0 0
+        @jockey
         """
 
         self.logger.info(f"#parse_jockey: start: url={response.url}")
