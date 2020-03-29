@@ -108,3 +108,11 @@ class OddsWinContract(Contract):
     def post_process(self, output):
         if len(output) != 0:
             raise ContractFail("Unknown output")
+
+
+class RaceResultContract(Contract):
+    name = "race_result"
+
+    def post_process(self, output):
+        if len(output) != 0:
+            raise ContractFail("Unknown output")

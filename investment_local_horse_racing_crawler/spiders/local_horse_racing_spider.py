@@ -98,6 +98,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
     def parse_race_result(self, response):
         """ Parse race result page.
+
+        @url https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
+        @returns items 0 0
+        @returns requests 0
+        @race_result
         """
 
         self.logger.info(f"#parse_race_result: start: url={response.url}")
