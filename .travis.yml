@@ -10,6 +10,7 @@ script:
   - docker-compose build
   - docker-compose run app pipenv run lint
   - docker-compose run app pipenv run check
+  - docker-compose run app pipenv run migrate
   - docker-compose run app pipenv run test
   - docker build -t u6kapps/investment-local-horse-racing-crawler -f Dockerfile.production .
 

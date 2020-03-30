@@ -1,14 +1,31 @@
 # -*- coding: utf-8 -*-
 
-# Define here the models for your scraped items
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/items.html
 
-import scrapy
+from scrapy import Item, Field
 
 
-class InvestmentLocalHorseRacingCrawlerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class RaceInfoItem(Item):
+    race_id = Field()
+    race_round = Field()
+    race_name = Field()
+    start_date = Field()
+    place_name = Field()
+    course_type_length = Field()
+    start_time = Field()
+    weather = Field()
+    moisture = Field()
+    added_money = Field()
+
+
+class RaceDenmaItem(Item):
+    race_id = Field()
+    bracket_number = Field()
+    horse_number = Field()
+    horse_id = Field()
+    jockey_id = Field()
+    jockey_weight = Field()
+    trainer_id = Field()
+    odds_win = Field()
+    favorite = Field()
+    horse_weight = Field()
+    horse_weight_diff = Field()
