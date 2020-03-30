@@ -12,8 +12,14 @@ services:
       - "S3_SECRET_KEY=${S3_SECRET_KEY}"
       - "S3_BUCKET=${S3_BUCKET}"
       - "S3_FOLDER=${S3_FOLDER}"
+      - "DB_HOST=${DB_HOST}"
+      - "DB_PORT=${DB_PORT}"
+      - "DB_USERNAME=${DB_USERNAME}"
+      - "DB_PASSWORD=${DB_PASSWORD}"
+      - "DB_DATABASE=${DB_DATABASE}"
     depends_on:
       - "s3"
+      - "db"
 
   s3:
     image: minio/minio
@@ -22,3 +28,10 @@ services:
       - "MINIO_SECRET_KEY=${S3_SECRET_KEY}"
       - "MINIO_REGION=${S3_REGION}"
     command: server /data
+
+  db:
+    image: postgres:12
+    environment:
+      - "POSTGRES_USER=${DB_USERNAME}"
+      - "POSTGRES_PASSWORD=${DB_PASSWORD}"
+      - "POSTGRES_DB=${DB_DATABASE}"
