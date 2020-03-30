@@ -29,3 +29,12 @@ class RaceDenmaItem(Item):
     favorite = Field()
     horse_weight = Field()
     horse_weight_diff = Field()
+
+
+class OddsWinPlaceItem(Item):
+    race_id = Field()
+    horse_number = Field()
+    horse_id = Field()
+    odds_win = Field()
+    odds_place_min = Field()
+    odds_place_max = Field()
