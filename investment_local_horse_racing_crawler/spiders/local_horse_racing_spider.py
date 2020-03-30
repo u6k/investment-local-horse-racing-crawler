@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem
 
 
 class LocalHorseRacingSpider(scrapy.Spider):
@@ -159,12 +159,46 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse odds(win) page.
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
-        @returns items 0 0
+        @returns items 1
         @returns requests 0
         @odds_win
         """
 
         self.logger.info(f"#parse_odds_win: start: url={response.url}")
+
+        # Parse odds win/place
+        self.logger.debug("#parse_odds_win: parse odds win/place")
+
+        race_id = response.url.split("?")[-1]
+
+        for tr in response.xpath("//table[contains(@class,'tb71')]/tr"):
+            if len(tr.xpath("td")) == 0:
+                continue
+
+            loader = ItemLoader(item=OddsWinPlaceItem(), selector=tr)
+
+            if len(tr.xpath("td")) == 5:
+                loader.add_value("race_id", race_id)
+                loader.add_xpath("horse_number", "td[2]/text()")
+                loader.add_xpath("horse_id", "td[3]/a/@href")
+                loader.add_xpath("odds_win", "td[4]/span/text()")
+                loader.add_xpath("odds_place_min", "td[5]/span[1]/text()")
+                loader.add_xpath("odds_place_max", "td[5]/span[2]/text()")
+            elif len(tr.xpath("td")) == 4:
+                loader.add_value("race_id", race_id)
+                loader.add_xpath("horse_number", "td[1]/text()")
+                loader.add_xpath("horse_id", "td[2]/a/@href")
+                loader.add_xpath("odds_win", "td[3]/span/text()")
+                loader.add_xpath("odds_place_min", "td[4]/span[1]/text()")
+                loader.add_xpath("odds_place_max", "td[4]/span[2]/text()")
+            else:
+                self.logger.warn("Unknown record")
+                continue
+
+            i = loader.load_item()
+
+            self.logger.info(f"#parse_odds_win: odds win/place={i}")
+            yield i
 
     def parse_race_result(self, response):
         """ Parse race result page.

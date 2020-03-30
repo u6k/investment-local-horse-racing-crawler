@@ -8,7 +8,7 @@ from psycopg2.extras import DictCursor
 import re
 from scrapy.exceptions import DropItem
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem
 
 
 logger = logging.getLogger(__name__)
@@ -68,6 +68,8 @@ class PostgreSQLPipeline(object):
             new_item = self.process_race_info_item(item, spider)
         elif isinstance(item, RaceDenmaItem):
             new_item = self.process_race_denma_item(item, spider)
+        elif isinstance(item, OddsWinPlaceItem):
+            new_item = self.process_odds_win_place_item(item, spider)
         else:
             raise DropItem("Unknown item type")
 
@@ -181,11 +183,46 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern favorite")
 
-        # Insert db
-        race_denma_id = f"{i['race_id']}_{i['horse_id']}"
+        i["race_denma_id"] = f"{i['race_id']}_{i['horse_id']}"
 
-        self.db_cursor.execute("delete from race_denma where race_denma_id=%s", (race_denma_id,))
-        self.db_cursor.execute("insert into race_denma (race_denma_id, race_id, bracket_number, horse_number, horse_id, horse_weight, horse_weight_diff, trainer_id, jockey_id, jockey_weight, odds_win, favorite) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (race_denma_id, i["race_id"], i["bracket_number"], i["horse_number"], i["horse_id"], i["horse_weight"], i["horse_weight_diff"], i["trainer_id"], i["jockey_id"], i["jockey_weight"], i["odds_win"], i["favorite"]))
+        # Insert db
+        self.db_cursor.execute("delete from race_denma where race_denma_id=%s", (i["race_denma_id"],))
+        self.db_cursor.execute("insert into race_denma (race_denma_id, race_id, bracket_number, horse_number, horse_id, horse_weight, horse_weight_diff, trainer_id, jockey_id, jockey_weight, odds_win, favorite) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (i["race_denma_id"], i["race_id"], i["bracket_number"], i["horse_number"], i["horse_id"], i["horse_weight"], i["horse_weight_diff"], i["trainer_id"], i["jockey_id"], i["jockey_weight"], i["odds_win"], i["favorite"]))
+        self.db_conn.commit()
+
+        return i
+
+    def process_odds_win_place_item(self, item, spider):
+        logger.info("#process_odds_win_place_item: start: item=%s" % item)
+
+        # Build item
+        i = {}
+
+        i["race_id"] = item["race_id"][0].strip()
+
+        i["horse_number"] = int(item["horse_number"][0].strip())
+
+        horse_id_re = re.match("^.*lineageNb=([0-9]+)$", item["horse_id"][0].strip())
+        if horse_id_re:
+            i["horse_id"] = horse_id_re.group(1)
+        else:
+            raise DropItem("Unknown pattern horse_id")
+
+        i["odds_win"] = float(item["odds_win"][0].strip())
+
+        i["odds_place_min"] = float(item["odds_place_min"][0].strip())
+
+        i["odds_place_max"] = float(item["odds_place_max"][0].strip())
+
+        i["odds_win_place_id"] = f"{i['race_id']}_{i['horse_id']}"
+
+        # Insert db
+        self.db_cursor.execute("delete from odds_win where odds_win_id=%s", (i["odds_win_place_id"],))
+        self.db_cursor.execute("insert into odds_win (odds_win_id, race_id, horse_number, horse_id, odds_win) values (%s, %s, %s, %s, %s)", (i["odds_win_place_id"], i["race_id"], i["horse_number"], i["horse_id"], i["odds_win"]))
+
+        self.db_cursor.execute("delete from odds_place where odds_place_id=%s", (i["odds_win_place_id"],))
+        self.db_cursor.execute("insert into odds_place (odds_place_id, race_id, horse_number, horse_id, odds_place_min, odds_place_max) values (%s, %s, %s, %s, %s, %s)", (i["odds_win_place_id"], i["race_id"], i["horse_number"], i["horse_id"], i["odds_place_min"], i["odds_place_max"]))
+
         self.db_conn.commit()
 
         return i

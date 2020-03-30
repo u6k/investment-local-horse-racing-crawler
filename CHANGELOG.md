@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unrelease]
 ### Added
 - [#8119: レース別出走表ページのデータをDBに格納する](https://redmine.u6k.me/issues/8119)
+- [#8120: オッズ(単勝)ページのデータをDBに格納する](https://redmine.u6k.me/issues/8120)
 
 ## [0.4.0] - 2020-03-30
 ### Added
