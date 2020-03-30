@@ -9,6 +9,8 @@ autopep8 = "*"
 nose = "*"
 scrapy = "*"
 boto3 = "*"
+alembic = "*"
+psycopg2 = "*"
 
 [requires]
 python_version = "3.8"
