@@ -38,3 +38,20 @@ class OddsWinPlaceItem(Item):
     odds_win = Field()
     odds_place_min = Field()
     odds_place_max = Field()
+
+
+class RaceResultItem(Item):
+    race_id = Field()
+    bracket_number = Field()
+    horse_number = Field()
+    horse_id = Field()
+    result = Field()
+    arrival_time = Field()
+
+
+class RacePayoffItem(Item):
+    race_id = Field()
+    payoff_type = Field()
+    horse_number = Field()
+    odds = Field()
+    favorite = Field()
