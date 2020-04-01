@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem
 
 
 class LocalHorseRacingSpider(scrapy.Spider):
@@ -160,7 +160,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
         @returns items 1
-        @returns requests 0
+        @returns requests 0 0
         @odds_win
         """
 
@@ -204,12 +204,51 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse race result page.
 
         @url https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
-        @returns items 0 0
-        @returns requests 0
+        @returns items 1
+        @returns requests 0 0
         @race_result
         """
 
         self.logger.info(f"#parse_race_result: start: url={response.url}")
+
+        # Parse race result
+        self.logger.debug("#parse_race_result: parse race result")
+
+        race_id = response.url.split("?")[-1]
+
+        for tr in response.xpath("//table[@summary='レース結果']/tr"):
+            if len(tr.xpath("td")) == 0:
+                continue
+
+            loader = ItemLoader(item=RaceResultItem(), selector=tr)
+            loader.add_value("race_id", race_id)
+            loader.add_xpath("result", "td[1]/text()")
+            loader.add_xpath("bracket_number", "td[2]/text()")
+            loader.add_xpath("horse_number", "td[3]/text()")
+            loader.add_xpath("horse_id", "td[4]/a/@href")
+            loader.add_xpath("arrival_time", "td[11]/text()")
+            i = loader.load_item()
+
+            self.logger.info(f"#parse_race_result: race result={i}")
+            yield i
+
+        # Parse race result
+        self.logger.debug("#parse_race_result: parse race payoff")
+
+        for tr in response.xpath("//table[@summary='払戻金情報']/tr"):
+            if len(tr.xpath("th")) > 0:
+                payoff_type = tr.xpath("th/text()").get()
+
+            loader = ItemLoader(item=RacePayoffItem(), selector=tr)
+            loader.add_value("race_id", race_id)
+            loader.add_value("payoff_type", payoff_type)
+            loader.add_xpath("horse_number", "td[1]/text()")
+            loader.add_xpath("odds", "td[2]/text()")
+            loader.add_xpath("favorite", "td[3]/text()")
+            i = loader.load_item()
+
+            self.logger.info(f"#parse_race_result: race payoff={i}")
+            yield i
 
     def parse_horse(self, response):
         """ Parse horse page.

@@ -4,7 +4,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from investment_local_horse_racing_crawler.items import OddsWinPlaceItem
+from investment_local_horse_racing_crawler.items import OddsWinPlaceItem, RaceResultItem, RacePayoffItem
 
 
 logger = logging.getLogger(__name__)
@@ -110,14 +110,34 @@ class OddsWinContract(Contract):
     def post_process(self, output):
         count = sum(isinstance(o, OddsWinPlaceItem) for o in output)
         if count == 0:
-            raise Contract("Empty output")
+            raise ContractFail("Empty output")
+
+        for o in output:
+            if isinstance(o, OddsWinPlaceItem):
+                continue
+
+            raise ContractFail("Unknown output")
 
 
 class RaceResultContract(Contract):
     name = "race_result"
 
     def post_process(self, output):
-        if len(output) != 0:
+        count = sum(isinstance(o, RaceResultItem) for o in output)
+        if count == 0:
+            raise ContractFail("Empty race result")
+
+        count = sum(isinstance(o, RacePayoffItem) for o in output)
+        if count == 0:
+            raise ContractFail("Empty race payoff")
+
+        for o in output:
+            if isinstance(o, RaceResultItem):
+                continue
+
+            if isinstance(o, RacePayoffItem):
+                continue
+
             raise ContractFail("Unknown output")
 
 
