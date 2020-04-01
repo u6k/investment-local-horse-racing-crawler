@@ -55,3 +55,20 @@ class RacePayoffItem(Item):
     horse_number = Field()
     odds = Field()
     favorite = Field()
+
+
+class HorseItem(Item):
+    horse_id = Field()
+    horse_name = Field()
+    gender_age = Field()
+    birthday = Field()
+    coat_color = Field()
+    owner = Field()
+    breeder = Field()
+    breeding_farm = Field()
+    parent_horse_name_1 = Field()
+    parent_horse_name_2 = Field()
+    grand_parent_horse_name_1 = Field()
+    grand_parent_horse_name_2 = Field()
+    grand_parent_horse_name_3 = Field()
+    grand_parent_horse_name_4 = Field()
