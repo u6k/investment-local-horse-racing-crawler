@@ -4,7 +4,7 @@ import os
 from scrapy.crawler import Crawler
 
 from investment_local_horse_racing_crawler.spiders.local_horse_racing_spider import LocalHorseRacingSpider
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem
 from investment_local_horse_racing_crawler.pipelines import PostgreSQLPipeline
 
 
@@ -29,6 +29,7 @@ class TestPostgreSQLPipeline:
         self.pipeline.db_cursor.execute("delete from odds_place")
         self.pipeline.db_cursor.execute("delete from race_result")
         self.pipeline.db_cursor.execute("delete from race_payoff")
+        self.pipeline.db_cursor.execute("delete from horse")
 
     def teardown(self):
         self.pipeline.close_spider(None)
@@ -894,3 +895,77 @@ class TestPostgreSQLPipeline:
 
         race_payoffs = self.pipeline.db_cursor.fetchall()
         assert len(race_payoffs) == 1
+
+    def test_process_horse_item(self):
+        # Setup
+        item = HorseItem()
+        item['birthday'] = ['2016年3月30日']
+        item['breeder'] = ['橋\u3000本\u3000岩\u3000雄']
+        item['breeding_farm'] = ['北海道日高郡新ひだか町']
+        item['coat_color'] = ['栗毛']
+        item['gender_age'] = ['牡｜4 歳']
+        item['grand_parent_horse_name_1'] = ['ハイパワード\u200b']
+        item['grand_parent_horse_name_2'] = ['スーパーマコト\u200b']
+        item['grand_parent_horse_name_3'] = ['肖\u3000命\u200b']
+        item['grand_parent_horse_name_4'] = ['宝\u3000秀\u200b']
+        item['horse_id'] = ['lineageNb=2280190375']
+        item['horse_name'] = ['\n\tミヤビホウリキ\xa0']
+        item['owner'] = ['中島雅也']
+        item['parent_horse_name_1'] = ['アサノカイリキ\u200b']
+        item['parent_horse_name_2'] = ['千\u3000花\u200b']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from horse")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        new_item = self.pipeline.process_item(item, None)
+
+        # Check return
+        assert new_item['horse_id'] == '2280190375'
+        assert new_item['horse_name'] == 'ミヤビホウリキ'
+        assert new_item['gender'] == '牡'
+        assert new_item['age'] == 4
+        assert new_item['birthday'] == datetime(2016, 3, 30, 0, 0, 0)
+        assert new_item['coat_color'] == '栗毛'
+        assert new_item['owner'] == '中島雅也'
+        assert new_item['breeder'] == '橋\u3000本\u3000岩\u3000雄'
+        assert new_item['breeding_farm'] == '北海道日高郡新ひだか町'
+        assert new_item['parent_horse_name_1'] == 'アサノカイリキ\u200b'
+        assert new_item['parent_horse_name_2'] == '千\u3000花\u200b'
+        assert new_item['grand_parent_horse_name_1'] == 'ハイパワード\u200b'
+        assert new_item['grand_parent_horse_name_2'] == 'スーパーマコト\u200b'
+        assert new_item['grand_parent_horse_name_3'] == '肖\u3000命\u200b'
+        assert new_item['grand_parent_horse_name_4'] == '宝\u3000秀\u200b'
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from horse")
+
+        horses = self.pipeline.db_cursor.fetchall()
+        assert len(horses) == 1
+
+        horse = horses[0]
+        assert horse['horse_id'] == '2280190375'
+        assert horse['horse_name'] == 'ミヤビホウリキ'
+        assert horse['gender'] == '牡'
+        assert horse['age'] == 4
+        assert horse['birthday'] == datetime(2016, 3, 30, 0, 0, 0)
+        assert horse['coat_color'] == '栗毛'
+        assert horse['owner'] == '中島雅也'
+        assert horse['breeder'] == '橋\u3000本\u3000岩\u3000雄'
+        assert horse['breeding_farm'] == '北海道日高郡新ひだか町'
+        assert horse['parent_horse_name_1'] == 'アサノカイリキ\u200b'
+        assert horse['parent_horse_name_2'] == '千\u3000花\u200b'
+        assert horse['grand_parent_horse_name_1'] == 'ハイパワード\u200b'
+        assert horse['grand_parent_horse_name_2'] == 'スーパーマコト\u200b'
+        assert horse['grand_parent_horse_name_3'] == '肖\u3000命\u200b'
+        assert horse['grand_parent_horse_name_4'] == '宝\u3000秀\u200b'
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from horse")
+
+        horses = self.pipeline.db_cursor.fetchall()
+        assert len(horses) == 1

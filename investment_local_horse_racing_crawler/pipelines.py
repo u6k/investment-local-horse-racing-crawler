@@ -8,7 +8,7 @@ from psycopg2.extras import DictCursor
 import re
 from scrapy.exceptions import DropItem
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem
 
 
 logger = logging.getLogger(__name__)
@@ -74,6 +74,8 @@ class PostgreSQLPipeline(object):
             new_item = self.process_race_result_item(item, spider)
         elif isinstance(item, RacePayoffItem):
             new_item = self.process_race_payoff_item(item, spider)
+        elif isinstance(item, HorseItem):
+            new_item = self.process_horse_item(item, spider)
         else:
             raise DropItem("Unknown item type")
 
@@ -332,6 +334,65 @@ class PostgreSQLPipeline(object):
         # Insert db
         self.db_cursor.execute("delete from race_payoff where race_payoff_id=%s", (i["race_payoff_id"],))
         self.db_cursor.execute("insert into race_payoff (race_payoff_id, race_id, payoff_type, horse_number_1, horse_number_2, horse_number_3, odds, favorite) values (%s, %s, %s, %s, %s, %s, %s, %s)", (i["race_payoff_id"], i["race_id"], i["payoff_type"], i["horse_number_1"], i["horse_number_2"], i["horse_number_3"], i["odds"], i["favorite"]))
+
+        self.db_conn.commit()
+
+        return i
+
+    def process_horse_item(self, item, spider):
+        logger.info("#process_horse_item: start: item=%s" % item)
+
+        # Build item
+        i = {}
+
+        horse_id_re = re.match("^lineageNb=([0-9]+)$", item["horse_id"][0].strip())
+        if horse_id_re:
+            i["horse_id"] = horse_id_re.group(1)
+        else:
+            raise DropItem("Unknown pattern horse_id")
+
+        i["horse_name"] = item["horse_name"][0].strip()
+
+        gender_age_parts = item["gender_age"][0].split("｜")
+        i["gender"] = gender_age_parts[0].strip()
+
+        age_re = re.match("^([0-9]+) 歳$", gender_age_parts[1].strip())
+        if age_re:
+            i["age"] = int(age_re.group(1))
+        else:
+            raise DropItem("Unknown pattern age")
+
+        birthday_re = re.match("^([0-9]{4})年([0-9]{1,2})月([0-9]{1,2})日$", item["birthday"][0].strip())
+        if birthday_re:
+            i["birthday"] = datetime(int(birthday_re.group(1)), int(birthday_re.group(2)), int(birthday_re.group(3)), 0, 0, 0)
+        else:
+            raise DropItem("Unknown pattern birthday")
+
+        i['coat_color'] = item["coat_color"][0].strip()
+
+        i['owner'] = item["owner"][0].strip()
+
+        i['breeder'] = item["breeder"][0].strip()
+
+        i['breeding_farm'] = item["breeding_farm"][0].strip()
+
+        i['parent_horse_name_1'] = item["parent_horse_name_1"][0].strip()
+
+        i['parent_horse_name_2'] = item["parent_horse_name_2"][0].strip()
+
+        i['grand_parent_horse_name_1'] = item["grand_parent_horse_name_1"][0].strip()
+
+        i['grand_parent_horse_name_2'] = item["grand_parent_horse_name_2"][0].strip()
+
+        i['grand_parent_horse_name_3'] = item["grand_parent_horse_name_3"][0].strip()
+
+        i['grand_parent_horse_name_4'] = item["grand_parent_horse_name_4"][0].strip()
+
+        logger.debug(f"#process_horse_item: build item: {i}")
+
+        # Insert db
+        self.db_cursor.execute("delete from horse where horse_id=%s", (i["horse_id"],))
+        self.db_cursor.execute("insert into horse (horse_id, horse_name, gender, age, birthday, coat_color, owner, breeder, breeding_farm, parent_horse_name_1, parent_horse_name_2, grand_parent_horse_name_1, grand_parent_horse_name_2, grand_parent_horse_name_3, grand_parent_horse_name_4) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (i["horse_id"], i["horse_name"], i["gender"], i["age"], i["birthday"], i["coat_color"], i["owner"], i["breeder"], i["breeding_farm"], i["parent_horse_name_1"], i["parent_horse_name_2"], i["grand_parent_horse_name_1"], i["grand_parent_horse_name_2"], i["grand_parent_horse_name_3"], i["grand_parent_horse_name_4"]))
 
         self.db_conn.commit()
 

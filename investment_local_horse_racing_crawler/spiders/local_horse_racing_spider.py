@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem
 
 
 class LocalHorseRacingSpider(scrapy.Spider):
@@ -254,12 +254,59 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse horse page.
 
         @url https://www.oddspark.com/keiba/HorseDetail.do?lineageNb=2280190375
-        @returns items 0 0
+        @returns items 1 1
         @returns requests 0 0
         @horse
         """
 
         self.logger.info(f"#parse_horse: start: url={response.url}")
+
+        # Parse horse
+        self.logger.debug("#parse_horse: parse horse")
+
+        loader = ItemLoader(item=HorseItem(), response=response)
+        loader.add_value("horse_id", response.url.split("?")[-1])
+        loader.add_xpath("horse_name", "//div[@id='content']/div[2]/span[1]/text()")
+        loader.add_xpath("gender_age", "//div[@id='content']/div[2]/span[2]/text()")
+
+        if response.xpath("//table[contains(@class,'tb72')]/tr[1]/th/text()").get() != "生年月日":
+            raise RuntimeError("Unknown header birthday")
+        else:
+            loader.add_xpath("birthday", "//table[contains(@class,'tb72')]/tr[1]/td/text()")
+
+        if response.xpath("//table[contains(@class,'tb72')]/tr[2]/th/text()").get() != "毛色":
+            raise RuntimeError("Unknown header coat_color")
+        else:
+            loader.add_xpath("coat_color", "//table[contains(@class,'tb72')]/tr[2]/td/text()")
+
+        if response.xpath("//table[contains(@class,'tb72')]/tr[4]/th/text()").get() != "馬主":
+            raise RuntimeError("Unknown header owner")
+        else:
+            loader.add_xpath("owner", "//table[contains(@class,'tb72')]/tr[4]/td/text()")
+
+        if response.xpath("//table[contains(@class,'tb72')]/tr[5]/th/text()").get() != "生産者":
+            raise RuntimeError("Unknown header breeder")
+        else:
+            loader.add_xpath("breeder", "//table[contains(@class,'tb72')]/tr[5]/td/text()")
+
+        if response.xpath("//table[contains(@class,'tb72')]/tr[6]/th/text()").get() != "産地":
+            raise RuntimeError("Unknown header breeding_farm")
+        else:
+            loader.add_xpath("breeding_farm", "//table[contains(@class,'tb72')]/tr[6]/td/text()")
+
+        if response.xpath("//table[contains(@class,'tb71')]/tr[1]/td/text()").get() != "血統":
+            raise RuntimeError("Unknown table parents")
+
+        loader.add_xpath("parent_horse_name_1", "//table[contains(@class,'tb71')]/tr[2]/td[1]/text()")
+        loader.add_xpath("parent_horse_name_2", "//table[contains(@class,'tb71')]/tr[4]/td[1]/text()")
+        loader.add_xpath("grand_parent_horse_name_1", "//table[contains(@class,'tb71')]/tr[2]/td[2]/text()")
+        loader.add_xpath("grand_parent_horse_name_2", "//table[contains(@class,'tb71')]/tr[3]/td[1]/text()")
+        loader.add_xpath("grand_parent_horse_name_3", "//table[contains(@class,'tb71')]/tr[4]/td[2]/text()")
+        loader.add_xpath("grand_parent_horse_name_4", "//table[contains(@class,'tb71')]/tr[5]/td[1]/text()")
+        i = loader.load_item()
+
+        self.logger.info(f"#parse_horse: horse={i}")
+        yield i
 
     def parse_jockey(self, response):
         """ Parse jockey page.
