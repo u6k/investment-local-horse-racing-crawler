@@ -174,7 +174,10 @@ class PostgreSQLPipeline(object):
 
         i["horse_weight"] = float(item["horse_weight"][0].strip())
 
-        i["horse_weight_diff"] = float(item["horse_weight_diff"][0].strip())
+        try:
+            i["horse_weight_diff"] = float(item["horse_weight_diff"][0].strip())
+        except ValueError:
+            i["horse_weight_diff"] = 0
 
         trainer_id_re = re.match("^.*trainerNb=([0-9]+)$", item["trainer_id"][0].strip())
         if trainer_id_re:
