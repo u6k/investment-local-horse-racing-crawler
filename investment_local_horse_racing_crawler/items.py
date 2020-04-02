@@ -72,3 +72,12 @@ class HorseItem(Item):
     grand_parent_horse_name_2 = Field()
     grand_parent_horse_name_3 = Field()
     grand_parent_horse_name_4 = Field()
+
+
+class JockeyItem(Item):
+    jockey_id = Field()
+    jockey_name = Field()
+    birthday = Field()
+    gender = Field()
+    belong_to = Field()
+    first_licensing_year = Field()

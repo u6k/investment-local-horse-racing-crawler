@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem
 
 
 class LocalHorseRacingSpider(scrapy.Spider):
@@ -312,12 +312,45 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse jockey page.
 
         @url https://www.oddspark.com/keiba/JockeyDetail.do?jkyNb=038071
-        @returns items 0 0
+        @returns items 1 1
         @returns requests 0 0
         @jockey
         """
 
         self.logger.info(f"#parse_jockey: start: url={response.url}")
+
+        # Parse jockey
+        self.logger.debug("#parse_jockey: parse jockey")
+
+        loader = ItemLoader(item=JockeyItem(), response=response)
+        loader.add_value("jockey_id", response.url.split("?")[-1])
+        loader.add_xpath("jockey_name", "//div[@id='content']/div[2]/span[1]/text()")
+
+        table = response.xpath("//table[contains(@class,'tb72')]")[0]
+        if table.xpath("tr[1]/th/text()").get() != "生年月日":
+            raise RuntimeError("Unknown header birthday")
+        else:
+            loader.add_value("birthday", table.xpath("tr[1]/td/text()").get())
+
+        if table.xpath("tr[2]/th/text()").get() != "性別":
+            raise RuntimeError("Unknown header gender")
+        else:
+            loader.add_value("gender", table.xpath("tr[2]/td/text()").get())
+
+        if table.xpath("tr[3]/th/text()").get() != "所属":
+            raise RuntimeError("Unknown header belong_to")
+        else:
+            loader.add_value("belong_to", table.xpath("tr[3]/td/text()").get())
+
+        if table.xpath("tr[5]/th/text()").get() != "初免許年":
+            raise RuntimeError("Unknown header first_licensing_year")
+        else:
+            loader.add_value("first_licensing_year", table.xpath("tr[5]/td/text()").get())
+
+        i = loader.load_item()
+
+        self.logger.info(f"#parse_jockey: jockey={i}")
+        yield i
 
     def parse_trainer(self, response):
         """ Parse trainer page.
