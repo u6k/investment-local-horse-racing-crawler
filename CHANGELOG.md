@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#8142: レース出馬表のパースに失敗した…騎手体重が数値に変換できなかった](https://redmine.u6k.me/issues/8142)
 - [#8143: レース出馬表のパースに失敗した…オッズがない](https://redmine.u6k.me/issues/8143)
 - [#8144: 競走馬ページのパースに失敗した…オーナーがない](https://redmine.u6k.me/issues/8144)
+- [#8145: レース結果のパースに失敗した…着順がハイフン](https://redmine.u6k.me/issues/8145)
 
 ## [1.0.1] - 2020-04-02
 ### Fixed

@@ -766,6 +766,55 @@ class TestPostgreSQLPipeline:
         race_results = self.pipeline.db_cursor.fetchall()
         assert len(race_results) == 1
 
+    def test_process_race_result_item_3(self):
+        # Setup
+        item = RaceResultItem()
+        item['bracket_number'] = ['7']
+        item['horse_id'] = ['/keiba/HorseDetail.do?lineageNb=2017101608']
+        item['horse_number'] = ['10']
+        item['race_id'] = ['sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9']
+        item['result'] = ['-']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_result")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        new_item = self.pipeline.process_item(item, None)
+
+        # Check return
+        assert new_item['race_result_id'] == 'sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9_2017101608'
+        assert new_item['race_id'] == 'sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9'
+        assert new_item['bracket_number'] == 7
+        assert new_item['horse_number'] == 10
+        assert new_item['horse_id'] == '2017101608'
+        assert new_item['result'] is None
+        assert new_item['arrival_time'] is None
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from race_result")
+
+        race_results = self.pipeline.db_cursor.fetchall()
+        assert len(race_results) == 1
+
+        race_result = race_results[0]
+        assert race_result['race_result_id'] == 'sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9_2017101608'
+        assert race_result['race_id'] == 'sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9'
+        assert race_result['bracket_number'] == 7
+        assert race_result['horse_number'] == 10
+        assert race_result['horse_id'] == '2017101608'
+        assert race_result['result'] is None
+        assert race_result['arrival_time'] is None
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from race_result")
+
+        race_results = self.pipeline.db_cursor.fetchall()
+        assert len(race_results) == 1
+
     def test_process_race_payoff_item_1(self):
         # Setup
         item = RacePayoffItem()
