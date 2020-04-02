@@ -391,7 +391,10 @@ class PostgreSQLPipeline(object):
 
         i['coat_color'] = item["coat_color"][0].strip()
 
-        i['owner'] = item["owner"][0].strip()
+        try:
+            i['owner'] = item["owner"][0].strip()
+        except KeyError:
+            i['owner'] = None
 
         i['breeder'] = item["breeder"][0].strip()
 

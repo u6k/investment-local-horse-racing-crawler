@@ -1196,7 +1196,7 @@ class TestPostgreSQLPipeline:
         self.pipeline.db_cursor.execute("select * from race_payoff")
         assert len(self.pipeline.db_cursor.fetchall()) == 0
 
-    def test_process_horse_item(self):
+    def test_process_horse_item_1(self):
         # Setup
         item = HorseItem()
         item['birthday'] = ['2016年3月30日']
@@ -1260,6 +1260,79 @@ class TestPostgreSQLPipeline:
         assert horse['grand_parent_horse_name_2'] == 'スーパーマコト\u200b'
         assert horse['grand_parent_horse_name_3'] == '肖\u3000命\u200b'
         assert horse['grand_parent_horse_name_4'] == '宝\u3000秀\u200b'
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from horse")
+
+        horses = self.pipeline.db_cursor.fetchall()
+        assert len(horses) == 1
+
+    def test_process_horse_item_2(self):
+        # Setup
+        item = HorseItem()
+        item['birthday'] = ['1989年4月13日']
+        item['breeder'] = ['谷川牧場']
+        item['breeding_farm'] = ['北海道浦河郡浦河町']
+        item['coat_color'] = ['鹿毛']
+        item['gender_age'] = ['牡｜31 歳']
+        item['grand_parent_horse_name_1'] = ['ステイールハート\u200b']
+        item['grand_parent_horse_name_2'] = ['ニホンピロエバート\u200b']
+        item['grand_parent_horse_name_3'] = ['シヤトーゲイ\u200b']
+        item['grand_parent_horse_name_4'] = ['シンダイアンケー\u200b']
+        item['horse_id'] = ['lineageNb=1989104729']
+        item['horse_name'] = ['\n\tメモリーキャッチ\xa0']
+        item['parent_horse_name_1'] = ['ニホンピロウイナー\u200b']
+        item['parent_horse_name_2'] = ['ハシラベンダー\u200b']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from horse")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        new_item = self.pipeline.process_item(item, None)
+
+        # Check return
+        assert new_item['horse_id'] == '1989104729'
+        assert new_item['horse_name'] == 'メモリーキャッチ'
+        assert new_item['gender'] == '牡'
+        assert new_item['age'] == 31
+        assert new_item['birthday'] == datetime(1989, 4, 13, 0, 0, 0)
+        assert new_item['coat_color'] == '鹿毛'
+        assert new_item['owner'] is None
+        assert new_item['breeder'] == '谷川牧場'
+        assert new_item['breeding_farm'] == '北海道浦河郡浦河町'
+        assert new_item['parent_horse_name_1'] == 'ニホンピロウイナー\u200b'
+        assert new_item['parent_horse_name_2'] == 'ハシラベンダー\u200b'
+        assert new_item['grand_parent_horse_name_1'] == 'ステイールハート\u200b'
+        assert new_item['grand_parent_horse_name_2'] == 'ニホンピロエバート\u200b'
+        assert new_item['grand_parent_horse_name_3'] == 'シヤトーゲイ\u200b'
+        assert new_item['grand_parent_horse_name_4'] == 'シンダイアンケー\u200b'
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from horse")
+
+        horses = self.pipeline.db_cursor.fetchall()
+        assert len(horses) == 1
+
+        horse = horses[0]
+        assert horse['horse_id'] == '1989104729'
+        assert horse['horse_name'] == 'メモリーキャッチ'
+        assert horse['gender'] == '牡'
+        assert horse['age'] == 31
+        assert horse['birthday'] == datetime(1989, 4, 13, 0, 0, 0)
+        assert horse['coat_color'] == '鹿毛'
+        assert horse['owner'] is None
+        assert horse['breeder'] == '谷川牧場'
+        assert horse['breeding_farm'] == '北海道浦河郡浦河町'
+        assert horse['parent_horse_name_1'] == 'ニホンピロウイナー\u200b'
+        assert horse['parent_horse_name_2'] == 'ハシラベンダー\u200b'
+        assert horse['grand_parent_horse_name_1'] == 'ステイールハート\u200b'
+        assert horse['grand_parent_horse_name_2'] == 'ニホンピロエバート\u200b'
+        assert horse['grand_parent_horse_name_3'] == 'シヤトーゲイ\u200b'
+        assert horse['grand_parent_horse_name_4'] == 'シンダイアンケー\u200b'
 
         # Execute (2)
         self.pipeline.process_item(item, None)
