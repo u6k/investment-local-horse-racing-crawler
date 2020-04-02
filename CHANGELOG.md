@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.1] - 2020-04-02
 ### Fixed
 - [#8138: データがDBに格納されない](https://redmine.u6k.me/issues/8138)
+- [#8140: レース情報のパースに失敗した…水分量のキーが見つからない](https://redmine.u6k.me/issues/8140)
 
 ## [1.0.0] - 2020-04-02
 ### Added
