@@ -292,6 +292,9 @@ class PostgreSQLPipeline(object):
 
         i["race_id"] = item["race_id"][0].strip()
 
+        if item["horse_number"][0] == "発売なし":
+            raise DropItem("発売なし")
+
         horse_number_parts = item["horse_number"][0].split("-")
         if len(horse_number_parts) == 1:
             i["horse_number_1"] = int(horse_number_parts[0])

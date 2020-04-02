@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 
 from scrapy.crawler import Crawler
+from scrapy.exceptions import DropItem
 
 from investment_local_horse_racing_crawler.spiders.local_horse_racing_spider import LocalHorseRacingSpider
 from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
@@ -897,6 +898,28 @@ class TestPostgreSQLPipeline:
 
         race_payoffs = self.pipeline.db_cursor.fetchall()
         assert len(race_payoffs) == 1
+
+    def test_process_race_payoff_item_9(self):
+        # Setup
+        item = RacePayoffItem()
+        item['horse_number'] = ['発売なし']
+        item['payoff_type'] = ['枠連']
+        item['race_id'] = ['sponsorCd=04&raceDy=20200302&opTrackCd=03&raceNb=1']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_payoff")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        try:
+            self.pipeline.process_item(item, None)
+            assert False
+        except DropItem as e:
+            assert e.__str__() == "発売なし"
+
+        # After check
+        self.pipeline.db_cursor.execute("select * from race_payoff")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
 
     def test_process_horse_item(self):
         # Setup
