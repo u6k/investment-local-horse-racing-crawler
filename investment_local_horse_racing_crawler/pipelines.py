@@ -197,13 +197,17 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern jockey weight")
 
-        i["odds_win"] = float(item["odds_win"][0].strip())
+        try:
+            i["odds_win"] = float(item["odds_win"][0].strip())
 
-        favorite_re = re.match("^\\(([0-9]+)人気\\)$", item["favorite"][2].strip())
-        if favorite_re:
-            i["favorite"] = int(favorite_re.group(1))
-        else:
-            raise DropItem("Unknown pattern favorite")
+            favorite_re = re.match("^\\(([0-9]+)人気\\)$", item["favorite"][2].strip())
+            if favorite_re:
+                i["favorite"] = int(favorite_re.group(1))
+            else:
+                raise DropItem("Unknown pattern favorite")
+        except KeyError:
+            i["odds_win"] = None
+            i["favorite"] = None
 
         i["race_denma_id"] = f"{i['race_id']}_{i['horse_id']}"
 

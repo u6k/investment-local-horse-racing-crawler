@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#8140: レース情報のパースに失敗した…水分量のキーが見つからない](https://redmine.u6k.me/issues/8140)
 - [#8141: レース出馬表のパースに失敗した…馬体重差を数値にパースできない](https://redmine.u6k.me/issues/8141)
 - [#8142: レース出馬表のパースに失敗した…騎手体重が数値に変換できなかった](https://redmine.u6k.me/issues/8142)
+- [#8143: レース出馬表のパースに失敗した…オッズがない](https://redmine.u6k.me/issues/8143)
 
 ## [1.0.1] - 2020-04-02
 ### Fixed
