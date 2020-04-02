@@ -138,7 +138,10 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem(f"Unknown pattern weather: {weather_str}")
 
-        i["moisture"] = float(item["moisture"][0].strip().replace("%", ""))
+        try:
+            i["moisture"] = float(item["moisture"][0].strip().replace("%", ""))
+        except KeyError:
+            i["moisture"] = None
 
         i["added_money"] = item["added_money"][0].strip()
 

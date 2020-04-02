@@ -37,7 +37,7 @@ class TestPostgreSQLPipeline:
     def teardown(self):
         self.pipeline.close_spider(None)
 
-    def test_process_race_info_item(self):
+    def test_process_race_info_item_1(self):
         # Setup
         item = RaceInfoItem()
         item['added_money'] = ['\n'
@@ -111,6 +111,89 @@ class TestPostgreSQLPipeline:
         assert race_info['weather'] == "雪"
         assert race_info['moisture'] == 2.6
         assert race_info['added_money'] == '賞金\xa01着\xa0150,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa042,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa021,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa012,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa07,000円'
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from race_info")
+
+        race_infos = self.pipeline.db_cursor.fetchall()
+        assert len(race_infos) == 1
+
+    def test_process_race_info_item_2(self):
+        # Setup
+        item = RaceInfoItem()
+        item['added_money'] = ['\n'
+                               '\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t賞金\xa01着\xa02,500,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t2着\xa0750,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t3着\xa0250,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t4着\xa0150,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t5着\xa0100,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\n'
+                               '\t\t']
+        item['course_type_length'] = ['ダ1400m']
+        item['place_name'] = ['佐賀:第11競走']
+        item['race_id'] = ['sponsorCd=30&raceDy=20200126&opTrackCd=61&raceNb=11']
+        item['race_name'] = ['\n\t\t\tウインターチャンピオンオープン\n\t\t']
+        item['race_round'] = ['R11']
+        item['start_date'] = ['2020年1月26日(日)']
+        item['start_time'] = ['発走時間 18:10']
+        item['weather'] = ['/local/images/ico-tenki-2.gif?20180131184058']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_info")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        new_item = self.pipeline.process_item(item, None)
+
+        # Check return
+        assert new_item['race_id'] == 'sponsorCd=30&raceDy=20200126&opTrackCd=61&raceNb=11'
+        assert new_item['race_round'] == 11
+        assert new_item['start_datetime'] == datetime(2020, 1, 26, 18, 10, 0)
+        assert new_item['place_name'] == '佐賀:第11競走'
+        assert new_item['race_name'] == 'ウインターチャンピオンオープン'
+        assert new_item['course_type'] == 'ダ'
+        assert new_item['course_length'] == 1400
+        assert new_item['weather'] == 'くもり'
+        assert new_item['moisture'] is None
+        assert new_item['added_money'] == '賞金\xa01着\xa02,500,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa0750,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa0250,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa0150,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa0100,000円'
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from race_info")
+
+        race_infos = self.pipeline.db_cursor.fetchall()
+        assert len(race_infos) == 1
+
+        race_info = race_infos[0]
+        assert race_info['race_id'] == 'sponsorCd=30&raceDy=20200126&opTrackCd=61&raceNb=11'
+        assert race_info['race_round'] == 11
+        assert race_info['start_datetime'] == datetime(2020, 1, 26, 18, 10, 0)
+        assert race_info['place_name'] == '佐賀:第11競走'
+        assert race_info['race_name'] == 'ウインターチャンピオンオープン'
+        assert race_info['course_type'] == 'ダ'
+        assert race_info['course_length'] == 1400
+        assert race_info['weather'] == 'くもり'
+        assert race_info['moisture'] is None
+        assert race_info['added_money'] == '賞金\xa01着\xa02,500,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa0750,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa0250,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa0150,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa0100,000円'
 
         # Execute (2)
         self.pipeline.process_item(item, None)
