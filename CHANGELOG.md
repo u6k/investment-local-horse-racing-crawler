@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - [#8139: レース払い戻し情報のパースに失敗した](https://redmine.u6k.me/issues/8139)
 - [#8140: レース情報のパースに失敗した…水分量のキーが見つからない](https://redmine.u6k.me/issues/8140)
+- [#8141: レース出馬表のパースに失敗した…馬体重差を数値にパースできない](https://redmine.u6k.me/issues/8141)
 
 ## [1.0.1] - 2020-04-02
 ### Fixed
