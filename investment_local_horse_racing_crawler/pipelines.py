@@ -312,6 +312,8 @@ class PostgreSQLPipeline(object):
 
         if item["horse_number"][0] == "発売なし":
             raise DropItem("発売なし")
+        if item["horse_number"][0] == "-":
+            raise DropItem("取り止め")
 
         horse_number_parts = item["horse_number"][0].split("-")
         if len(horse_number_parts) == 1:
