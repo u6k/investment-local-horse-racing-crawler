@@ -21,11 +21,9 @@ CONCURRENT_REQUESTS_PER_IP = 0
 DOWNLOAD_DELAY = 3
 DOWNLOAD_TIMEOUT = 10
 
-# Configure item pipelines
-# See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    'investment_local_horse_racing_crawler.pipelines.InvestmentLocalHorseRacingCrawlerPipeline': 300,
-# }
+ITEM_PIPELINES = {
+    'investment_local_horse_racing_crawler.pipelines.PostgreSQLPipeline': 300,
+}
 
 HTTPCACHE_ENABLED = True
 HTTPCACHE_STORAGE = 'investment_local_horse_racing_crawler.middlewares.S3CacheStorage'
@@ -50,3 +48,9 @@ S3_ACCESS_KEY = os.environ["S3_ACCESS_KEY"]
 S3_SECRET_KEY = os.environ["S3_SECRET_KEY"]
 S3_BUCKET = os.environ["S3_BUCKET"]
 S3_FOLDER = os.environ["S3_FOLDER"]
+
+DB_HOST = os.environ["DB_HOST"]
+DB_PORT = os.environ["DB_PORT"]
+DB_USERNAME = os.environ["DB_USERNAME"]
+DB_PASSWORD = os.environ["DB_PASSWORD"]
+DB_DATABASE = os.environ["DB_DATABASE"]
