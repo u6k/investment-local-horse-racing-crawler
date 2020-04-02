@@ -4,7 +4,7 @@ import os
 from scrapy.crawler import Crawler
 
 from investment_local_horse_racing_crawler.spiders.local_horse_racing_spider import LocalHorseRacingSpider
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem
 from investment_local_horse_racing_crawler.pipelines import PostgreSQLPipeline
 
 
@@ -30,6 +30,7 @@ class TestPostgreSQLPipeline:
         self.pipeline.db_cursor.execute("delete from race_result")
         self.pipeline.db_cursor.execute("delete from race_payoff")
         self.pipeline.db_cursor.execute("delete from horse")
+        self.pipeline.db_cursor.execute("delete from jockey")
 
     def teardown(self):
         self.pipeline.close_spider(None)
@@ -969,3 +970,51 @@ class TestPostgreSQLPipeline:
 
         horses = self.pipeline.db_cursor.fetchall()
         assert len(horses) == 1
+
+    def test_process_jockey_item(self):
+        # Setup
+        item = JockeyItem()
+        item['belong_to'] = ['ばんえい']
+        item['birthday'] = ['1983年9月23日']
+        item['first_licensing_year'] = ['2007年']
+        item['gender'] = ['男']
+        item['jockey_id'] = ['jkyNb=038071']
+        item['jockey_name'] = ['\n船\u3000山\u3000\u3000蔵\u3000人\xa0']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from jockey")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        new_item = self.pipeline.process_item(item, None)
+
+        # Check return
+        assert new_item['jockey_id'] == '038071'
+        assert new_item['jockey_name'] == '船\u3000山\u3000\u3000蔵\u3000人'
+        assert new_item['birthday'] == datetime(1983, 9, 23, 0, 0, 0)
+        assert new_item['gender'] == '男'
+        assert new_item['belong_to'] == 'ばんえい'
+        assert new_item['first_licensing_year'] == 2007
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from jockey")
+
+        jockeys = self.pipeline.db_cursor.fetchall()
+        assert len(jockeys) == 1
+
+        jockey = jockeys[0]
+        assert jockey['jockey_id'] == '038071'
+        assert jockey['jockey_name'] == '船\u3000山\u3000\u3000蔵\u3000人'
+        assert jockey['birthday'] == datetime(1983, 9, 23, 0, 0, 0)
+        assert jockey['gender'] == '男'
+        assert jockey['belong_to'] == 'ばんえい'
+        assert jockey['first_licensing_year'] == 2007
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from jockey")
+
+        jockeys = self.pipeline.db_cursor.fetchall()
+        assert len(jockeys) == 1
