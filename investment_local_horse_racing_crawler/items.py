@@ -81,3 +81,11 @@ class JockeyItem(Item):
     gender = Field()
     belong_to = Field()
     first_licensing_year = Field()
+
+
+class TrainerItem(Item):
+    trainer_id = Field()
+    trainer_name = Field()
+    birthday = Field()
+    gender = Field()
+    belong_to = Field()
