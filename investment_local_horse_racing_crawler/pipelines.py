@@ -191,7 +191,11 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern jockey_id")
 
-        i["jockey_weight"] = float(item["jockey_weight"][0].strip())
+        jockey_weight_re = re.match("^[^0-9]?([0-9\\.]+)$", item["jockey_weight"][0].strip())
+        if jockey_weight_re:
+            i["jockey_weight"] = float(jockey_weight_re.group(1))
+        else:
+            raise DropItem("Unknown pattern jockey weight")
 
         i["odds_win"] = float(item["odds_win"][0].strip())
 
