@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2020-04-02
+### Added
+- [#8119: レース別出走表ページのデータをDBに格納する](https://redmine.u6k.me/issues/8119)
+- [#8120: オッズ(単勝)ページのデータをDBに格納する](https://redmine.u6k.me/issues/8120)
+- [#8121: レース結果ページのデータをDBに格納する](https://redmine.u6k.me/issues/8121)
+- [#8122: 競走馬ページのデータをDBに格納する](https://redmine.u6k.me/issues/8122)
+- [#8123: 騎手ページのデータをDBに格納する](https://redmine.u6k.me/issues/8123)
+- [#8124: 調教師ページのデータをDBに格納する](https://redmine.u6k.me/issues/8124)
+
 ## [0.4.0] - 2020-03-30
 ### Added
 - [#8110: 払戻金一覧ページをスクレイピングする](https://redmine.u6k.me/issues/8110)

@@ -1,5 +1,1 @@
-VERSION = '0.4.0'
-
-
-def hello():
-    return "hello"
+VERSION = '1.0.0'

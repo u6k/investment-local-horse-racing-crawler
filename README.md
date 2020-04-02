@@ -58,7 +58,20 @@ Server: Docker Engine - Community
 docker pull u6kapps/investment-local-horse-racing-crawler
 ```
 
+前提
+
+- PostgreSQL
+- S3 (またはS3互換ストレージ)
+
+コンポーネント構成、環境変数などは[docker-compose.yml](https://github.com/u6k/investment-local-horse-racing-crawler/blob/master/docker-compose.yml)を参照してください。
+
 ## Usage
+
+DBにテーブルを作成する。
+
+```
+docker run --rm u6kapps/investment-local-horse-racing-crawler pipenv run migrate
+```
 
 クロールを開始する。
 

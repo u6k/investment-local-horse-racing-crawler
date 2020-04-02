@@ -4,6 +4,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
+from investment_local_horse_racing_crawler.items import OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +107,14 @@ class OddsWinContract(Contract):
     name = "odds_win"
 
     def post_process(self, output):
-        if len(output) != 0:
+        count = sum(isinstance(o, OddsWinPlaceItem) for o in output)
+        if count == 0:
+            raise ContractFail("Empty output")
+
+        for o in output:
+            if isinstance(o, OddsWinPlaceItem):
+                continue
+
             raise ContractFail("Unknown output")
 
 
@@ -114,7 +122,21 @@ class RaceResultContract(Contract):
     name = "race_result"
 
     def post_process(self, output):
-        if len(output) != 0:
+        count = sum(isinstance(o, RaceResultItem) for o in output)
+        if count == 0:
+            raise ContractFail("Empty race result")
+
+        count = sum(isinstance(o, RacePayoffItem) for o in output)
+        if count == 0:
+            raise ContractFail("Empty race payoff")
+
+        for o in output:
+            if isinstance(o, RaceResultItem):
+                continue
+
+            if isinstance(o, RacePayoffItem):
+                continue
+
             raise ContractFail("Unknown output")
 
 
@@ -122,7 +144,14 @@ class HorseContract(Contract):
     name = "horse"
 
     def post_process(self, output):
-        if len(output) != 0:
+        count = sum(isinstance(o, HorseItem) for o in output)
+        if count == 0:
+            raise ContractFail("Empty horse")
+
+        for o in output:
+            if isinstance(o, HorseItem):
+                continue
+
             raise ContractFail("Unknown output")
 
 
@@ -130,7 +159,14 @@ class JockeyContract(Contract):
     name = "jockey"
 
     def post_process(self, output):
-        if len(output) != 0:
+        count = sum(isinstance(o, JockeyItem) for o in output)
+        if count == 0:
+            raise ContractFail("Empty jockey")
+
+        for o in output:
+            if isinstance(o, JockeyItem):
+                continue
+
             raise ContractFail("Unknown output")
 
 
@@ -138,5 +174,12 @@ class TrainerContract(Contract):
     name = "trainer"
 
     def post_process(self, output):
-        if len(output) != 0:
+        count = sum(isinstance(o, TrainerItem) for o in output)
+        if count == 0:
+            raise ContractFail("Empty trainer")
+
+        for o in output:
+            if isinstance(o, TrainerItem):
+                continue
+
             raise ContractFail("Unknown output")
