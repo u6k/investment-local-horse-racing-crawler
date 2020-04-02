@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#8143: レース出馬表のパースに失敗した…オッズがない](https://redmine.u6k.me/issues/8143)
 - [#8144: 競走馬ページのパースに失敗した…オーナーがない](https://redmine.u6k.me/issues/8144)
 - [#8145: レース結果のパースに失敗した…着順がハイフン](https://redmine.u6k.me/issues/8145)
+- [#8146: レース払い戻し情報のパースに失敗した…horse_numberやfavoriteがハイフン](https://redmine.u6k.me/issues/8146)
 
 ## [1.0.1] - 2020-04-02
 ### Fixed
