@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
 
 
 class LocalHorseRacingSpider(scrapy.Spider):
@@ -327,6 +327,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         loader.add_xpath("jockey_name", "//div[@id='content']/div[2]/span[1]/text()")
 
         table = response.xpath("//table[contains(@class,'tb72')]")[0]
+
         if table.xpath("tr[1]/th/text()").get() != "生年月日":
             raise RuntimeError("Unknown header birthday")
         else:
@@ -356,9 +357,38 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse trainer page.
 
         @url https://www.oddspark.com/keiba/TrainerDetail.do?trainerNb=018052
-        @returns items 0 0
+        @returns items 1 1
         @returns requests 0 0
         @trainer
         """
 
         self.logger.info(f"#parse_trainer: start: url={response.url}")
+
+        # Parse trainer
+        self.logger.debug("#parse_trainer: parse trainer")
+
+        loader = ItemLoader(item=TrainerItem(), response=response)
+        loader.add_value("trainer_id", response.url.split("?")[-1])
+        loader.add_xpath("trainer_name", "//div[contains(@class,'section')]/div/span[1]/text()")
+
+        table = response.xpath("//table[contains(@class,'tb72')]")[0]
+
+        if table.xpath("tr[1]/th/text()").get() != "生年月日":
+            raise RuntimeError("Unknown header birthday")
+        else:
+            loader.add_value("birthday", table.xpath("tr[1]/td/text()").get())
+
+        if table.xpath("tr[2]/th/text()").get() != "性別":
+            raise RuntimeError("Unknown header birthday")
+        else:
+            loader.add_value("gender", table.xpath("tr[2]/td/text()").get())
+
+        if table.xpath("tr[3]/th/text()").get() != "所属":
+            raise RuntimeError("Unknown header birthday")
+        else:
+            loader.add_value("belong_to", table.xpath("tr[3]/td/text()").get())
+
+        i = loader.load_item()
+
+        self.logger.info(f"#parse_trainer: trainer={i}")
+        yield i

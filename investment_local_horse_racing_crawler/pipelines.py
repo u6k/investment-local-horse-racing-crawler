@@ -8,7 +8,7 @@ from psycopg2.extras import DictCursor
 import re
 from scrapy.exceptions import DropItem
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem
+from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
 
 
 logger = logging.getLogger(__name__)
@@ -78,6 +78,8 @@ class PostgreSQLPipeline(object):
             new_item = self.process_horse_item(item, spider)
         elif isinstance(item, JockeyItem):
             new_item = self.process_jockey_item(item, spider)
+        elif isinstance(item, TrainerItem):
+            new_item = self.process_trainer_item(item, spider)
         else:
             raise DropItem("Unknown item type")
 
@@ -431,6 +433,40 @@ class PostgreSQLPipeline(object):
         # Insert db
         self.db_cursor.execute("delete from jockey where jockey_id=%s", (i["jockey_id"],))
         self.db_cursor.execute("insert into jockey (jockey_id, jockey_name, birthday, gender, belong_to, first_licensing_year) values (%s, %s, %s, %s, %s, %s)", (i["jockey_id"], i["jockey_name"], i["birthday"], i["gender"], i["belong_to"], i["first_licensing_year"]))
+
+        self.db_conn.commit()
+
+        return i
+
+    def process_trainer_item(self, item, spider):
+        logger.info("#process_trainer_item: start: item=%s" % item)
+
+        # Build item
+        i = {}
+
+        trainer_id_re = re.match("^trainerNb=([0-9]+)$", item["trainer_id"][0].strip())
+        if trainer_id_re:
+            i["trainer_id"] = trainer_id_re.group(1)
+        else:
+            raise DropItem("Unknown pattern trainer_id")
+
+        i["trainer_name"] = item["trainer_name"][0].strip()
+
+        birthday_re = re.match("^([0-9]{4})年([0-9]{1,2})月([0-9]{1,2})日$", item["birthday"][0].strip())
+        if birthday_re:
+            i["birthday"] = datetime(int(birthday_re.group(1)), int(birthday_re.group(2)), int(birthday_re.group(3)), 0, 0, 0)
+        else:
+            raise DropItem("Unknown pattern birthday")
+
+        i["gender"] = item["gender"][0].strip()
+
+        i["belong_to"] = item["belong_to"][0].strip()
+
+        logger.debug(f"#process_trainer_item: build item: {i}")
+
+        # Insert db
+        self.db_cursor.execute("delete from trainer where trainer_id=%s", (i["trainer_id"],))
+        self.db_cursor.execute("insert into trainer (trainer_id, trainer_name, birthday, gender, belong_to) values (%s, %s, %s, %s, %s)", (i["trainer_id"], i["trainer_name"], i["birthday"], i["gender"], i["belong_to"]))
 
         self.db_conn.commit()
 
