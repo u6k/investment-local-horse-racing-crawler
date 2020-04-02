@@ -138,7 +138,10 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem(f"Unknown pattern weather: {weather_str}")
 
-        i["moisture"] = float(item["moisture"][0].strip().replace("%", ""))
+        try:
+            i["moisture"] = float(item["moisture"][0].strip().replace("%", ""))
+        except KeyError:
+            i["moisture"] = None
 
         i["added_money"] = item["added_money"][0].strip()
 
@@ -171,7 +174,10 @@ class PostgreSQLPipeline(object):
 
         i["horse_weight"] = float(item["horse_weight"][0].strip())
 
-        i["horse_weight_diff"] = float(item["horse_weight_diff"][0].strip())
+        try:
+            i["horse_weight_diff"] = float(item["horse_weight_diff"][0].strip())
+        except ValueError:
+            i["horse_weight_diff"] = 0
 
         trainer_id_re = re.match("^.*trainerNb=([0-9]+)$", item["trainer_id"][0].strip())
         if trainer_id_re:
@@ -185,15 +191,23 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern jockey_id")
 
-        i["jockey_weight"] = float(item["jockey_weight"][0].strip())
-
-        i["odds_win"] = float(item["odds_win"][0].strip())
-
-        favorite_re = re.match("^\\(([0-9]+)人気\\)$", item["favorite"][2].strip())
-        if favorite_re:
-            i["favorite"] = int(favorite_re.group(1))
+        jockey_weight_re = re.match("^[^0-9]?([0-9\\.]+)$", item["jockey_weight"][0].strip())
+        if jockey_weight_re:
+            i["jockey_weight"] = float(jockey_weight_re.group(1))
         else:
-            raise DropItem("Unknown pattern favorite")
+            raise DropItem("Unknown pattern jockey weight")
+
+        try:
+            i["odds_win"] = float(item["odds_win"][0].strip())
+
+            favorite_re = re.match("^\\(([0-9]+)人気\\)$", item["favorite"][2].strip())
+            if favorite_re:
+                i["favorite"] = int(favorite_re.group(1))
+            else:
+                raise DropItem("Unknown pattern favorite")
+        except KeyError:
+            i["odds_win"] = None
+            i["favorite"] = None
 
         i["race_denma_id"] = f"{i['race_id']}_{i['horse_id']}"
 
@@ -261,16 +275,20 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern horse_id")
 
-        i["result"] = int(item["result"][0].strip())
+        try:
+            i["result"] = int(item["result"][0].strip())
 
-        arrival_time_str = item["arrival_time"][0].strip()
-        arrival_time_parts = re.split("[:\\.]", arrival_time_str)
-        if len(arrival_time_parts) == 3:
-            i["arrival_time"] = int(arrival_time_parts[0]) * 60 + int(arrival_time_parts[1]) + int(arrival_time_parts[2]) / 10.0
-        elif len(arrival_time_parts) == 2:
-            i["arrival_time"] = int(arrival_time_parts[0]) + int(arrival_time_parts[1]) / 10.0
-        else:
-            raise DropItem("Unknown pattern arrival_time")
+            arrival_time_str = item["arrival_time"][0].strip()
+            arrival_time_parts = re.split("[:\\.]", arrival_time_str)
+            if len(arrival_time_parts) == 3:
+                i["arrival_time"] = int(arrival_time_parts[0]) * 60 + int(arrival_time_parts[1]) + int(arrival_time_parts[2]) / 10.0
+            elif len(arrival_time_parts) == 2:
+                i["arrival_time"] = int(arrival_time_parts[0]) + int(arrival_time_parts[1]) / 10.0
+            else:
+                raise DropItem("Unknown pattern arrival_time")
+        except ValueError:
+            i["result"] = None
+            i["arrival_time"] = None
 
         i["race_result_id"] = f"{i['race_id']}_{i['horse_id']}"
 
@@ -291,6 +309,11 @@ class PostgreSQLPipeline(object):
         i = {}
 
         i["race_id"] = item["race_id"][0].strip()
+
+        if item["horse_number"][0] == "発売なし":
+            raise DropItem("発売なし")
+        if item["horse_number"][0] == "-":
+            raise DropItem("取り止め")
 
         horse_number_parts = item["horse_number"][0].split("-")
         if len(horse_number_parts) == 1:
@@ -374,7 +397,10 @@ class PostgreSQLPipeline(object):
 
         i['coat_color'] = item["coat_color"][0].strip()
 
-        i['owner'] = item["owner"][0].strip()
+        try:
+            i['owner'] = item["owner"][0].strip()
+        except KeyError:
+            i['owner'] = None
 
         i['breeder'] = item["breeder"][0].strip()
 

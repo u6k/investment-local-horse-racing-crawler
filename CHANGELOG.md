@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2020-04-03
+### Fixed
+- [#8139: レース払い戻し情報のパースに失敗した](https://redmine.u6k.me/issues/8139)
+- [#8140: レース情報のパースに失敗した…水分量のキーが見つからない](https://redmine.u6k.me/issues/8140)
+- [#8141: レース出馬表のパースに失敗した…馬体重差を数値にパースできない](https://redmine.u6k.me/issues/8141)
+- [#8142: レース出馬表のパースに失敗した…騎手体重が数値に変換できなかった](https://redmine.u6k.me/issues/8142)
+- [#8143: レース出馬表のパースに失敗した…オッズがない](https://redmine.u6k.me/issues/8143)
+- [#8144: 競走馬ページのパースに失敗した…オーナーがない](https://redmine.u6k.me/issues/8144)
+- [#8145: レース結果のパースに失敗した…着順がハイフン](https://redmine.u6k.me/issues/8145)
+- [#8146: レース払い戻し情報のパースに失敗した…horse_numberやfavoriteがハイフン](https://redmine.u6k.me/issues/8146)
+
 ## [1.0.1] - 2020-04-02
 ### Fixed
 - [#8138: データがDBに格納されない](https://redmine.u6k.me/issues/8138)
