@@ -172,12 +172,20 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern horse_id")
 
-        i["horse_weight"] = float(item["horse_weight"][0].strip())
+        horse_weight_str = item["horse_weight"][0].strip()
+        if horse_weight_str == "":
+            i["horse_weight"] = None
+        else:
+            i["horse_weight"] = float(horse_weight_str)
 
-        try:
-            i["horse_weight_diff"] = float(item["horse_weight_diff"][0].strip())
-        except ValueError:
-            i["horse_weight_diff"] = 0
+        horse_weight_diff_str = item["horse_weight_diff"][0].strip()
+        if horse_weight_diff_str == "":
+            i["horse_weight_diff"] = None
+        else:
+            try:
+                i["horse_weight_diff"] = float(item["horse_weight_diff"][0].strip())
+            except ValueError:
+                i["horse_weight_diff"] = 0
 
         trainer_id_re = re.match("^.*trainerNb=([0-9]+)$", item["trainer_id"][0].strip())
         if trainer_id_re:
