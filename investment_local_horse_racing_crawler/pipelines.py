@@ -122,21 +122,24 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern course_type_length")
 
-        weather_str = item["weather"][0].strip()
-        if weather_str.startswith("/local/images/ico-tenki-1.gif"):
-            i["weather"] = "晴れ"
-        elif weather_str.startswith("/local/images/ico-tenki-2.gif"):
-            i["weather"] = "くもり"
-        elif weather_str.startswith("/local/images/ico-tenki-3.gif"):
-            i["weather"] = "雨"
-        elif weather_str.startswith("/local/images/ico-tenki-4.gif"):
-            i["weather"] = "小雨"
-        elif weather_str.startswith("/local/images/ico-tenki-5.gif"):
-            i["weather"] = "かみなり"
-        elif weather_str.startswith("/local/images/ico-tenki-6.gif"):
-            i["weather"] = "雪"
-        else:
-            raise DropItem(f"Unknown pattern weather: {weather_str}")
+        try:
+            weather_str = item["weather"][0].strip()
+            if weather_str.startswith("/local/images/ico-tenki-1.gif"):
+                i["weather"] = "晴れ"
+            elif weather_str.startswith("/local/images/ico-tenki-2.gif"):
+                i["weather"] = "くもり"
+            elif weather_str.startswith("/local/images/ico-tenki-3.gif"):
+                i["weather"] = "雨"
+            elif weather_str.startswith("/local/images/ico-tenki-4.gif"):
+                i["weather"] = "小雨"
+            elif weather_str.startswith("/local/images/ico-tenki-5.gif"):
+                i["weather"] = "かみなり"
+            elif weather_str.startswith("/local/images/ico-tenki-6.gif"):
+                i["weather"] = "雪"
+            else:
+                raise DropItem(f"Unknown pattern weather: {weather_str}")
+        except KeyError:
+            i["weather"] = None
 
         try:
             i["moisture"] = float(item["moisture"][0].strip().replace("%", ""))
@@ -172,12 +175,20 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern horse_id")
 
-        i["horse_weight"] = float(item["horse_weight"][0].strip())
+        horse_weight_str = item["horse_weight"][0].strip()
+        if horse_weight_str == "":
+            i["horse_weight"] = None
+        else:
+            i["horse_weight"] = float(horse_weight_str)
 
-        try:
-            i["horse_weight_diff"] = float(item["horse_weight_diff"][0].strip())
-        except ValueError:
-            i["horse_weight_diff"] = 0
+        horse_weight_diff_str = item["horse_weight_diff"][0].strip()
+        if horse_weight_diff_str == "":
+            i["horse_weight_diff"] = None
+        else:
+            try:
+                i["horse_weight_diff"] = float(item["horse_weight_diff"][0].strip())
+            except ValueError:
+                i["horse_weight_diff"] = 0
 
         trainer_id_re = re.match("^.*trainerNb=([0-9]+)$", item["trainer_id"][0].strip())
         if trainer_id_re:
@@ -236,11 +247,20 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern horse_id")
 
-        i["odds_win"] = float(item["odds_win"][0].strip())
+        try:
+            i["odds_win"] = float(item["odds_win"][0].strip())
+        except KeyError:
+            raise DropItem("オッズなし")
 
-        i["odds_place_min"] = float(item["odds_place_min"][0].strip())
+        try:
+            i["odds_place_min"] = float(item["odds_place_min"][0].strip())
+        except KeyError:
+            i["odds_place_min"] = None
 
-        i["odds_place_max"] = float(item["odds_place_max"][0].strip())
+        try:
+            i["odds_place_max"] = float(item["odds_place_max"][0].strip())
+        except KeyError:
+            i["odds_place_max"] = None
 
         i["odds_win_place_id"] = f"{i['race_id']}_{i['horse_id']}"
 
@@ -251,7 +271,8 @@ class PostgreSQLPipeline(object):
         self.db_cursor.execute("insert into odds_win (odds_win_id, race_id, horse_number, horse_id, odds_win) values (%s, %s, %s, %s, %s)", (i["odds_win_place_id"], i["race_id"], i["horse_number"], i["horse_id"], i["odds_win"]))
 
         self.db_cursor.execute("delete from odds_place where odds_place_id=%s", (i["odds_win_place_id"],))
-        self.db_cursor.execute("insert into odds_place (odds_place_id, race_id, horse_number, horse_id, odds_place_min, odds_place_max) values (%s, %s, %s, %s, %s, %s)", (i["odds_win_place_id"], i["race_id"], i["horse_number"], i["horse_id"], i["odds_place_min"], i["odds_place_max"]))
+        if i["odds_place_min"] is not None and i["odds_place_max"] is not None:
+            self.db_cursor.execute("insert into odds_place (odds_place_id, race_id, horse_number, horse_id, odds_place_min, odds_place_max) values (%s, %s, %s, %s, %s, %s)", (i["odds_win_place_id"], i["race_id"], i["horse_number"], i["horse_id"], i["odds_place_min"], i["odds_place_max"]))
 
         self.db_conn.commit()
 
