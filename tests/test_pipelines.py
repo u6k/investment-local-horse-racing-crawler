@@ -756,6 +756,65 @@ class TestPostgreSQLPipeline:
         self.pipeline.db_cursor.execute("select * from odds_place")
         assert len(self.pipeline.db_cursor.fetchall()) == 0
 
+    def test_process_odds_win_place_item_4(self):
+        # Setup
+        item = OddsWinPlaceItem()
+        item['horse_id'] = ['/keiba/HorseDetail.do?lineageNb=2230191476']
+        item['horse_number'] = ['\n\t\t\t\t\t1\n\t\t\t\t']
+        item['odds_win'] = ['4.2']
+        item['race_id'] = ['sponsorCd=04&raceDy=20191226&opTrackCd=03&raceNb=11']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from odds_win")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        self.pipeline.db_cursor.execute("select * from odds_place")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        new_item = self.pipeline.process_item(item, None)
+
+        # Check return
+        assert new_item['odds_win_place_id'] == 'sponsorCd=04&raceDy=20191226&opTrackCd=03&raceNb=11_2230191476'
+        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20191226&opTrackCd=03&raceNb=11'
+        assert new_item['horse_id'] == '2230191476'
+        assert new_item['horse_number'] == 1
+        assert new_item['odds_win'] == 4.2
+        assert new_item['odds_place_max'] is None
+        assert new_item['odds_place_min'] is None
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from odds_win")
+
+        odds_wins = self.pipeline.db_cursor.fetchall()
+        assert len(odds_wins) == 1
+
+        odds_win = odds_wins[0]
+        assert odds_win['odds_win_id'] == 'sponsorCd=04&raceDy=20191226&opTrackCd=03&raceNb=11_2230191476'
+        assert odds_win['race_id'] == 'sponsorCd=04&raceDy=20191226&opTrackCd=03&raceNb=11'
+        assert odds_win['horse_id'] == '2230191476'
+        assert odds_win['horse_number'] == 1
+        assert odds_win['odds_win'] == 4.2
+
+        self.pipeline.db_cursor.execute("select * from odds_place")
+
+        odds_places = self.pipeline.db_cursor.fetchall()
+        assert len(odds_places) == 0
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from odds_win")
+
+        odds_wins = self.pipeline.db_cursor.fetchall()
+        assert len(odds_wins) == 1
+
+        self.pipeline.db_cursor.execute("select * from odds_place")
+
+        odds_places = self.pipeline.db_cursor.fetchall()
+        assert len(odds_places) == 0
+
     def test_process_race_result_item_1(self):
         # Setup
         item = RaceResultItem()
