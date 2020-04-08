@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- [#8148: 出馬表のパースに失敗した…馬体重などが空](https://redmine.u6k.me/issues/8148)
+
 ## [1.0.2] - 2020-04-03
 ### Fixed
 - [#8139: レース払い戻し情報のパースに失敗した](https://redmine.u6k.me/issues/8139)
