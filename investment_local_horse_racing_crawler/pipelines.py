@@ -244,7 +244,10 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern horse_id")
 
-        i["odds_win"] = float(item["odds_win"][0].strip())
+        try:
+            i["odds_win"] = float(item["odds_win"][0].strip())
+        except KeyError:
+            raise DropItem("オッズなし")
 
         i["odds_place_min"] = float(item["odds_place_min"][0].strip())
 

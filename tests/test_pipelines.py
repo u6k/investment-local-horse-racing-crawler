@@ -728,6 +728,34 @@ class TestPostgreSQLPipeline:
         odds_places = self.pipeline.db_cursor.fetchall()
         assert len(odds_places) == 1
 
+    def test_process_odds_win_place_item_3(self):
+        # Setup
+        item = OddsWinPlaceItem()
+        item['horse_id'] = ['/keiba/HorseDetail.do?lineageNb=2013101003']
+        item['horse_number'] = ['\n\t\t\t\t\t1\n\t\t\t\t']
+        item['race_id'] = ['sponsorCd=26&raceDy=20200102&opTrackCd=51&raceNb=12']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from odds_win")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        self.pipeline.db_cursor.execute("select * from odds_place")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        try:
+            self.pipeline.process_item(item, None)
+            assert False
+        except DropItem as e:
+            assert e.__str__() == "オッズなし"
+
+        # After check
+        self.pipeline.db_cursor.execute("select * from odds_win")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        self.pipeline.db_cursor.execute("select * from odds_place")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
     def test_process_race_result_item_1(self):
         # Setup
         item = RaceResultItem()
