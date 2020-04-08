@@ -204,6 +204,88 @@ class TestPostgreSQLPipeline:
         race_infos = self.pipeline.db_cursor.fetchall()
         assert len(race_infos) == 1
 
+    def test_process_race_info_item_3(self):
+        # Setup
+        item = RaceInfoItem()
+        item['added_money'] = ['\n'
+                               '\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t賞金\xa01着\xa0850,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t2着\xa0221,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t3着\xa0119,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t4着\xa085,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\t\t5着\xa042,000円\n'
+                               '\t\t\t\t\n'
+                               '\t\t\t\n'
+                               '\t\t\n'
+                               '\t\t']
+        item['course_type_length'] = ['ダ1800m']
+        item['place_name'] = ['盛岡:第12競走']
+        item['race_id'] = ['sponsorCd=06&raceDy=20191118&opTrackCd=11&raceNb=12']
+        item['race_name'] = ['\n\t\t\t初冬特別Ａ一組\n\t\t']
+        item['race_round'] = ['R12']
+        item['start_date'] = ['2019年11月18日(月)']
+        item['start_time'] = ['発走時間 18:20']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_info")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        new_item = self.pipeline.process_item(item, None)
+
+        # Check return
+        assert new_item['race_id'] == 'sponsorCd=06&raceDy=20191118&opTrackCd=11&raceNb=12'
+        assert new_item['race_round'] == 12
+        assert new_item['start_datetime'] == datetime(2019, 11, 18, 18, 20, 0)
+        assert new_item['place_name'] == '盛岡:第12競走'
+        assert new_item['race_name'] == '初冬特別Ａ一組'
+        assert new_item['course_type'] == 'ダ'
+        assert new_item['course_length'] == 1800
+        assert new_item['weather'] is None
+        assert new_item['moisture'] is None
+        assert new_item['added_money'] == '賞金\xa01着\xa0850,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa0221,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa0119,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa085,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa042,000円'
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from race_info")
+
+        race_infos = self.pipeline.db_cursor.fetchall()
+        assert len(race_infos) == 1
+
+        race_info = race_infos[0]
+        assert race_info['race_id'] == 'sponsorCd=06&raceDy=20191118&opTrackCd=11&raceNb=12'
+        assert race_info['race_round'] == 12
+        assert race_info['start_datetime'] == datetime(2019, 11, 18, 18, 20, 0)
+        assert race_info['place_name'] == '盛岡:第12競走'
+        assert race_info['race_name'] == '初冬特別Ａ一組'
+        assert race_info['course_type'] == 'ダ'
+        assert race_info['course_length'] == 1800
+        assert race_info['weather'] is None
+        assert race_info['moisture'] is None
+        assert race_info['added_money'] == '賞金\xa01着\xa0850,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa0221,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa0119,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa085,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa042,000円'
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from race_info")
+
+        race_infos = self.pipeline.db_cursor.fetchall()
+        assert len(race_infos) == 1
+
     def test_process_race_denma_item_1(self):
         # Setup
         item = RaceDenmaItem()

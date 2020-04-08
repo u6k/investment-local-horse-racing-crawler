@@ -122,21 +122,24 @@ class PostgreSQLPipeline(object):
         else:
             raise DropItem("Unknown pattern course_type_length")
 
-        weather_str = item["weather"][0].strip()
-        if weather_str.startswith("/local/images/ico-tenki-1.gif"):
-            i["weather"] = "晴れ"
-        elif weather_str.startswith("/local/images/ico-tenki-2.gif"):
-            i["weather"] = "くもり"
-        elif weather_str.startswith("/local/images/ico-tenki-3.gif"):
-            i["weather"] = "雨"
-        elif weather_str.startswith("/local/images/ico-tenki-4.gif"):
-            i["weather"] = "小雨"
-        elif weather_str.startswith("/local/images/ico-tenki-5.gif"):
-            i["weather"] = "かみなり"
-        elif weather_str.startswith("/local/images/ico-tenki-6.gif"):
-            i["weather"] = "雪"
-        else:
-            raise DropItem(f"Unknown pattern weather: {weather_str}")
+        try:
+            weather_str = item["weather"][0].strip()
+            if weather_str.startswith("/local/images/ico-tenki-1.gif"):
+                i["weather"] = "晴れ"
+            elif weather_str.startswith("/local/images/ico-tenki-2.gif"):
+                i["weather"] = "くもり"
+            elif weather_str.startswith("/local/images/ico-tenki-3.gif"):
+                i["weather"] = "雨"
+            elif weather_str.startswith("/local/images/ico-tenki-4.gif"):
+                i["weather"] = "小雨"
+            elif weather_str.startswith("/local/images/ico-tenki-5.gif"):
+                i["weather"] = "かみなり"
+            elif weather_str.startswith("/local/images/ico-tenki-6.gif"):
+                i["weather"] = "雪"
+            else:
+                raise DropItem(f"Unknown pattern weather: {weather_str}")
+        except KeyError:
+            i["weather"] = None
 
         try:
             i["moisture"] = float(item["moisture"][0].strip().replace("%", ""))
