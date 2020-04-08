@@ -249,9 +249,15 @@ class PostgreSQLPipeline(object):
         except KeyError:
             raise DropItem("オッズなし")
 
-        i["odds_place_min"] = float(item["odds_place_min"][0].strip())
+        try:
+            i["odds_place_min"] = float(item["odds_place_min"][0].strip())
+        except KeyError:
+            i["odds_place_min"] = None
 
-        i["odds_place_max"] = float(item["odds_place_max"][0].strip())
+        try:
+            i["odds_place_max"] = float(item["odds_place_max"][0].strip())
+        except KeyError:
+            i["odds_place_max"] = None
 
         i["odds_win_place_id"] = f"{i['race_id']}_{i['horse_id']}"
 
@@ -262,7 +268,8 @@ class PostgreSQLPipeline(object):
         self.db_cursor.execute("insert into odds_win (odds_win_id, race_id, horse_number, horse_id, odds_win) values (%s, %s, %s, %s, %s)", (i["odds_win_place_id"], i["race_id"], i["horse_number"], i["horse_id"], i["odds_win"]))
 
         self.db_cursor.execute("delete from odds_place where odds_place_id=%s", (i["odds_win_place_id"],))
-        self.db_cursor.execute("insert into odds_place (odds_place_id, race_id, horse_number, horse_id, odds_place_min, odds_place_max) values (%s, %s, %s, %s, %s, %s)", (i["odds_win_place_id"], i["race_id"], i["horse_number"], i["horse_id"], i["odds_place_min"], i["odds_place_max"]))
+        if i["odds_place_min"] is not None and i["odds_place_max"] is not None:
+            self.db_cursor.execute("insert into odds_place (odds_place_id, race_id, horse_number, horse_id, odds_place_min, odds_place_max) values (%s, %s, %s, %s, %s, %s)", (i["odds_win_place_id"], i["race_id"], i["horse_number"], i["horse_id"], i["odds_place_min"], i["odds_place_max"]))
 
         self.db_conn.commit()
 
