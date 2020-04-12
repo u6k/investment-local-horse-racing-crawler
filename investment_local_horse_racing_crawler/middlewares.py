@@ -126,7 +126,10 @@ class S3CacheStorage(object):
         self.s3_bucket = settings["S3_BUCKET"]
         self.s3_folder = settings["S3_FOLDER"]
 
-        logger.debug("#init: endpoint=%s, region=%s, bucket=%s, folder=%s" % (self.s3_endpoint, self.s3_region, self.s3_bucket, self.s3_folder))
+        self.app_recache_race = settings["APP_RECACHE_RACE"]
+        self.app_recache_horse = settings["APP_RECACHE_HORSE"]
+
+        logger.debug(f"#init: s3_endpoint={self.s3_endpoint}, s3_region={self.s3_region}, s3_bucket={self.s3_bucket}, s3_folder={self.s3_folder}, app_recache_race={self.app_recache_race}, app_recache_horse={self.app_recache_horse}")
 
     def open_spider(self, spider):
         logger.debug("#open_spider: start: spider=%s" % spider)
@@ -164,6 +167,14 @@ class S3CacheStorage(object):
                 return
             else:
                 raise err
+
+        if self.app_recache_race and (("KaisaiCalendar.do" in request.url) or ("RaceRefund.do" in request.url) or ("RaceList.do" in request.url) or ("Odds.do" in request.url) or ("RaceResult.do" in request.url)):
+            logger.debug("#retrieve_response: re-cache race")
+            return
+
+        if self.app_recache_horse and (("HorseDetail.do" in request.url) or ("JockeyDetail.do" in request.url) or ("TrainerDetail.do" in request.url)):
+            logger.debug("#retrieve_response: re-cache horse/jockey/trainer")
+            return
 
         data = pickle.loads(s3_obj.get()["Body"].read())
 
