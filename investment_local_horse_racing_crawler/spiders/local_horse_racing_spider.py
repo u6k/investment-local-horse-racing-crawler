@@ -1,3 +1,6 @@
+import re
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import scrapy
 from scrapy.loader import ItemLoader
 
@@ -20,10 +23,35 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @schedule_list
         """
 
+        self.logger.info(f"APP_RECRAWL_START_DATE={self.settings['APP_RECRAWL_START_DATE']}")
+        self.logger.info(f"APP_RECRAWL_END_DATE={self.settings['APP_RECRAWL_END_DATE']}")
+        self.logger.info(f"APP_RECRAWL_RACE={self.settings['APP_RECRAWL_RACE']}")
+        self.logger.info(f"APP_RECACHE_RACE={self.settings['APP_RECACHE_RACE']}")
+        self.logger.info(f"APP_RECACHE_HORSE={self.settings['APP_RECACHE_HORSE']}")
+
         self.logger.info(f"#parse: start: url={response.url}")
+
+        if len(self.settings["APP_RECRAWL_RACE"]) > 0:
+            self.logger.info(f"#parse: re-crawl race: {self.settings['APP_RECRAWL_RACE']}")
+
+            url = f"https://www.oddspark.com/keiba/RaceList.do?{self.settings['APP_RECRAWL_RACE']}"
+            yield response.follow(url, callback=self.parse_race_denma)
+
+            return
 
         for a in response.xpath("//ul[@id='date_pr']/li/a"):
             self.logger.info("#parse: found previous calendar page: href=%s" % a.xpath("@href").get())
+
+            # Check re-crawl
+            target_re = re.match("^.*target=([0-9]{6})$", a.xpath("@href").get())
+            if target_re:
+                target_start = datetime(int(target_re.group(1)[0:4]), int(target_re.group(1)[4:6]), 1, 0, 0, 0)
+                target_end = target_start + relativedelta(months=1)
+
+                if not (self.settings["APP_RECRAWL_START_DATE"] <= target_end and self.settings["APP_RECRAWL_END_DATE"] >= target_start):
+                    self.logger.info(f"#parse: cancel previous calendar page: target={target_start} to {target_end}, settings={self.settings['APP_RECRAWL_START_DATE']} to {self.settings['APP_RECRAWL_END_DATE']}")
+                    continue
+
             yield response.follow(a, callback=self.parse)
 
         for a in response.xpath("//a"):
@@ -31,6 +59,16 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
             if href.startswith("/keiba/RaceRefund.do?"):
                 self.logger.info(f"#parse: found race refund list page: href={href}")
+
+                # Check re-crawl
+                target_re = re.match("^.*raceDy=([0-9]{8}).*$", href)
+                if target_re:
+                    target_date = datetime(int(target_re.group(1)[0:4]), int(target_re.group(1)[4:6]), int(target_re.group(1)[6:8]), 0, 0, 0)
+
+                    if not (self.settings["APP_RECRAWL_START_DATE"] <= target_date < self.settings["APP_RECRAWL_END_DATE"]):
+                        self.logger.info(f"#parse: cancel race refund list: target={target_date}, settings={self.settings['APP_RECRAWL_START_DATE']} to {self.settings['APP_RECRAWL_END_DATE']}")
+                        continue
+
                 yield response.follow(a, callback=self.parse_race_refund_list)
 
     def parse_race_refund_list(self, response):
