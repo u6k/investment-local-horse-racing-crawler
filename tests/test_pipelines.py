@@ -4,9 +4,9 @@ import os
 from scrapy.crawler import Crawler
 from scrapy.exceptions import DropItem
 
-from investment_local_horse_racing_crawler.spiders.local_horse_racing_spider import LocalHorseRacingSpider
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
-from investment_local_horse_racing_crawler.pipelines import PostgreSQLPipeline
+from investment_local_horse_racing_crawler.scrapy.spiders.local_horse_racing_spider import LocalHorseRacingSpider
+from investment_local_horse_racing_crawler.scrapy.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler.scrapy.pipelines import PostgreSQLPipeline
 
 
 class TestPostgreSQLPipeline:

@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler.scrapy.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
 
 
 class LocalHorseRacingSpider(scrapy.Spider):
