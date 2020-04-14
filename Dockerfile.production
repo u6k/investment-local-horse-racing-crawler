@@ -8,6 +8,6 @@ RUN apt-get update && \
 
 COPY . /var/myapp
 WORKDIR /var/myapp
-RUN pipenv install --deploy --system
+RUN pipenv install
 
-CMD ["pipenv", "run", "crawl"]
+CMD ["pipenv", "run", "celery"]
