@@ -21,9 +21,13 @@ services:
       - "APP_RECRAWL_RACE=${APP_RECRAWL_RACE}"
       - "APP_RECACHE_RACE=${APP_RECACHE_RACE}"
       - "APP_RECACHE_HORSE=${APP_RECACHE_HORSE}"
+      - "TZ=Asia/Tokyo"
+      - "CELERY_REDIS_URL=redis://redis:6379/0"
+      - "CELERY_SLACK_WEBHOOK=${CELERY_SLACK_WEBHOOK}"
     depends_on:
       - "s3"
       - "db"
+      - "redis"
 
   s3:
     image: minio/minio
@@ -39,3 +43,16 @@ services:
       - "POSTGRES_USER=${DB_USERNAME}"
       - "POSTGRES_PASSWORD=${DB_PASSWORD}"
       - "POSTGRES_DB=${DB_DATABASE}"
+
+  redis:
+    image: redis
+
+  flower:
+    image: mher/flower
+    environment:
+      - "CELERY_BROKER_URL=redis://redis:6379/0"
+      - "TZ=Asia/Tokyo"
+    ports:
+      - 15555:5555
+    depends_on:
+      - "redis"

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unrelease]
 ### Added
 - [#8166: キャッシュ有効期限をページによって変える](https://redmine.u6k.me/issues/8166)
+- [#8171: 外部からジョブを予約実行できるようにする](https://redmine.u6k.me/issues/8171)
 
 ## [1.0.3] - 2020-04-09
 ### Fixed
