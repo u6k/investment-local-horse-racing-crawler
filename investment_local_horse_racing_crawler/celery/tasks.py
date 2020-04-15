@@ -1,6 +1,8 @@
 import os
 from celery import Celery
 from celery_slack import Slackify
+from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
 
 
 app = Celery("tasks")
@@ -18,5 +20,14 @@ if os.getenv("CELERY_SLACK_WEBHOOK"):
 
 
 @app.task
-def hello():
-    return "hello"
+def health():
+    return "ok"
+
+
+@app.task
+def crawl():
+    settings = get_project_settings()
+
+    process = CrawlerProcess(settings)
+    process.crawl("local_horse_racing")
+    process.start()
