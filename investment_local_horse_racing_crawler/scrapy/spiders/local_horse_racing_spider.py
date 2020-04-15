@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import scrapy
 from scrapy.loader import ItemLoader
@@ -10,9 +10,20 @@ from investment_local_horse_racing_crawler.scrapy.items import RaceInfoItem, Rac
 class LocalHorseRacingSpider(scrapy.Spider):
     name = "local_horse_racing"
 
-    start_urls = [
-        "https://www.oddspark.com/keiba/KaisaiCalendar.do",
-    ]
+    def __init__(self, start_url="https://www.oddspark.com/keiba/KaisaiCalendar.do", recrawl_period="all", recrawl_race_id=None, recache_race=False, recache_horse=False, *args, **kwargs):
+        super(LocalHorseRacingSpider, self).__init__(*args, **kwargs)
+
+        self.start_urls = [start_url]
+
+        if recrawl_period == "all":
+            recrawl_period = 100000
+        recrawl_period = int(recrawl_period)
+        self.recrawl_end_date = datetime(datetime.now().year, datetime.now().month, datetime.now().day, 0, 0, 0, 0) + timedelta(days=1)
+        self.recrawl_start_date = self.recrawl_end_date - timedelta(days=recrawl_period)
+
+        self.recrawl_race_id = recrawl_race_id
+        self.recache_race = recache_race
+        self.recache_horse = recache_horse
 
     def parse(self, response):
         """ Parse calendar page.
@@ -23,18 +34,18 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @schedule_list
         """
 
-        self.logger.info(f"APP_RECRAWL_START_DATE={self.settings['APP_RECRAWL_START_DATE']}")
-        self.logger.info(f"APP_RECRAWL_END_DATE={self.settings['APP_RECRAWL_END_DATE']}")
-        self.logger.info(f"APP_RECRAWL_RACE={self.settings['APP_RECRAWL_RACE']}")
-        self.logger.info(f"APP_RECACHE_RACE={self.settings['APP_RECACHE_RACE']}")
-        self.logger.info(f"APP_RECACHE_HORSE={self.settings['APP_RECACHE_HORSE']}")
-
         self.logger.info(f"#parse: start: url={response.url}")
 
-        if len(self.settings["APP_RECRAWL_RACE"]) > 0:
-            self.logger.info(f"#parse: re-crawl race: {self.settings['APP_RECRAWL_RACE']}")
+        self.logger.info(f"#parse: recrawl_start_date={self.recrawl_start_date}")
+        self.logger.info(f"#parse: recrawl_end_date={self.recrawl_end_date}")
+        self.logger.info(f"#parse: recrawl_race_id={self.recrawl_race_id}")
+        self.logger.info(f"#parse: recache_race={self.recache_race}")
+        self.logger.info(f"#parse: recache_horse={self.recache_horse}")
 
-            url = f"https://www.oddspark.com/keiba/RaceList.do?{self.settings['APP_RECRAWL_RACE']}"
+        if self.recrawl_race_id:
+            self.logger.info(f"#parse: re-crawl race: {self.recrawl_race_id}")
+
+            url = f"https://www.oddspark.com/keiba/RaceList.do?{self.recrawl_race_id}"
             yield response.follow(url, callback=self.parse_race_denma)
 
             return
@@ -48,8 +59,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 target_start = datetime(int(target_re.group(1)[0:4]), int(target_re.group(1)[4:6]), 1, 0, 0, 0)
                 target_end = target_start + relativedelta(months=1)
 
-                if not (self.settings["APP_RECRAWL_START_DATE"] <= target_end and self.settings["APP_RECRAWL_END_DATE"] >= target_start):
-                    self.logger.info(f"#parse: cancel previous calendar page: target={target_start} to {target_end}, settings={self.settings['APP_RECRAWL_START_DATE']} to {self.settings['APP_RECRAWL_END_DATE']}")
+                if not (self.recrawl_start_date <= target_end and self.recrawl_end_date >= target_start):
+                    self.logger.info(f"#parse: cancel previous calendar page: target={target_start} to {target_end}, settings={self.recrawl_start_date} to {self.recrawl_end_date}")
                     continue
 
             yield response.follow(a, callback=self.parse)
@@ -65,8 +76,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 if target_re:
                     target_date = datetime(int(target_re.group(1)[0:4]), int(target_re.group(1)[4:6]), int(target_re.group(1)[6:8]), 0, 0, 0)
 
-                    if not (self.settings["APP_RECRAWL_START_DATE"] <= target_date < self.settings["APP_RECRAWL_END_DATE"]):
-                        self.logger.info(f"#parse: cancel race refund list: target={target_date}, settings={self.settings['APP_RECRAWL_START_DATE']} to {self.settings['APP_RECRAWL_END_DATE']}")
+                    if not (self.recrawl_start_date <= target_date < self.recrawl_end_date):
+                        self.logger.info(f"#parse: cancel race refund list: target={target_date}, settings={self.recrawl_start_date} to {self.recrawl_end_date}")
                         continue
 
                 yield response.follow(a, callback=self.parse_race_refund_list)

@@ -1,10 +1,5 @@
-# -*- coding: utf-8 -*-
-
-
 import os
 import logging
-from datetime import datetime, timedelta
-from distutils.util import strtobool
 
 
 BOT_NAME = 'investment_local_horse_racing_crawler'
@@ -56,16 +51,3 @@ DB_PORT = os.environ["DB_PORT"]
 DB_USERNAME = os.environ["DB_USERNAME"]
 DB_PASSWORD = os.environ["DB_PASSWORD"]
 DB_DATABASE = os.environ["DB_DATABASE"]
-
-
-APP_RECRAWL_PERIOD = os.getenv("APP_RECRAWL_PERIOD")
-if APP_RECRAWL_PERIOD == "all":
-    APP_RECRAWL_PERIOD = 100000
-APP_RECRAWL_PERIOD = int(APP_RECRAWL_PERIOD)
-APP_RECRAWL_END_DATE = datetime(datetime.now().year, datetime.now().month, datetime.now().day, 0, 0, 0, 0) + timedelta(days=1)
-APP_RECRAWL_START_DATE = APP_RECRAWL_END_DATE - timedelta(days=APP_RECRAWL_PERIOD)
-
-APP_RECRAWL_RACE = os.getenv("APP_RECRAWL_RACE", "")
-
-APP_RECACHE_RACE = strtobool(os.getenv("APP_RECACHE_RACE", "False"))
-APP_RECACHE_HORSE = strtobool(os.getenv("APP_RECACHE_HORSE", "False"))
