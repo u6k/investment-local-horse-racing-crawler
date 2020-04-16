@@ -2,16 +2,16 @@
 
 
 from datetime import datetime
-import logging
 import psycopg2
 from psycopg2.extras import DictCursor
 import re
 from scrapy.exceptions import DropItem
 
 from investment_local_horse_racing_crawler.scrapy.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler import app_logging
 
 
-logger = logging.getLogger(__name__)
+logger = app_logging.get_logger()
 
 
 class PostgreSQLPipeline(object):
