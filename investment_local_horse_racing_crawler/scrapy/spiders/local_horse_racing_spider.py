@@ -86,6 +86,20 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
                 yield response.follow(a, callback=self.parse_race_refund_list)
 
+            if href.startswith("/keiba/OneDayRaceList.do?"):
+                logger.info(f"#parse: found one day race list page: href={href}")
+
+                # Check re-crawl
+                target_re = re.match("^.*raceDy=([0-9]{8}).*$", href)
+                if target_re:
+                    target_date = datetime(int(target_re.group(1)[0:4]), int(target_re.group(1)[4:6]), int(target_re.group(1)[6:8]), 0, 0, 0)
+
+                    if not (self.recrawl_start_date <= target_date < self.recrawl_end_date):
+                        logger.info(f"#parse: cancel one day race list: target={target_date}, settings={self.recrawl_start_date} to {self.recrawl_end_date}")
+                        continue
+
+                yield response.follow(a, callback=self.parse_one_day_race_list)
+
     def parse_race_refund_list(self, response):
         """ Parse race refund list page.
 
@@ -102,6 +116,24 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
             if href is not None and href.startswith("/keiba/RaceList.do?"):
                 logger.info(f"#parse_race_refund_list: found race denma page: href={href}")
+                yield response.follow(a, callback=self.parse_race_denma)
+
+    def parse_one_day_race_list(self, response):
+        """ Parse one day race list page.
+
+        @url https://www.oddspark.com/keiba/OneDayRaceList.do?opTrackCd=42&raceDy=20200417&sponsorCd=20
+        @returns items 0 0
+        @returns requests 1
+        @one_day_race_list
+        """
+
+        logger.info(f"#parse_one_day_race_list: start: url={response.url}")
+
+        for a in response.xpath("//a"):
+            href = a.xpath("@href").get()
+
+            if href is not None and href.startswith("/keiba/RaceList.do?"):
+                logger.info(f"#parse_one_day_race_list: found race denma page: href={href}")
                 yield response.follow(a, callback=self.parse_race_denma)
 
     def parse_race_denma(self, response):
