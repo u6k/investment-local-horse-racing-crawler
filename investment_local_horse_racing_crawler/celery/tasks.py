@@ -23,20 +23,15 @@ if os.getenv("CELERY_SLACK_WEBHOOK"):
 class CrawlerScript():
     def __init__(self):
         settings = get_project_settings()
-        settings_ex = {
-            "APP_RECRAWL_RACE": "sponsorCd=20&raceDy=20200402&opTrackCd=42&raceNb=2"
-        }
-        settings.update(settings_ex)
+        self.crawler = CrawlerProcess(settings, install_root_handler=False)
 
-        self.crawler = CrawlerProcess(settings)
-
-    def _crawl(self):
-        self.crawler.crawl("local_horse_racing")
+    def _crawl(self, start_url, recrawl_period, recrawl_race_id, recache_race, recache_horse):
+        self.crawler.crawl("local_horse_racing", start_url, recrawl_period, recrawl_race_id, recache_race, recache_horse)
         self.crawler.start()
         self.crawler.stop()
 
-    def crawl(self):
-        process = Process(target=self._crawl)
+    def crawl(self, start_url, recrawl_period, recrawl_race_id, recache_race, recache_horse):
+        process = Process(target=self._crawl, kwargs={"start_url": start_url, "recrawl_period": recrawl_period, "recrawl_race_id": recrawl_race_id, "recache_race": recache_race, "recache_horse": recache_horse})
         process.start()
         process.join()
 
@@ -50,5 +45,11 @@ crawler = CrawlerScript()
 
 
 @app.task
-def crawl():
-    crawler.crawl()
+def crawl(args):
+    start_url = args.get("start_url", "https://www.oddspark.com/keiba/KaisaiCalendar.do")
+    recrawl_period = args.get("recrawl_period", "all")
+    recrawl_race_id = args.get("recrawl_race_id", None)
+    recache_race = args.get("recache_race", False)
+    recache_horse = args.get("recache_horse", False)
+
+    crawler.crawl(start_url, recrawl_period, recrawl_race_id, recache_race, recache_horse)
