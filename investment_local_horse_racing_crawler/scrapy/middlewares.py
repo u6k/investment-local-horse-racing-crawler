@@ -5,7 +5,6 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-import logging
 import os
 import boto3
 import pickle
@@ -15,8 +14,10 @@ from scrapy.responsetypes import responsetypes
 from scrapy.utils.request import request_fingerprint
 from botocore.exceptions import ClientError
 
+from investment_local_horse_racing_crawler import app_logging
 
-logger = logging.getLogger(__name__)
+
+logger = app_logging.get_logger()
 
 
 class InvestmentLocalHorseRacingCrawlerSpiderMiddleware(object):
