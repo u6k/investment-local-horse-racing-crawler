@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - [#8249: カレンダー上の当日レースは、RaceRefundではなくOneDayRaceListにリンクされるため、当日レースが取得できていない](https://redmine.u6k.me/issues/8249)
 - [#8187: 払い戻し情報のパースに失敗した…人気がハイフン](https://redmine.u6k.me/issues/8187)
+- [#8186: 出馬表のパースに失敗した…単勝オッズが空](https://redmine.u6k.me/issues/8186)
 
 ### Added
 - [#8166: キャッシュ有効期限をページによって変える](https://redmine.u6k.me/issues/8166)

@@ -216,7 +216,7 @@ class PostgreSQLPipeline(object):
                 i["favorite"] = int(favorite_re.group(1))
             else:
                 raise DropItem("Unknown pattern favorite")
-        except KeyError:
+        except (KeyError, ValueError):
             i["odds_win"] = None
             i["favorite"] = None
 
