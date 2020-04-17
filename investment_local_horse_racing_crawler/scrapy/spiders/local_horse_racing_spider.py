@@ -132,7 +132,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         for a in response.xpath("//a"):
             href = a.xpath("@href").get()
 
-            if href is not None and href.startswith("/keiba/RaceList.do?"):
+            if href is not None and href.startswith("/keiba/RaceList.do?raceDy="):
                 logger.info(f"#parse_one_day_race_list: found race denma page: href={href}")
                 yield response.follow(a, callback=self.parse_race_denma)
 
