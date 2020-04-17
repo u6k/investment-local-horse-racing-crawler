@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [#8166: キャッシュ有効期限をページによって変える](https://redmine.u6k.me/issues/8166)
 - [#8171: 外部からジョブを予約実行できるようにする](https://redmine.u6k.me/issues/8171)
+- [#8184: 毎日10:00にクロールを開始して、当日の全レース情報を取得して、投票処理を予約実行する](https://redmine.u6k.me/issues/8184)
 
 ## [1.0.3] - 2020-04-09
 ### Fixed
