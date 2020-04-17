@@ -20,6 +20,9 @@ services:
       - "TZ=Asia/Tokyo"
       - "CELERY_REDIS_URL=redis://redis:6379/0"
       - "CELERY_SLACK_WEBHOOK=${CELERY_SLACK_WEBHOOK}"
+      - "CELERY_VOTE_API=${CELERY_VOTE_API}"
+      - "CELERY_USERNAME=${CELERY_USERNAME}"
+      - "CELERY_PASSWORD=${CELERY_PASSWORD}"
     depends_on:
       - "s3"
       - "db"
