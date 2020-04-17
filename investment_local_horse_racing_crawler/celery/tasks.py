@@ -1,6 +1,7 @@
 import os
 from celery import Celery
 from celery_slack import Slackify
+from celery.schedules import crontab
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 from billiard import Process
@@ -19,6 +20,13 @@ app.conf.update(
     broker_url=os.getenv("CELERY_REDIS_URL"),
     result_backend=os.getenv("CELERY_REDIS_URL"),
     worker_concurrency=1,
+
+    beat_schedule={
+        "crawl_and_vote_everyday": {
+            "task": "investment_local_horse_racing_crawler.celery.tasks.crawl_and_vote",
+            "schedule": crontab(hour=10, minute=0),
+        }
+    }
 )
 
 
