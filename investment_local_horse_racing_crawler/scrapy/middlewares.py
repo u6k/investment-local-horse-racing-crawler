@@ -5,7 +5,6 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-import logging
 import os
 import boto3
 import pickle
@@ -15,8 +14,10 @@ from scrapy.responsetypes import responsetypes
 from scrapy.utils.request import request_fingerprint
 from botocore.exceptions import ClientError
 
+from investment_local_horse_racing_crawler import app_logging
 
-logger = logging.getLogger(__name__)
+
+logger = app_logging.get_logger()
 
 
 class InvestmentLocalHorseRacingCrawlerSpiderMiddleware(object):
@@ -126,7 +127,7 @@ class S3CacheStorage(object):
         self.s3_bucket = settings["S3_BUCKET"]
         self.s3_folder = settings["S3_FOLDER"]
 
-        logger.debug("#init: endpoint=%s, region=%s, bucket=%s, folder=%s" % (self.s3_endpoint, self.s3_region, self.s3_bucket, self.s3_folder))
+        logger.debug(f"#init: s3_endpoint={self.s3_endpoint}, s3_region={self.s3_region}, s3_bucket={self.s3_bucket}, s3_folder={self.s3_folder}")
 
     def open_spider(self, spider):
         logger.debug("#open_spider: start: spider=%s" % spider)
@@ -164,6 +165,14 @@ class S3CacheStorage(object):
                 return
             else:
                 raise err
+
+        if spider.recache_race and (("KaisaiCalendar.do" in request.url) or ("RaceRefund.do" in request.url) or ("RaceList.do" in request.url) or ("Odds.do" in request.url) or ("RaceResult.do" in request.url)):
+            logger.debug("#retrieve_response: re-cache race")
+            return
+
+        if spider.recache_horse and (("HorseDetail.do" in request.url) or ("JockeyDetail.do" in request.url) or ("TrainerDetail.do" in request.url)):
+            logger.debug("#retrieve_response: re-cache horse/jockey/trainer")
+            return
 
         data = pickle.loads(s3_obj.get()["Body"].read())
 

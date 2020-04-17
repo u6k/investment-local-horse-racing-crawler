@@ -2,16 +2,16 @@
 
 
 from datetime import datetime
-import logging
 import psycopg2
 from psycopg2.extras import DictCursor
 import re
 from scrapy.exceptions import DropItem
 
-from investment_local_horse_racing_crawler.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler.scrapy.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler import app_logging
 
 
-logger = logging.getLogger(__name__)
+logger = app_logging.get_logger()
 
 
 class PostgreSQLPipeline(object):
@@ -216,7 +216,7 @@ class PostgreSQLPipeline(object):
                 i["favorite"] = int(favorite_re.group(1))
             else:
                 raise DropItem("Unknown pattern favorite")
-        except KeyError:
+        except (KeyError, ValueError):
             i["odds_win"] = None
             i["favorite"] = None
 
@@ -373,7 +373,10 @@ class PostgreSQLPipeline(object):
 
         i["odds"] = int(item["odds"][0].replace(",", "").replace("円", "")) / 100.0
 
-        i["favorite"] = int(item["favorite"][0].replace("番人気", ""))
+        if item["favorite"][0].strip() == "-":
+            i["favorite"] = None
+        else:
+            i["favorite"] = int(item["favorite"][0].replace("番人気", ""))
 
         i["race_payoff_id"] = f"{i['race_id']}_{i['payoff_type']}_{item['horse_number'][0]}"
 

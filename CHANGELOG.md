@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2020-04-18
+### Fixed
+- [#8249: カレンダー上の当日レースは、RaceRefundではなくOneDayRaceListにリンクされるため、当日レースが取得できていない](https://redmine.u6k.me/issues/8249)
+- [#8187: 払い戻し情報のパースに失敗した…人気がハイフン](https://redmine.u6k.me/issues/8187)
+- [#8186: 出馬表のパースに失敗した…単勝オッズが空](https://redmine.u6k.me/issues/8186)
+
+### Added
+- [#8166: キャッシュ有効期限をページによって変える](https://redmine.u6k.me/issues/8166)
+- [#8171: 外部からジョブを予約実行できるようにする](https://redmine.u6k.me/issues/8171)
+- [#8184: 毎日10:00にクロールを開始して、当日の全レース情報を取得して、投票処理を予約実行する](https://redmine.u6k.me/issues/8184)
+
 ## [1.0.3] - 2020-04-09
 ### Fixed
 - [#8148: 出馬表のパースに失敗した…馬体重などが空](https://redmine.u6k.me/issues/8148)
