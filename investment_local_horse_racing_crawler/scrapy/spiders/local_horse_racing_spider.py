@@ -32,7 +32,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def parse(self, response):
         """ Parse calendar page.
 
-        @url https://www.oddspark.com/keiba/KaisaiCalendar.do
+        @url https://www.oddspark.com/keiba/KaisaiCalendar.do?target=202004
         @returns items 0 0
         @returns requests 1
         @schedule_list
