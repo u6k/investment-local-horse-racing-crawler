@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0ac6d8b0cdc18e2888d51a0d1c7e1acd7cd7e9d13a0a5333d3d6705584f463be"
+            "sha256": "7c29177787697d3d3f4a06132892615824c94d9b523ac1ffdf1a5afeea8d27c9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -43,6 +43,14 @@
             ],
             "index": "pypi",
             "version": "==1.5.2"
+        },
+        "billiard": {
+            "hashes": [
+                "sha256:bff575450859a6e0fbc2f9877d9b715b0bbc07c3565bb7ed2280526a0cdf5ede",
+                "sha256:d91725ce6425f33a97dfa72fb6bfef0e47d4652acd98a032bd1a7fbf06d5fa6a"
+            ],
+            "index": "pypi",
+            "version": "==3.6.3.0"
         },
         "boto3": {
             "hashes": [
@@ -91,6 +99,13 @@
                 "sha256:f2b0fa0c01d8a0c7483afd9f31d7ecf2d71760ca24499c8697aeb5ca37dc090c"
             ],
             "version": "==1.14.0"
+        },
+        "click": {
+            "hashes": [
+                "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a",
+                "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"
+            ],
+            "version": "==7.1.2"
         },
         "constantly": {
             "hashes": [
@@ -153,6 +168,14 @@
             "index": "pypi",
             "version": "==3.7.9"
         },
+        "flask": {
+            "hashes": [
+                "sha256:4efa1ae2d7c9865af48986de8aeb8504bf32c7f3d6fdc9353d34b21f4b127060",
+                "sha256:8a4fdd8936eba2512e9c85df320a37e694c93945b33ef33c89946a340a238557"
+            ],
+            "index": "pypi",
+            "version": "==1.1.2"
+        },
         "hyperlink": {
             "hashes": [
                 "sha256:4288e34705da077fada1111a24a0aa08bb1e76699c9ce49876af722441845654",
@@ -173,6 +196,20 @@
                 "sha256:7b751696aaf36eebfab537e458929e194460051ccad279c72b755a167eebd4b3"
             ],
             "version": "==17.5.0"
+        },
+        "itsdangerous": {
+            "hashes": [
+                "sha256:321b033d07f2a4136d3ec762eac9f16a10ccd60f53c0c91af90217ace7ba1f19",
+                "sha256:b12271b2047cb23eeb98c8b5622e2e5c5e9abd9784a153e9d8ef9cb4dd09d749"
+            ],
+            "version": "==1.1.0"
+        },
+        "jinja2": {
+            "hashes": [
+                "sha256:89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0",
+                "sha256:f0a4641d3cf955324a89c04f3d94663aa4d638abe8f733ecd3582848e1c37035"
+            ],
+            "version": "==2.11.2"
         },
         "jmespath": {
             "hashes": [
@@ -480,6 +517,13 @@
                 "sha256:8b1854fef570b5a5fc84d960e025debd110485d73fd283580376104762774315"
             ],
             "version": "==1.21.0"
+        },
+        "werkzeug": {
+            "hashes": [
+                "sha256:2de2a5db0baeae7b2d2664949077c2ac63fbd16d98da0ff71837f7d1dea3fd43",
+                "sha256:6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c"
+            ],
+            "version": "==1.0.1"
         },
         "zope.interface": {
             "hashes": [
