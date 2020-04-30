@@ -3,10 +3,10 @@ from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
 from investment_local_horse_racing_crawler.scrapy.items import OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
-from investment_local_horse_racing_crawler import app_logging
+from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
-logger = app_logging.get_logger()
+logger = get_logger(__name__)
 
 
 class ScheduleListContract(Contract):
