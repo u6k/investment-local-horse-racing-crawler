@@ -13,4 +13,4 @@ RUN pipenv install
 
 VOLUME /var/myapp
 
-CMD ["pipenv", "run", "celery"]
+CMD ["pipenv", "run", "web"]
