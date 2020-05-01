@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - [#8263: Flaskアプリに変更して、ジョブ登録はFlaskで定義したWebAPIで受け付ける](https://redmine.u6k.me/issues/8263)
+- [#8334: 当日のレース情報をクロールして、再クロール＆投票処理を予約する](https://redmine.u6k.me/issues/8334)
 
 ## [1.1.0] - 2020-04-18
 ### Fixed
