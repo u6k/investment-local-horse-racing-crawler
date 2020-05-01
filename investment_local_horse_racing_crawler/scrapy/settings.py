@@ -1,5 +1,4 @@
 import os
-import logging
 
 
 BOT_NAME = 'investment_local_horse_racing_crawler'
@@ -37,9 +36,6 @@ SPIDER_CONTRACTS = {
     "investment_local_horse_racing_crawler.scrapy.contracts.TrainerContract": 10,
 }
 
-logging.getLogger("boto3").setLevel(logging.INFO)
-logging.getLogger("botocore").setLevel(logging.INFO)
-
 S3_ENDPOINT = os.environ["S3_ENDPOINT"]
 S3_REGION = os.environ["S3_REGION"]
 S3_ACCESS_KEY = os.environ["S3_ACCESS_KEY"]
@@ -52,7 +48,3 @@ DB_PORT = os.environ["DB_PORT"]
 DB_USERNAME = os.environ["DB_USERNAME"]
 DB_PASSWORD = os.environ["DB_PASSWORD"]
 DB_DATABASE = os.environ["DB_DATABASE"]
-
-CELERY_VOTE_API = os.getenv("CELERY_VOTE_API")
-CELERY_USERNAME = os.getenv("CELERY_USERNAME")
-CELERY_PASSWORD = os.getenv("CELERY_PASSWORD")

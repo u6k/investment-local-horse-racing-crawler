@@ -5,10 +5,10 @@ import scrapy
 from scrapy.loader import ItemLoader
 
 from investment_local_horse_racing_crawler.scrapy.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
-from investment_local_horse_racing_crawler import app_logging
+from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
-logger = app_logging.get_logger()
+logger = get_logger(__name__)
 
 
 class LocalHorseRacingSpider(scrapy.Spider):
@@ -32,7 +32,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def parse(self, response):
         """ Parse calendar page.
 
-        @url https://www.oddspark.com/keiba/KaisaiCalendar.do
+        @url https://www.oddspark.com/keiba/KaisaiCalendar.do?target=202004
         @returns items 0 0
         @returns requests 1
         @schedule_list
