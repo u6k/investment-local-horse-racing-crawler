@@ -83,7 +83,7 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['race_round'] == 1
         assert new_item["start_datetime"] == datetime(2020, 3, 1, 13, 0, 0)
         assert new_item['place_name'] == '帯広:第1競走'
@@ -101,7 +101,7 @@ class TestPostgreSQLPipeline:
         assert len(race_infos) == 1
 
         race_info = race_infos[0]
-        assert race_info['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_info['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_info['race_round'] == 1
         assert race_info["start_datetime"] == datetime(2020, 3, 1, 13, 0, 0)
         assert race_info['place_name'] == '帯広:第1競走'
@@ -166,7 +166,7 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_id'] == 'sponsorCd=30&raceDy=20200126&opTrackCd=61&raceNb=11'
+        assert new_item['race_id'] == 'raceDy=20200126&raceNb=11&opTrackCd=61&sponsorCd=30'
         assert new_item['race_round'] == 11
         assert new_item['start_datetime'] == datetime(2020, 1, 26, 18, 10, 0)
         assert new_item['place_name'] == '佐賀:第11競走'
@@ -184,7 +184,7 @@ class TestPostgreSQLPipeline:
         assert len(race_infos) == 1
 
         race_info = race_infos[0]
-        assert race_info['race_id'] == 'sponsorCd=30&raceDy=20200126&opTrackCd=61&raceNb=11'
+        assert race_info['race_id'] == 'raceDy=20200126&raceNb=11&opTrackCd=61&sponsorCd=30'
         assert race_info['race_round'] == 11
         assert race_info['start_datetime'] == datetime(2020, 1, 26, 18, 10, 0)
         assert race_info['place_name'] == '佐賀:第11競走'
@@ -248,7 +248,7 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_id'] == 'sponsorCd=06&raceDy=20191118&opTrackCd=11&raceNb=12'
+        assert new_item['race_id'] == 'raceDy=20191118&raceNb=12&opTrackCd=11&sponsorCd=06'
         assert new_item['race_round'] == 12
         assert new_item['start_datetime'] == datetime(2019, 11, 18, 18, 20, 0)
         assert new_item['place_name'] == '盛岡:第12競走'
@@ -266,7 +266,7 @@ class TestPostgreSQLPipeline:
         assert len(race_infos) == 1
 
         race_info = race_infos[0]
-        assert race_info['race_id'] == 'sponsorCd=06&raceDy=20191118&opTrackCd=11&raceNb=12'
+        assert race_info['race_id'] == 'raceDy=20191118&raceNb=12&opTrackCd=11&sponsorCd=06'
         assert race_info['race_round'] == 12
         assert race_info['start_datetime'] == datetime(2019, 11, 18, 18, 20, 0)
         assert race_info['place_name'] == '盛岡:第12競走'
@@ -311,7 +311,7 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['bracket_number'] == 1
         assert new_item['horse_number'] == 1
         assert new_item['horse_id'] == '2280190375'
@@ -330,7 +330,7 @@ class TestPostgreSQLPipeline:
         assert len(race_denmas) == 1
 
         race_denma = race_denmas[0]
-        assert race_denma['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_denma['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_denma['bracket_number'] == 1
         assert race_denma['horse_number'] == 1
         assert race_denma['horse_id'] == '2280190375'
@@ -376,8 +376,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_denma_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190252'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_denma_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190252'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['bracket_number'] == 8
         assert new_item['horse_number'] == 9
         assert new_item['horse_id'] == '2280190252'
@@ -396,8 +396,8 @@ class TestPostgreSQLPipeline:
         assert len(race_denmas) == 1
 
         race_denma = race_denmas[0]
-        assert race_denma['race_denma_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190252'
-        assert race_denma['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_denma['race_denma_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190252'
+        assert race_denma['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_denma['bracket_number'] == 8
         assert race_denma['horse_number'] == 9
         assert race_denma['horse_id'] == '2280190252'
@@ -443,7 +443,7 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_id'] == 'sponsorCd=30&raceDy=20200126&opTrackCd=61&raceNb=9'
+        assert new_item['race_id'] == 'raceDy=20200126&raceNb=9&opTrackCd=61&sponsorCd=30'
         assert new_item['bracket_number'] == 1
         assert new_item['horse_number'] == 1
         assert new_item['horse_id'] == '2014100939'
@@ -462,7 +462,7 @@ class TestPostgreSQLPipeline:
         assert len(race_denmas) == 1
 
         race_denma = race_denmas[0]
-        assert race_denma['race_id'] == 'sponsorCd=30&raceDy=20200126&opTrackCd=61&raceNb=9'
+        assert race_denma['race_id'] == 'raceDy=20200126&raceNb=9&opTrackCd=61&sponsorCd=30'
         assert race_denma['bracket_number'] == 1
         assert race_denma['horse_number'] == 1
         assert race_denma['horse_id'] == '2014100939'
@@ -508,7 +508,7 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_id'] == 'sponsorCd=29&raceDy=20200126&opTrackCd=55&raceNb=11'
+        assert new_item['race_id'] == 'raceDy=20200126&raceNb=11&opTrackCd=55&sponsorCd=29'
         assert new_item['bracket_number'] == 1
         assert new_item['horse_number'] == 1
         assert new_item['horse_id'] == '2014103054'
@@ -527,7 +527,7 @@ class TestPostgreSQLPipeline:
         assert len(race_denmas) == 1
 
         race_denma = race_denmas[0]
-        assert race_denma['race_id'] == 'sponsorCd=29&raceDy=20200126&opTrackCd=55&raceNb=11'
+        assert race_denma['race_id'] == 'raceDy=20200126&raceNb=11&opTrackCd=55&sponsorCd=29'
         assert race_denma['bracket_number'] == 1
         assert race_denma['horse_number'] == 1
         assert race_denma['horse_id'] == '2014103054'
@@ -570,7 +570,7 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_id'] == 'sponsorCd=30&raceDy=20200105&opTrackCd=61&raceNb=10'
+        assert new_item['race_id'] == 'raceDy=20200105&raceNb=10&opTrackCd=61&sponsorCd=30'
         assert new_item['bracket_number'] == 1
         assert new_item['horse_number'] == 1
         assert new_item['horse_id'] == '2014105259'
@@ -589,7 +589,7 @@ class TestPostgreSQLPipeline:
         assert len(race_denmas) == 1
 
         race_denma = race_denmas[0]
-        assert race_denma['race_id'] == 'sponsorCd=30&raceDy=20200105&opTrackCd=61&raceNb=10'
+        assert race_denma['race_id'] == 'raceDy=20200105&raceNb=10&opTrackCd=61&sponsorCd=30'
         assert race_denma['bracket_number'] == 1
         assert race_denma['horse_number'] == 1
         assert race_denma['horse_id'] == '2014105259'
@@ -632,7 +632,7 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_id'] == 'sponsorCd=29&raceDy=20200113&opTrackCd=55&raceNb=1'
+        assert new_item['race_id'] == 'raceDy=20200113&raceNb=1&opTrackCd=55&sponsorCd=29'
         assert new_item['bracket_number'] == 3
         assert new_item['horse_number'] == 3
         assert new_item['horse_id'] == '2013106207'
@@ -651,7 +651,7 @@ class TestPostgreSQLPipeline:
         assert len(race_denmas) == 1
 
         race_denma = race_denmas[0]
-        assert race_denma['race_id'] == 'sponsorCd=29&raceDy=20200113&opTrackCd=55&raceNb=1'
+        assert race_denma['race_id'] == 'raceDy=20200113&raceNb=1&opTrackCd=55&sponsorCd=29'
         assert race_denma['bracket_number'] == 3
         assert race_denma['horse_number'] == 3
         assert race_denma['horse_id'] == '2013106207'
@@ -697,7 +697,7 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_id'] == 'sponsorCd=26&raceDy=20200108&opTrackCd=51&raceNb=12'
+        assert new_item['race_id'] == 'raceDy=20200108&raceNb=12&opTrackCd=51&sponsorCd=26'
         assert new_item['bracket_number'] == 1
         assert new_item['horse_number'] == 1
         assert new_item['horse_id'] == '2016106087'
@@ -716,7 +716,7 @@ class TestPostgreSQLPipeline:
         assert len(race_denmas) == 1
 
         race_denma = race_denmas[0]
-        assert race_denma['race_id'] == 'sponsorCd=26&raceDy=20200108&opTrackCd=51&raceNb=12'
+        assert race_denma['race_id'] == 'raceDy=20200108&raceNb=12&opTrackCd=51&sponsorCd=26'
         assert race_denma['bracket_number'] == 1
         assert race_denma['horse_number'] == 1
         assert race_denma['horse_id'] == '2016106087'
@@ -758,8 +758,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['odds_win_place_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190375'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['odds_win_place_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190375'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['horse_number'] == 1
         assert new_item['horse_id'] == '2280190375'
         assert new_item['odds_win'] == 5.5
@@ -773,8 +773,8 @@ class TestPostgreSQLPipeline:
         assert len(odds_wins) == 1
 
         odds_win = odds_wins[0]
-        assert odds_win['odds_win_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190375'
-        assert odds_win['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert odds_win['odds_win_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190375'
+        assert odds_win['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert odds_win['horse_number'] == 1
         assert odds_win['horse_id'] == '2280190375'
         assert odds_win['odds_win'] == 5.5
@@ -785,8 +785,8 @@ class TestPostgreSQLPipeline:
         assert len(odds_places) == 1
 
         odds_place = odds_places[0]
-        assert odds_place['odds_place_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190375'
-        assert odds_place['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert odds_place['odds_place_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190375'
+        assert odds_place['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert odds_place['horse_number'] == 1
         assert odds_place['horse_id'] == '2280190375'
         assert odds_place['odds_place_max'] == 1.2
@@ -827,8 +827,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['odds_win_place_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190252'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['odds_win_place_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190252'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['horse_number'] == 9
         assert new_item['horse_id'] == '2280190252'
         assert new_item['odds_win'] == 2.8
@@ -842,8 +842,8 @@ class TestPostgreSQLPipeline:
         assert len(odds_wins) == 1
 
         odds_win = odds_wins[0]
-        assert odds_win['odds_win_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190252'
-        assert odds_win['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert odds_win['odds_win_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190252'
+        assert odds_win['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert odds_win['horse_number'] == 9
         assert odds_win['horse_id'] == '2280190252'
         assert odds_win['odds_win'] == 2.8
@@ -854,8 +854,8 @@ class TestPostgreSQLPipeline:
         assert len(odds_places) == 1
 
         odds_place = odds_places[0]
-        assert odds_place['odds_place_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190252'
-        assert odds_place['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert odds_place['odds_place_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190252'
+        assert odds_place['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert odds_place['horse_number'] == 9
         assert odds_place['horse_id'] == '2280190252'
         assert odds_place['odds_place_max'] == 2.0
@@ -922,8 +922,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['odds_win_place_id'] == 'sponsorCd=04&raceDy=20191226&opTrackCd=03&raceNb=11_2230191476'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20191226&opTrackCd=03&raceNb=11'
+        assert new_item['odds_win_place_id'] == 'raceDy=20191226&raceNb=11&opTrackCd=03&sponsorCd=04_2230191476'
+        assert new_item['race_id'] == 'raceDy=20191226&raceNb=11&opTrackCd=03&sponsorCd=04'
         assert new_item['horse_id'] == '2230191476'
         assert new_item['horse_number'] == 1
         assert new_item['odds_win'] == 4.2
@@ -937,8 +937,8 @@ class TestPostgreSQLPipeline:
         assert len(odds_wins) == 1
 
         odds_win = odds_wins[0]
-        assert odds_win['odds_win_id'] == 'sponsorCd=04&raceDy=20191226&opTrackCd=03&raceNb=11_2230191476'
-        assert odds_win['race_id'] == 'sponsorCd=04&raceDy=20191226&opTrackCd=03&raceNb=11'
+        assert odds_win['odds_win_id'] == 'raceDy=20191226&raceNb=11&opTrackCd=03&sponsorCd=04_2230191476'
+        assert odds_win['race_id'] == 'raceDy=20191226&raceNb=11&opTrackCd=03&sponsorCd=04'
         assert odds_win['horse_id'] == '2230191476'
         assert odds_win['horse_number'] == 1
         assert odds_win['odds_win'] == 4.2
@@ -980,8 +980,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_result_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190029'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_result_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190029'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['bracket_number'] == 6
         assert new_item['horse_number'] == 6
         assert new_item['horse_id'] == '2280190029'
@@ -995,8 +995,8 @@ class TestPostgreSQLPipeline:
         assert len(race_results) == 1
 
         race_result = race_results[0]
-        assert race_result['race_result_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280190029'
-        assert race_result['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_result['race_result_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280190029'
+        assert race_result['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_result['bracket_number'] == 6
         assert race_result['horse_number'] == 6
         assert race_result['horse_id'] == '2280190029'
@@ -1030,8 +1030,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_result_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280191034'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_result_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280191034'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['bracket_number'] == 8
         assert new_item['horse_number'] == 8
         assert new_item['horse_id'] == '2280191034'
@@ -1045,8 +1045,8 @@ class TestPostgreSQLPipeline:
         assert len(race_results) == 1
 
         race_result = race_results[0]
-        assert race_result['race_result_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_2280191034'
-        assert race_result['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_result['race_result_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_2280191034'
+        assert race_result['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_result['bracket_number'] == 8
         assert race_result['horse_number'] == 8
         assert race_result['horse_id'] == '2280191034'
@@ -1079,8 +1079,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_result_id'] == 'sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9_2017101608'
-        assert new_item['race_id'] == 'sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9'
+        assert new_item['race_result_id'] == 'raceDy=20200104&raceNb=9&opTrackCd=61&sponsorCd=30_2017101608'
+        assert new_item['race_id'] == 'raceDy=20200104&raceNb=9&opTrackCd=61&sponsorCd=30'
         assert new_item['bracket_number'] == 7
         assert new_item['horse_number'] == 10
         assert new_item['horse_id'] == '2017101608'
@@ -1094,8 +1094,8 @@ class TestPostgreSQLPipeline:
         assert len(race_results) == 1
 
         race_result = race_results[0]
-        assert race_result['race_result_id'] == 'sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9_2017101608'
-        assert race_result['race_id'] == 'sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9'
+        assert race_result['race_result_id'] == 'raceDy=20200104&raceNb=9&opTrackCd=61&sponsorCd=30_2017101608'
+        assert race_result['race_id'] == 'raceDy=20200104&raceNb=9&opTrackCd=61&sponsorCd=30'
         assert race_result['bracket_number'] == 7
         assert race_result['horse_number'] == 10
         assert race_result['horse_id'] == '2017101608'
@@ -1128,8 +1128,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_win_6'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_win_6'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['payoff_type'] == 'win'
         assert new_item['horse_number_1'] == 6
         assert new_item['horse_number_2'] is None
@@ -1144,8 +1144,8 @@ class TestPostgreSQLPipeline:
         assert len(race_payoffs) == 1
 
         race_payoff = race_payoffs[0]
-        assert race_payoff['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_win_6'
-        assert race_payoff['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_payoff['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_win_6'
+        assert race_payoff['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_payoff['payoff_type'] == 'win'
         assert race_payoff['horse_number_1'] == 6
         assert race_payoff['horse_number_2'] is None
@@ -1179,8 +1179,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_place_6'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_place_6'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['payoff_type'] == 'place'
         assert new_item['horse_number_1'] == 6
         assert new_item['horse_number_2'] is None
@@ -1195,8 +1195,8 @@ class TestPostgreSQLPipeline:
         assert len(race_payoffs) == 1
 
         race_payoff = race_payoffs[0]
-        assert race_payoff['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_place_6'
-        assert race_payoff['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_payoff['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_place_6'
+        assert race_payoff['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_payoff['payoff_type'] == 'place'
         assert race_payoff['horse_number_1'] == 6
         assert race_payoff['horse_number_2'] is None
@@ -1230,8 +1230,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_bracket_quinella_4-6'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_bracket_quinella_4-6'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['payoff_type'] == 'bracket_quinella'
         assert new_item['horse_number_1'] == 4
         assert new_item['horse_number_2'] == 6
@@ -1246,8 +1246,8 @@ class TestPostgreSQLPipeline:
         assert len(race_payoffs) == 1
 
         race_payoff = race_payoffs[0]
-        assert race_payoff['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_bracket_quinella_4-6'
-        assert race_payoff['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_payoff['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_bracket_quinella_4-6'
+        assert race_payoff['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_payoff['payoff_type'] == 'bracket_quinella'
         assert race_payoff['horse_number_1'] == 4
         assert race_payoff['horse_number_2'] == 6
@@ -1281,8 +1281,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_quinella_4-6'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_quinella_4-6'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['payoff_type'] == 'quinella'
         assert new_item['horse_number_1'] == 4
         assert new_item['horse_number_2'] == 6
@@ -1297,8 +1297,8 @@ class TestPostgreSQLPipeline:
         assert len(race_payoffs) == 1
 
         race_payoff = race_payoffs[0]
-        assert race_payoff['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_quinella_4-6'
-        assert race_payoff['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_payoff['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_quinella_4-6'
+        assert race_payoff['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_payoff['payoff_type'] == 'quinella'
         assert race_payoff['horse_number_1'] == 4
         assert race_payoff['horse_number_2'] == 6
@@ -1332,8 +1332,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_exacta_6-4'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_exacta_6-4'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['payoff_type'] == 'exacta'
         assert new_item['horse_number_1'] == 6
         assert new_item['horse_number_2'] == 4
@@ -1348,8 +1348,8 @@ class TestPostgreSQLPipeline:
         assert len(race_payoffs) == 1
 
         race_payoff = race_payoffs[0]
-        assert race_payoff['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_exacta_6-4'
-        assert race_payoff['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_payoff['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_exacta_6-4'
+        assert race_payoff['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_payoff['payoff_type'] == 'exacta'
         assert race_payoff['horse_number_1'] == 6
         assert race_payoff['horse_number_2'] == 4
@@ -1383,8 +1383,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_quinella_place_4-6'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_quinella_place_4-6'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['payoff_type'] == 'quinella_place'
         assert new_item['horse_number_1'] == 4
         assert new_item['horse_number_2'] == 6
@@ -1399,8 +1399,8 @@ class TestPostgreSQLPipeline:
         assert len(race_payoffs) == 1
 
         race_payoff = race_payoffs[0]
-        assert race_payoff['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_quinella_place_4-6'
-        assert race_payoff['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_payoff['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_quinella_place_4-6'
+        assert race_payoff['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_payoff['payoff_type'] == 'quinella_place'
         assert race_payoff['horse_number_1'] == 4
         assert race_payoff['horse_number_2'] == 6
@@ -1434,8 +1434,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_trio_2-4-6'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_trio_2-4-6'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['payoff_type'] == 'trio'
         assert new_item['horse_number_1'] == 2
         assert new_item['horse_number_2'] == 4
@@ -1450,8 +1450,8 @@ class TestPostgreSQLPipeline:
         assert len(race_payoffs) == 1
 
         race_payoff = race_payoffs[0]
-        assert race_payoff['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_trio_2-4-6'
-        assert race_payoff['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_payoff['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_trio_2-4-6'
+        assert race_payoff['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_payoff['payoff_type'] == 'trio'
         assert race_payoff['horse_number_1'] == 2
         assert race_payoff['horse_number_2'] == 4
@@ -1485,8 +1485,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_trifecta_6-4-2'
-        assert new_item['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert new_item['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_trifecta_6-4-2'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert new_item['payoff_type'] == 'trifecta'
         assert new_item['horse_number_1'] == 6
         assert new_item['horse_number_2'] == 4
@@ -1501,8 +1501,8 @@ class TestPostgreSQLPipeline:
         assert len(race_payoffs) == 1
 
         race_payoff = race_payoffs[0]
-        assert race_payoff['race_payoff_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1_trifecta_6-4-2'
-        assert race_payoff['race_id'] == 'sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1'
+        assert race_payoff['race_payoff_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04_trifecta_6-4-2'
+        assert race_payoff['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=03&sponsorCd=04'
         assert race_payoff['payoff_type'] == 'trifecta'
         assert race_payoff['horse_number_1'] == 6
         assert race_payoff['horse_number_2'] == 4
@@ -1582,8 +1582,8 @@ class TestPostgreSQLPipeline:
         new_item = self.pipeline.process_item(item, None)
 
         # Check return
-        assert new_item['race_payoff_id'] == 'sponsorCd=29&raceDy=20171023&opTrackCd=55&raceNb=10_win_4'
-        assert new_item['race_id'] == 'sponsorCd=29&raceDy=20171023&opTrackCd=55&raceNb=10'
+        assert new_item['race_payoff_id'] == 'raceDy=20171023&raceNb=10&opTrackCd=55&sponsorCd=29_win_4'
+        assert new_item['race_id'] == 'raceDy=20171023&raceNb=10&opTrackCd=55&sponsorCd=29'
         assert new_item['payoff_type'] == 'win'
         assert new_item['horse_number_1'] == 4
         assert new_item['horse_number_2'] is None
@@ -1598,8 +1598,8 @@ class TestPostgreSQLPipeline:
         assert len(race_payoffs) == 1
 
         race_payoff = race_payoffs[0]
-        assert race_payoff['race_payoff_id'] == 'sponsorCd=29&raceDy=20171023&opTrackCd=55&raceNb=10_win_4'
-        assert race_payoff['race_id'] == 'sponsorCd=29&raceDy=20171023&opTrackCd=55&raceNb=10'
+        assert race_payoff['race_payoff_id'] == 'raceDy=20171023&raceNb=10&opTrackCd=55&sponsorCd=29_win_4'
+        assert race_payoff['race_id'] == 'raceDy=20171023&raceNb=10&opTrackCd=55&sponsorCd=29'
         assert race_payoff['payoff_type'] == 'win'
         assert race_payoff['horse_number_1'] == 4
         assert race_payoff['horse_number_2'] is None

@@ -6,6 +6,7 @@ import psycopg2
 from psycopg2.extras import DictCursor
 import re
 from scrapy.exceptions import DropItem
+import urllib.parse
 
 from investment_local_horse_racing_crawler.scrapy.items import RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
@@ -96,7 +97,7 @@ class PostgreSQLPipeline(object):
         # Build item
         i = {}
 
-        i["race_id"] = item["race_id"][0].strip()
+        i["race_id"] = self.rebuild_race_id(item["race_id"][0].strip())
 
         race_round_re = re.match("^R([0-9]+)$", item["race_round"][0].strip())
         if race_round_re:
@@ -163,7 +164,7 @@ class PostgreSQLPipeline(object):
         # Build item
         i = {}
 
-        i["race_id"] = item["race_id"][0].strip()
+        i["race_id"] = self.rebuild_race_id(item["race_id"][0].strip())
 
         i["bracket_number"] = int(item["bracket_number"][0].strip())
 
@@ -237,7 +238,7 @@ class PostgreSQLPipeline(object):
         # Build item
         i = {}
 
-        i["race_id"] = item["race_id"][0].strip()
+        i["race_id"] = self.rebuild_race_id(item["race_id"][0].strip())
 
         i["horse_number"] = int(item["horse_number"][0].strip())
 
@@ -284,7 +285,7 @@ class PostgreSQLPipeline(object):
         # Build item
         i = {}
 
-        i["race_id"] = item["race_id"][0].strip()
+        i["race_id"] = self.rebuild_race_id(item["race_id"][0].strip())
 
         i["bracket_number"] = int(item["bracket_number"][0].strip())
 
@@ -329,7 +330,7 @@ class PostgreSQLPipeline(object):
         # Build item
         i = {}
 
-        i["race_id"] = item["race_id"][0].strip()
+        i["race_id"] = self.rebuild_race_id(item["race_id"][0].strip())
 
         if item["horse_number"][0] == "発売なし":
             raise DropItem("発売なし")
@@ -521,3 +522,12 @@ class PostgreSQLPipeline(object):
         self.db_conn.commit()
 
         return i
+
+    def rebuild_race_id(self, path):
+        logger.debug(f"#rebuild_race_id: start: path={path}")
+
+        d = urllib.parse.parse_qs(path)
+        race_id = f"raceDy={d['raceDy'][0]}&raceNb={d['raceNb'][0]}&opTrackCd={d['opTrackCd'][0]}&sponsorCd={d['sponsorCd'][0]}"
+        logger.debug(f"#rebuild_race_id: race_id={race_id}")
+
+        return race_id
