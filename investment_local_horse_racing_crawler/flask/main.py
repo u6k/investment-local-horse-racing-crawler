@@ -7,6 +7,7 @@ from flask import Flask, request, g
 import psycopg2
 from psycopg2.extras import DictCursor
 
+from investment_local_horse_racing_crawler import VERSION
 from investment_local_horse_racing_crawler.scrapy import crawler
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
@@ -21,7 +22,9 @@ app = Flask(__name__)
 def health():
     logger.info("#health: start")
 
-    return "ok"
+    result = {"version": VERSION}
+
+    return result
 
 
 @app.route("/api/crawl", methods=["POST"])
