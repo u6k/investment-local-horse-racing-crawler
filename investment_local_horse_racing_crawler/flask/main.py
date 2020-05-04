@@ -56,7 +56,10 @@ def schedule_crawl_vote_close():
     start_date = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0, 0)
     end_date = start_date + timedelta(days=1)
 
-    _schedule_crawl_vote_close(start_date, end_date)
+    vote_time_delta = args.get("vote_time_delta", 10)
+    close_time_delta = args.get("close_time_delta", 20)
+
+    _schedule_crawl_vote_close(start_date, end_date, vote_time_delta, close_time_delta)
 
     return "ok"
 
@@ -90,8 +93,8 @@ def _crawl(start_url, recrawl_period, recrawl_race_id, recache_race, recache_hor
     crawler.crawl(start_url, recrawl_period, recrawl_race_id, recache_race, recache_horse)
 
 
-def _schedule_crawl_vote_close(start_date, end_date):
-    logger.debug(f"#_schedule_crawl_vote_close: start_date={start_date}, end_date={end_date}")
+def _schedule_crawl_vote_close(start_date, end_date, vote_time_delta, close_time_delta):
+    logger.debug(f"#_schedule_crawl_vote_close: start_date={start_date}, end_date={end_date}, vote_time_delta={vote_time_delta}, close_time_delta={close_time_delta}")
 
     db_cursor = _get_db().cursor()
     try:
@@ -106,7 +109,7 @@ def _schedule_crawl_vote_close(start_date, end_date):
                 "X-Rundeck-Auth-Token": os.getenv("API_RUNDECK_AUTH_TOKEN")
             }
             params = json.dumps({
-                "runAtTime": (row["start_datetime"] - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S+09:00"),
+                "runAtTime": (row["start_datetime"] - timedelta(minutes=vote_time_delta)).strftime("%Y-%m-%dT%H:%M:%S+09:00"),
                 "options": {
                     "RACE_ID": row["race_id"]
                 }
@@ -118,7 +121,7 @@ def _schedule_crawl_vote_close(start_date, end_date):
 
             url = os.getenv("API_CRAWL_AND_CLOSE_URL")
             params = json.dumps({
-                "runAtTime": (row["start_datetime"] + timedelta(minutes=10)).strftime("%Y-%m-%dT%H:%M:%S+09:00"),
+                "runAtTime": (row["start_datetime"] + timedelta(minutes=close_time_delta)).strftime("%Y-%m-%dT%H:%M:%S+09:00"),
                 "options": {
                     "RACE_ID": row["race_id"]
                 }
