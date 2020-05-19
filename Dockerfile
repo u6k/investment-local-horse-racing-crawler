@@ -16,4 +16,4 @@ ENV FLASK_APP investment_local_horse_racing_crawler/flask.py
 ENV FLASK_ENV development
 EXPOSE 5000
 
-CMD ["pipenv", "run", "web"]
+CMD ["pipenv", "run", "flask"]
