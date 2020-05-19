@@ -5,8 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2020-05-20
+### Changed
+- [#8285: 次のパース移譲は集約して行う](https://redmine.u6k.me/issues/8285)
+- [#8416: Flaskについて、開発時は開発モードに設定する](https://redmine.u6k.me/issues/8416)
+- [#8430: 引数を整理する](https://redmine.u6k.me/issues/8430)
+- [#8419: 投票・清算ジョブのスケジューリングは、クローラーではなくジョブ管理側で行う](https://redmine.u6k.me/issues/8419)
+- [#8410: 馬場状況を取得する](https://redmine.u6k.me/issues/8410)
+- [#8407: 軽くテストする](https://redmine.u6k.me/issues/8407)
+- [#8432: 上がり3ハロン取得する](https://redmine.u6k.me/issues/8432)
+
 ## [1.3.0] - 2020-05-05
-### Added:
+### Added
 - [#8341: 発走時刻の何分前に投票するか、何分後に結果確認するかを指定する](https://redmine.u6k.me/issues/8341)
 
 ## [1.2.1] - 2020-05-03
