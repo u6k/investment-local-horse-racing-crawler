@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#8419: 投票・清算ジョブのスケジューリングは、クローラーではなくジョブ管理側で行う](https://redmine.u6k.me/issues/8419)
 - [#8410: 馬場状況を取得する](https://redmine.u6k.me/issues/8410)
 - [#8407: 軽くテストする](https://redmine.u6k.me/issues/8407)
+- [#8432: 上がり3ハロン取得する](https://redmine.u6k.me/issues/8432)
 
 ## [1.3.0] - 2020-05-05
 ### Added
