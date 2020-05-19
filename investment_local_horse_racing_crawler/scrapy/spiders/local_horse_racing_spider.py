@@ -14,20 +14,24 @@ logger = get_logger(__name__)
 class LocalHorseRacingSpider(scrapy.Spider):
     name = "local_horse_racing"
 
-    def __init__(self, start_url="https://www.oddspark.com/keiba/KaisaiCalendar.do", recrawl_period="all", recrawl_race_id=None, recache_race=False, recache_horse=False, *args, **kwargs):
-        super(LocalHorseRacingSpider, self).__init__(*args, **kwargs)
+    def __init__(self, start_url="https://www.oddspark.com/keiba/KaisaiCalendar.do", start_date=datetime(1900, 1, 1), end_date=datetime(2100, 1, 1), recache_race=False, recache_horse=False, *args, **kwargs):
+        logger.info(f"#__init__: start: start_url={start_url}, start_date={start_date}, end_date={end_date}, recache_race={recache_race}, recache_horse={recache_horse}")
+        try:
+            super(LocalHorseRacingSpider, self).__init__(*args, **kwargs)
 
-        self.start_urls = [start_url]
+            if start_date is not None and type(start_date) != datetime:
+                raise RuntimeError("type(start_date) is not datetime.")
 
-        if recrawl_period == "all":
-            recrawl_period = 100000
-        recrawl_period = int(recrawl_period)
-        self.recrawl_end_date = datetime(datetime.now().year, datetime.now().month, datetime.now().day, 0, 0, 0, 0) + timedelta(days=1)
-        self.recrawl_start_date = self.recrawl_end_date - timedelta(days=recrawl_period)
+            if end_date is not None and type(end_date) != datetime:
+                raise RuntimeError("type(end_date) is not datetime.")
 
-        self.recrawl_race_id = recrawl_race_id
-        self.recache_race = recache_race
-        self.recache_horse = recache_horse
+            self.start_urls = [start_url]
+            self.start_date = start_date
+            self.end_date = end_date
+            self.recache_race = recache_race
+            self.recache_horse = recache_horse
+        except:
+            logger.exception("#__init__: fail")
 
     def parse(self, response):
         """ Parse start page.
@@ -38,10 +42,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """
 
         logger.info(f"#parse: start: url={response.url}")
-
-        logger.info(f"#parse: recrawl_start_date={self.recrawl_start_date}")
-        logger.info(f"#parse: recrawl_end_date={self.recrawl_end_date}")
-        logger.info(f"#parse: recrawl_race_id={self.recrawl_race_id}")
+        logger.info(f"#parse: start_date={self.start_date}")
+        logger.info(f"#parse: end_date={self.end_date}")
         logger.info(f"#parse: recache_race={self.recache_race}")
         logger.info(f"#parse: recache_horse={self.recache_horse}")
 
@@ -56,19 +58,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @returns requests 1
         """
 
-        logger.info(f"#parse: start: url={response.url}")
-
-        if self.recrawl_race_id:
-            logger.info(f"#parse: re-crawl race: {self.recrawl_race_id}")
-
-            path = f"/keiba/RaceList.do?{self.recrawl_race_id}"
-            yield self._follow_delegate(response, path)
-
-            return
+        logger.info(f"#parse_calendar: start: url={response.url}")
 
         for a in response.xpath("//ul[@id='date_pr']/li/a"):
             href = a.xpath("@href").get()
-            logger.info(f"#parse: found previous calendar page: href={href}")
+            logger.info(f"#parse_calendar: found previous calendar page: href={href}")
 
             # Check re-crawl
             target_re = re.match("^.*target=([0-9]{6})$", href)
@@ -76,8 +70,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 target_start = datetime(int(target_re.group(1)[0:4]), int(target_re.group(1)[4:6]), 1, 0, 0, 0)
                 target_end = target_start + relativedelta(months=1)
 
-                if not (self.recrawl_start_date <= target_end and self.recrawl_end_date >= target_start):
-                    logger.info(f"#parse: cancel previous calendar page: target={target_start} to {target_end}, settings={self.recrawl_start_date} to {self.recrawl_end_date}")
+                if not (self.start_date <= target_end and self.end_date >= target_start):
+                    logger.info(f"#parse_calendar: cancel previous calendar page: target={target_start} to {target_end}, settings={self.start_date} to {self.end_date}")
                     continue
 
             yield self._follow_delegate(response, href)
@@ -91,8 +85,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 if target_re:
                     target_date = datetime(int(target_re.group(1)[0:4]), int(target_re.group(1)[4:6]), int(target_re.group(1)[6:8]), 0, 0, 0)
 
-                    if not (self.recrawl_start_date <= target_date < self.recrawl_end_date):
-                        logger.info(f"#parse: cancel race refund list: target={target_date}, settings={self.recrawl_start_date} to {self.recrawl_end_date}")
+                    if not (self.start_date <= target_date < self.end_date):
+                        logger.info(f"#parse_calendar: cancel race refund list: target={target_date}, settings={self.start_date} to {self.end_date}")
                         continue
 
                 yield self._follow_delegate(response, href)
