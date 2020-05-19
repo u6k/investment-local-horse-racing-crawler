@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import scrapy
 from scrapy.loader import ItemLoader
@@ -30,7 +30,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
             self.end_date = end_date
             self.recache_race = recache_race
             self.recache_horse = recache_horse
-        except:
+        except Exception:
             logger.exception("#__init__: fail")
 
     def parse(self, response):

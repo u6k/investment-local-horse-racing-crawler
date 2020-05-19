@@ -29,8 +29,6 @@ class TestFlask:
         result_data = result.get_json()
         assert result_data["version"] == VERSION
 
-
-
     def test_crawl_1(self):
         # Setup
         req_data = {
@@ -98,7 +96,7 @@ class TestFlask:
             "recache_race": True,
             "recache_horse": False,
         }
-        
+
         # Execute
         result = self.app.post("/api/crawl", json=req_data)
 

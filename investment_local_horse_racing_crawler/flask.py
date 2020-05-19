@@ -70,7 +70,6 @@ def schedule_crawl_vote_close():
     return "ok"
 
 
-
 def get_db():
     db = psycopg2.connect(
         host=os.getenv("DB_HOST"),
@@ -84,7 +83,6 @@ def get_db():
     db.cursor_factory = DictCursor
 
     return db
-
 
 
 def _get_db():
