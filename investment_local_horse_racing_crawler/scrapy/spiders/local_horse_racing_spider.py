@@ -291,12 +291,16 @@ class LocalHorseRacingSpider(scrapy.Spider):
             loader.add_xpath("horse_number", "td[3]/text()")
             loader.add_xpath("horse_id", "td[4]/a/@href")
             loader.add_xpath("arrival_time", "td[11]/text()")
+
+            if len(tr.xpath("td")) == 15:
+                loader.add_xpath("final_600_meters_time", "td[13]/text()")
+
             i = loader.load_item()
 
             logger.info(f"#parse_race_result: race result={i}")
             yield i
 
-        # Parse race result
+        # Parse race payoff
         logger.debug("#parse_race_result: parse race payoff")
 
         for tr in response.xpath("//table[@summary='払戻金情報']/tr"):

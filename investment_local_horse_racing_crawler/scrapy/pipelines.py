@@ -327,13 +327,18 @@ class PostgreSQLPipeline(object):
             i["result"] = None
             i["arrival_time"] = None
 
+        try:
+            i["final_600_meters_time"] = float(item["final_600_meters_time"][0].strip())
+        except KeyError:
+            i["final_600_meters_time"] = None
+
         i["race_result_id"] = f"{i['race_id']}_{i['horse_id']}"
 
         logger.debug(f"#process_race_result_item: build item: {i}")
 
         # Insert db
         self.db_cursor.execute("delete from race_result where race_result_id=%s", (i["race_result_id"],))
-        self.db_cursor.execute("insert into race_result (race_result_id, race_id, bracket_number, horse_number, horse_id, result, arrival_time) values (%s, %s, %s, %s, %s, %s, %s)", (i["race_result_id"], i["race_id"], i["bracket_number"], i["horse_number"], i["horse_id"], i["result"], i["arrival_time"]))
+        self.db_cursor.execute("insert into race_result (race_result_id, race_id, bracket_number, horse_number, horse_id, result, arrival_time, final_600_meters_time) values (%s, %s, %s, %s, %s, %s, %s, %s)", (i["race_result_id"], i["race_id"], i["bracket_number"], i["horse_number"], i["horse_id"], i["result"], i["arrival_time"], i["final_600_meters_time"]))
 
         self.db_conn.commit()
 
