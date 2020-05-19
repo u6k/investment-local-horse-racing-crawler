@@ -993,6 +993,7 @@ class TestPostgreSQLPipeline:
         assert new_item['horse_id'] == '2280190029'
         assert new_item['result'] == 1
         assert new_item['arrival_time'] == 111.6
+        assert new_item['final_600_meters_time'] is None
 
         # Check db
         self.pipeline.db_cursor.execute("select * from race_result")
@@ -1008,6 +1009,7 @@ class TestPostgreSQLPipeline:
         assert race_result['horse_id'] == '2280190029'
         assert race_result['result'] == 1
         assert race_result['arrival_time'] == 111.6
+        assert race_result['final_600_meters_time'] is None
 
         # Execute (2)
         self.pipeline.process_item(item, None)
@@ -1043,6 +1045,7 @@ class TestPostgreSQLPipeline:
         assert new_item['horse_id'] == '2280191034'
         assert new_item['result'] == 9
         assert new_item['arrival_time'] == 126.7
+        assert new_item['final_600_meters_time'] is None
 
         # Check db
         self.pipeline.db_cursor.execute("select * from race_result")
@@ -1058,6 +1061,7 @@ class TestPostgreSQLPipeline:
         assert race_result['horse_id'] == '2280191034'
         assert race_result['result'] == 9
         assert race_result['arrival_time'] == 126.7
+        assert race_result['final_600_meters_time'] is None
 
         # Execute (2)
         self.pipeline.process_item(item, None)
@@ -1092,6 +1096,7 @@ class TestPostgreSQLPipeline:
         assert new_item['horse_id'] == '2017101608'
         assert new_item['result'] is None
         assert new_item['arrival_time'] is None
+        assert new_item['final_600_meters_time'] is None
 
         # Check db
         self.pipeline.db_cursor.execute("select * from race_result")
@@ -1107,6 +1112,60 @@ class TestPostgreSQLPipeline:
         assert race_result['horse_id'] == '2017101608'
         assert race_result['result'] is None
         assert race_result['arrival_time'] is None
+        assert race_result['final_600_meters_time'] is None
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from race_result")
+
+        race_results = self.pipeline.db_cursor.fetchall()
+        assert len(race_results) == 1
+
+    def test_process_race_result_item_4(self):
+        # Setup
+        item = RaceResultItem()
+        item['arrival_time'] = ['1:30.3']
+        item['bracket_number'] = ['8']
+        item['final_600_meters_time'] = ['44.0']
+        item['horse_id'] = ['/keiba/HorseDetail.do?lineageNb=2017102655']
+        item['horse_number'] = ['9']
+        item['race_id'] = ['sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=1']
+        item['result'] = ['9']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_result")
+        assert len(self.pipeline.db_cursor.fetchall()) == 0
+
+        # Execute
+        new_item = self.pipeline.process_item(item, None)
+
+        # Check return
+        assert new_item['race_result_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=55&sponsorCd=29_2017102655'
+        assert new_item['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=55&sponsorCd=29'
+        assert new_item['bracket_number'] == 8
+        assert new_item['horse_number'] == 9
+        assert new_item['horse_id'] == '2017102655'
+        assert new_item['result'] == 9
+        assert new_item['arrival_time'] == 90.3
+        assert new_item['final_600_meters_time'] == 44.0
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from race_result")
+
+        race_results = self.pipeline.db_cursor.fetchall()
+        assert len(race_results) == 1
+
+        race_result = race_results[0]
+        assert race_result['race_result_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=55&sponsorCd=29_2017102655'
+        assert race_result['race_id'] == 'raceDy=20200301&raceNb=1&opTrackCd=55&sponsorCd=29'
+        assert race_result['bracket_number'] == 8
+        assert race_result['horse_number'] == 9
+        assert race_result['horse_id'] == '2017102655'
+        assert race_result['result'] == 9
+        assert race_result['arrival_time'] == 90.3
+        assert race_result['final_600_meters_time'] == 44.0
 
         # Execute (2)
         self.pipeline.process_item(item, None)
