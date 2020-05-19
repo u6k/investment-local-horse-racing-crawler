@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 import os
 
@@ -11,6 +12,8 @@ from investment_local_horse_racing_crawler.scrapy.pipelines import PostgreSQLPip
 
 class TestPostgreSQLPipeline:
     def setup(self):
+        logging.disable(logging.DEBUG)
+
         # Setting pipeline
         settings = {
             "DB_HOST": os.getenv("DB_HOST"),
