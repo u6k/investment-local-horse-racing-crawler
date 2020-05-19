@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 import os
-import json
 import requests
 from flask import Flask, request, g
 import psycopg2
@@ -51,23 +50,21 @@ def crawl():
     return {"result": True}
 
 
-@app.route("/api/schedule_crawl_vote_close", methods=["POST"])
-def schedule_crawl_vote_close():
-    logger.info("#schedule_crawl_vote_close: start")
+@app.route("/api/schedule_vote_close", methods=["POST"])
+def schedule_vote_close():
+    logger.info("#schedule_vote_close: start")
 
     args = request.get_json()
-    logger.debug(f"#schedule_crawl_vote_close: args={args}")
+    logger.debug(f"#schedule_vote_close: args={args}")
 
     target_date = parse(args.get("target_date", datetime.today().strftime("%Y-%m-%d")))
     start_date = datetime(target_date.year, target_date.month, target_date.day, 0, 0, 0, 0)
     end_date = start_date + timedelta(days=1)
 
-    vote_time_delta = args.get("vote_time_delta", 10)
-    close_time_delta = args.get("close_time_delta", 20)
+    scheduled_races = _schedule_vote_close(start_date, end_date)
+    logger.debug(f"#schedule_vote_close: scheduled_races={scheduled_races}")
 
-    _schedule_crawl_vote_close(start_date, end_date, vote_time_delta, close_time_delta)
-
-    return "ok"
+    return scheduled_races
 
 
 def get_db():
@@ -105,43 +102,35 @@ def _crawl(start_url, start_date, end_date, recache_race, recache_horse):
     crawler.crawl(start_url, start_date, end_date, recache_race, recache_horse)
 
 
-def _schedule_crawl_vote_close(start_date, end_date, vote_time_delta, close_time_delta):
-    logger.debug(f"#_schedule_crawl_vote_close: start_date={start_date}, end_date={end_date}, vote_time_delta={vote_time_delta}, close_time_delta={close_time_delta}")
+def _schedule_vote_close(start_date, end_date):
+    logger.debug(f"#_schedule_vote_close: start_date={start_date}, end_date={end_date}")
 
-    db_cursor = _get_db().cursor()
-    try:
+    scheduled_races = {"races": []}
+    with _get_db().cursor() as db_cursor:
+        db_cursor.execute("select race_id, start_datetime, place_name, race_name from race_info where start_datetime >= %s and start_datetime < %s order by start_datetime, race_id", (start_date, end_date))
+        for idx, row in enumerate(db_cursor.fetchall()):
+            logger.debug(f"#_schedule_vote_close: idx={idx}, row={row}")
 
-        db_cursor.execute("select race_id, start_datetime, place_name, race_name from race_info where start_datetime >= %s and start_datetime < %s order by start_datetime", (start_date, end_date))
-        for row in db_cursor.fetchall():
-            logger.debug(f"#_schedule_crawl_vote_close: row={row}")
-
-            url = os.getenv("API_CRAWL_AND_VOTE_URL")
+            url = os.getenv("API_SCHEDULE_VOTE_CLOSE_URL")
             headers = {
                 "Content-Type": "application/json",
                 "X-Rundeck-Auth-Token": os.getenv("API_RUNDECK_AUTH_TOKEN")
             }
-            params = json.dumps({
-                "runAtTime": (row["start_datetime"] - timedelta(minutes=vote_time_delta)).strftime("%Y-%m-%dT%H:%M:%S+09:00"),
+            params = {
                 "options": {
-                    "RACE_ID": row["race_id"]
+                    "RACE_ID": row["race_id"],
+                    "START_DATETIME": row["start_datetime"].strftime("%Y-%m-%d %H:%M:%S"),
                 }
-            })
-            logger.debug(f"#_schedule_crawl_vote_close: crawl_and_vote: url={url}, params={params}")
+            }
+            logger.debug(f"#_schedule_vote_close: url={url}, params={params}")
 
-            resp = requests.post(url=url, headers=headers, data=params)
-            logger.debug(f"#_schedule_crawl_vote_close: crawl_and_vote: status_code={resp.status_code}, body={resp.text}")
+            resp = requests.post(url=url, headers=headers, json=params)
+            logger.debug(f"#_schedule_vote_close: status_code={resp.status_code}, body={resp.text}")
 
-            url = os.getenv("API_CRAWL_AND_CLOSE_URL")
-            params = json.dumps({
-                "runAtTime": (row["start_datetime"] + timedelta(minutes=close_time_delta)).strftime("%Y-%m-%dT%H:%M:%S+09:00"),
-                "options": {
-                    "RACE_ID": row["race_id"]
-                }
-            })
-            logger.debug(f"#_schedule_crawl_vote_close: crawl_and_close: url={url}, params={params}")
+            scheduled_race = {
+                "race_id": params["options"]["RACE_ID"],
+                "start_datetime": params["options"]["START_DATETIME"],
+            }
+            scheduled_races["races"].append(scheduled_race)
 
-            resp = requests.post(url=url, headers=headers, data=params)
-            logger.debug(f"#_schedule_crawl_vote_close: crawl_and_close: status_code={resp.status_code}, body={resp.text}")
-
-    finally:
-        db_cursor.close()
+    return scheduled_races
