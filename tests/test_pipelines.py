@@ -152,6 +152,7 @@ class TestPostgreSQLPipeline:
                                '\t\t\t\n'
                                '\t\t\n'
                                '\t\t']
+        item['course_condition'] = ['/local/images/ico-baba-4.gif?20180131184058']
         item['course_type_length'] = ['ダ1400m']
         item['place_name'] = ['佐賀:第11競走']
         item['race_id'] = ['sponsorCd=30&raceDy=20200126&opTrackCd=61&raceNb=11']
@@ -176,6 +177,7 @@ class TestPostgreSQLPipeline:
         assert new_item['race_name'] == 'ウインターチャンピオンオープン'
         assert new_item['course_type'] == 'ダ'
         assert new_item['course_length'] == 1400
+        assert new_item['course_condition'] == "不良"
         assert new_item['weather'] == 'くもり'
         assert new_item['moisture'] is None
         assert new_item['added_money'] == '賞金\xa01着\xa02,500,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa0750,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa0250,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa0150,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa0100,000円'
@@ -194,6 +196,7 @@ class TestPostgreSQLPipeline:
         assert race_info['race_name'] == 'ウインターチャンピオンオープン'
         assert race_info['course_type'] == 'ダ'
         assert race_info['course_length'] == 1400
+        assert race_info['course_condition'] == "不良"
         assert race_info['weather'] == 'くもり'
         assert race_info['moisture'] is None
         assert race_info['added_money'] == '賞金\xa01着\xa02,500,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa0750,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa0250,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa0150,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa0100,000円'
