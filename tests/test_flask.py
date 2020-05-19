@@ -68,6 +68,51 @@ class TestFlask:
         assert race_infos[8]["race_id"] == "raceDy=20180106&raceNb=9&opTrackCd=12&sponsorCd=06"
         assert race_infos[9]["race_id"] == "raceDy=20180106&raceNb=10&opTrackCd=12&sponsorCd=06"
 
+        # Setup (2)
+        req_data = {
+            "target_date": "2018-01-06",
+        }
+
+        # Execute (2)
+        result = self.app.post("/api/schedule_vote_close", json=req_data)
+
+        # Check (2)
+        assert result.status_code == 200
+
+        result_data = result.get_json()
+        races = result_data["races"]
+        assert len(races) == 10
+
+        assert races[0]["race_id"] == "raceDy=20180106&raceNb=1&opTrackCd=12&sponsorCd=06"
+        assert races[0]["start_datetime"] == "2018-01-06 10:30:00"
+
+        assert races[1]["race_id"] == "raceDy=20180106&raceNb=2&opTrackCd=12&sponsorCd=06"
+        assert races[1]["start_datetime"] == "2018-01-06 11:05:00"
+
+        assert races[2]["race_id"] == "raceDy=20180106&raceNb=3&opTrackCd=12&sponsorCd=06"
+        assert races[2]["start_datetime"] == "2018-01-06 11:40:00"
+
+        assert races[3]["race_id"] == "raceDy=20180106&raceNb=4&opTrackCd=12&sponsorCd=06"
+        assert races[3]["start_datetime"] == "2018-01-06 12:15:00"
+
+        assert races[4]["race_id"] == "raceDy=20180106&raceNb=5&opTrackCd=12&sponsorCd=06"
+        assert races[4]["start_datetime"] == "2018-01-06 12:50:00"
+
+        assert races[5]["race_id"] == "raceDy=20180106&raceNb=6&opTrackCd=12&sponsorCd=06"
+        assert races[5]["start_datetime"] == "2018-01-06 13:25:00"
+
+        assert races[6]["race_id"] == "raceDy=20180106&raceNb=7&opTrackCd=12&sponsorCd=06"
+        assert races[6]["start_datetime"] == "2018-01-06 14:00:00"
+
+        assert races[7]["race_id"] == "raceDy=20180106&raceNb=8&opTrackCd=12&sponsorCd=06"
+        assert races[7]["start_datetime"] == "2018-01-06 14:35:00"
+
+        assert races[8]["race_id"] == "raceDy=20180106&raceNb=9&opTrackCd=12&sponsorCd=06"
+        assert races[8]["start_datetime"] == "2018-01-06 15:15:00"
+
+        assert races[9]["race_id"] == "raceDy=20180106&raceNb=10&opTrackCd=12&sponsorCd=06"
+        assert races[9]["start_datetime"] == "2018-01-06 15:50:00"
+
     def test_crawl_2(self):
         # Setup
         req_data = {
