@@ -152,6 +152,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         loader.add_xpath("start_time", "//div[@id='RCdata2']/ul/li[@class='RCstm']/text()")
         loader.add_xpath("weather", "//div[@id='RCdata2']/ul/li[@class='RCwthr']/img/@src")
         loader.add_xpath("moisture", "//div[@id='RCdata2']/ul/li[@class='RCwatr']/span[@class='baba']/text()")
+        loader.add_xpath("course_condition", "//div[@id='RCdata2']/ul/li[@class='RCcnd']/img/@src")
         loader.add_xpath("added_money", "//div[@id='RCdata2']/p/text()")
         i = loader.load_item()
 

@@ -124,6 +124,21 @@ class PostgreSQLPipeline(object):
             raise DropItem("Unknown pattern course_type_length")
 
         try:
+            course_condition_str = item["course_condition"][0].strip()
+            if course_condition_str.startswith("/local/images/ico-baba-1.gif"):
+                i["course_condition"] = "良"
+            elif course_condition_str.startswith("/local/images/ico-baba-2.gif"):
+                i["course_condition"] = "稍重"
+            elif course_condition_str.startswith("/local/images/ico-baba-3.gif"):
+                i["course_condition"] = "重"
+            elif course_condition_str.startswith("/local/images/ico-baba-4.gif"):
+                i["course_condition"] = "不良"
+            else:
+                raise DropItem(f"Unknown pattern course_condition: {course_condition_str}")
+        except KeyError:
+            i["course_condition"] = None
+
+        try:
             weather_str = item["weather"][0].strip()
             if weather_str.startswith("/local/images/ico-tenki-1.gif"):
                 i["weather"] = "晴れ"
@@ -153,7 +168,7 @@ class PostgreSQLPipeline(object):
 
         # Insert db
         self.db_cursor.execute("delete from race_info where race_id=%s", (i["race_id"],))
-        self.db_cursor.execute("insert into race_info (race_id, race_round, start_datetime, place_name, race_name, course_type, course_length, weather, moisture, added_money) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (i["race_id"], i["race_round"], i["start_datetime"], i["place_name"], i["race_name"], i["course_type"], i["course_length"], i["weather"], i["moisture"], i["added_money"]))
+        self.db_cursor.execute("insert into race_info (race_id, race_round, start_datetime, place_name, race_name, course_type, course_length, course_condition, weather, moisture, added_money) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (i["race_id"], i["race_round"], i["start_datetime"], i["place_name"], i["race_name"], i["course_type"], i["course_length"], i["course_condition"], i["weather"], i["moisture"], i["added_money"]))
         self.db_conn.commit()
 
         return i

@@ -14,6 +14,7 @@ class RaceInfoItem(Item):
     start_time = Field()
     weather = Field()
     moisture = Field()
+    course_condition = Field()
     added_money = Field()
 
 
