@@ -37,8 +37,8 @@ class TestFlask:
         # Setup
         req_data = {
             "start_url": "https://www.oddspark.com/keiba/KaisaiCalendar.do?target=201801",
-            "start_date": "2018-01-01",
-            "end_date": "2018-01-02",
+            "start_date": "2018-01-06",
+            "end_date": "2018-01-07",
             "recache_race": False,
             "recache_horse": False,
         }
