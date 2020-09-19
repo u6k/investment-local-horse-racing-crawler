@@ -267,7 +267,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def parse_race_result(self, response):
         """ Parse race result page.
 
-        @url https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
+        @url https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=10
         @returns items 1
         @returns requests 0 0
         @race_result
@@ -285,6 +285,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 continue
 
             loader = ItemLoader(item=RaceResultItem(), selector=tr)
+
             loader.add_value("race_id", race_id)
             loader.add_xpath("result", "td[1]/text()")
             loader.add_xpath("bracket_number", "td[2]/text()")
@@ -293,7 +294,9 @@ class LocalHorseRacingSpider(scrapy.Spider):
             loader.add_xpath("arrival_time", "td[11]/text()")
 
             if len(tr.xpath("td")) == 15:
+                loader.add_xpath("arrival_margin", "td[12]/text()")
                 loader.add_xpath("final_600_meters_time", "td[13]/text()")
+                loader.add_xpath("corner_passing_order", "td[14]/text()")
 
             i = loader.load_item()
 
