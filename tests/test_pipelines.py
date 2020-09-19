@@ -993,7 +993,9 @@ class TestPostgreSQLPipeline:
         assert new_item['horse_id'] == '2280190029'
         assert new_item['result'] == 1
         assert new_item['arrival_time'] == 111.6
+        assert new_item['arrival_margin'] is None
         assert new_item['final_600_meters_time'] is None
+        assert new_item['corner_passing_order'] is None
 
         # Check db
         self.pipeline.db_cursor.execute("select * from race_result")
@@ -1009,7 +1011,9 @@ class TestPostgreSQLPipeline:
         assert race_result['horse_id'] == '2280190029'
         assert race_result['result'] == 1
         assert race_result['arrival_time'] == 111.6
+        assert race_result['arrival_margin'] is None
         assert race_result['final_600_meters_time'] is None
+        assert race_result['corner_passing_order'] is None
 
         # Execute (2)
         self.pipeline.process_item(item, None)
@@ -1045,7 +1049,9 @@ class TestPostgreSQLPipeline:
         assert new_item['horse_id'] == '2280191034'
         assert new_item['result'] == 9
         assert new_item['arrival_time'] == 126.7
+        assert new_item['arrival_margin'] is None
         assert new_item['final_600_meters_time'] is None
+        assert new_item['corner_passing_order'] is None
 
         # Check db
         self.pipeline.db_cursor.execute("select * from race_result")
@@ -1061,7 +1067,9 @@ class TestPostgreSQLPipeline:
         assert race_result['horse_id'] == '2280191034'
         assert race_result['result'] == 9
         assert race_result['arrival_time'] == 126.7
+        assert race_result['arrival_margin'] is None
         assert race_result['final_600_meters_time'] is None
+        assert race_result['corner_passing_order'] is None
 
         # Execute (2)
         self.pipeline.process_item(item, None)
@@ -1080,6 +1088,7 @@ class TestPostgreSQLPipeline:
         item['horse_number'] = ['10']
         item['race_id'] = ['sponsorCd=30&raceDy=20200104&opTrackCd=61&raceNb=9']
         item['result'] = ['-']
+        item['arrival_margin'] = ['取消']
 
         # Before check
         self.pipeline.db_cursor.execute("select * from race_result")
@@ -1096,7 +1105,9 @@ class TestPostgreSQLPipeline:
         assert new_item['horse_id'] == '2017101608'
         assert new_item['result'] is None
         assert new_item['arrival_time'] is None
+        assert new_item['arrival_margin'] is None
         assert new_item['final_600_meters_time'] is None
+        assert new_item['corner_passing_order'] is None
 
         # Check db
         self.pipeline.db_cursor.execute("select * from race_result")
@@ -1112,7 +1123,9 @@ class TestPostgreSQLPipeline:
         assert race_result['horse_id'] == '2017101608'
         assert race_result['result'] is None
         assert race_result['arrival_time'] is None
+        assert race_result['arrival_margin'] is None
         assert race_result['final_600_meters_time'] is None
+        assert race_result['corner_passing_order'] is None
 
         # Execute (2)
         self.pipeline.process_item(item, None)
@@ -1133,6 +1146,8 @@ class TestPostgreSQLPipeline:
         item['horse_number'] = ['9']
         item['race_id'] = ['sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=1']
         item['result'] = ['9']
+        item['arrival_margin'] = ['２１／２']
+        item['corner_passing_order'] = ['4-5-6-7']
 
         # Before check
         self.pipeline.db_cursor.execute("select * from race_result")
@@ -1149,7 +1164,9 @@ class TestPostgreSQLPipeline:
         assert new_item['horse_id'] == '2017102655'
         assert new_item['result'] == 9
         assert new_item['arrival_time'] == 90.3
+        assert new_item['arrival_margin'] == '２１／２'
         assert new_item['final_600_meters_time'] == 44.0
+        assert new_item['corner_passing_order'] == '4-5-6-7'
 
         # Check db
         self.pipeline.db_cursor.execute("select * from race_result")

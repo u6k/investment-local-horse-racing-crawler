@@ -328,9 +328,13 @@ class PostgreSQLPipeline(object):
             i["arrival_time"] = None
 
         try:
+            i["arrival_margin"] = item["arrival_margin"][0].strip()
             i["final_600_meters_time"] = float(item["final_600_meters_time"][0].strip())
+            i["corner_passing_order"] = item["corner_passing_order"][0].strip()
         except KeyError:
+            i["arrival_margin"] = None
             i["final_600_meters_time"] = None
+            i["corner_passing_order"] = None
 
         i["race_result_id"] = f"{i['race_id']}_{i['horse_id']}"
 
@@ -338,7 +342,7 @@ class PostgreSQLPipeline(object):
 
         # Insert db
         self.db_cursor.execute("delete from race_result where race_result_id=%s", (i["race_result_id"],))
-        self.db_cursor.execute("insert into race_result (race_result_id, race_id, bracket_number, horse_number, horse_id, result, arrival_time, final_600_meters_time) values (%s, %s, %s, %s, %s, %s, %s, %s)", (i["race_result_id"], i["race_id"], i["bracket_number"], i["horse_number"], i["horse_id"], i["result"], i["arrival_time"], i["final_600_meters_time"]))
+        self.db_cursor.execute("insert into race_result (race_result_id, race_id, bracket_number, horse_number, horse_id, result, arrival_time, arrival_margin, final_600_meters_time, corner_passing_order) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (i["race_result_id"], i["race_id"], i["bracket_number"], i["horse_number"], i["horse_id"], i["result"], i["arrival_time"], i["arrival_margin"], i["final_600_meters_time"], i["corner_passing_order"]))
 
         self.db_conn.commit()
 
