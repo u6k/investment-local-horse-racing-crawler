@@ -52,15 +52,8 @@ class RaceRefundListContract(Contract):
 
         # Check unknown url
         for r in requests:
-            if r.url.startswith("https://www.oddspark.com/keiba/RaceList.do?"):
-                if '直線' in r.cb_kwargs['course_curve']:
-                    continue
-                if '右回り' in r.cb_kwargs['course_curve']:
-                    continue
-                if '左回り' in r.cb_kwargs['course_curve']:
-                    continue
-
-                raise ContractFail(f"Unknown course curve: {r.cb_kwargs['course_curve']}")
+            if r.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
+                continue
 
             raise ContractFail(f"Unknown url: {r.url}")
 
@@ -77,7 +70,10 @@ class OneDayRaceListContract(Contract):
         # Check unknown url
         for r in requests:
             if r.url.startswith("https://www.oddspark.com/keiba/RaceList.do?"):
-                continue
+                if ('直線' in r.cb_kwargs['course_curve']) or ('右回り' in r.cb_kwargs['course_curve']) or ('左回り' in r.cb_kwargs['course_curve']):
+                    continue
+
+                raise ContractFail(f"Unknown course curve: {r.cb_kwargs['course_curve']}")
 
             raise ContractFail(f"Unknown url: {r.url}")
 
