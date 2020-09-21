@@ -69,6 +69,7 @@ class TestPostgreSQLPipeline:
                                '\t\t\n'
                                '\t\t']
         item['course_type_length'] = ['ダ200m']
+        item['course_curve'] = ['\n                ダ\xa0\xa0200m(直線)\xa0\xa0']
         item['moisture'] = ['2.6%']
         item['place_name'] = ['帯広:第1競走']
         item['race_id'] = ['sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1']
@@ -93,6 +94,7 @@ class TestPostgreSQLPipeline:
         assert new_item['race_name'] == 'Ｃ１－１'
         assert new_item['course_type'] == 'ダ'
         assert new_item['course_length'] == 200
+        assert new_item['course_curve'] == '直線'
         assert new_item['weather'] == "雪"
         assert new_item['moisture'] == 2.6
         assert new_item['added_money'] == '賞金\xa01着\xa0150,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa042,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa021,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa012,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa07,000円'
@@ -111,6 +113,7 @@ class TestPostgreSQLPipeline:
         assert race_info['race_name'] == 'Ｃ１－１'
         assert race_info['course_type'] == 'ダ'
         assert race_info['course_length'] == 200
+        assert race_info['course_curve'] == '直線'
         assert race_info['weather'] == "雪"
         assert race_info['moisture'] == 2.6
         assert race_info['added_money'] == '賞金\xa01着\xa0150,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa042,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa021,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa012,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa07,000円'
@@ -154,6 +157,7 @@ class TestPostgreSQLPipeline:
                                '\t\t']
         item['course_condition'] = ['/local/images/ico-baba-4.gif?20180131184058']
         item['course_type_length'] = ['ダ1400m']
+        item['course_curve'] = ['\n                ダ\xa0\xa01400m(右回り)\xa0\xa0']
         item['place_name'] = ['佐賀:第11競走']
         item['race_id'] = ['sponsorCd=30&raceDy=20200126&opTrackCd=61&raceNb=11']
         item['race_name'] = ['\n\t\t\tウインターチャンピオンオープン\n\t\t']
@@ -177,6 +181,7 @@ class TestPostgreSQLPipeline:
         assert new_item['race_name'] == 'ウインターチャンピオンオープン'
         assert new_item['course_type'] == 'ダ'
         assert new_item['course_length'] == 1400
+        assert new_item['course_curve'] == '右回り'
         assert new_item['course_condition'] == "不良"
         assert new_item['weather'] == 'くもり'
         assert new_item['moisture'] is None
@@ -196,6 +201,7 @@ class TestPostgreSQLPipeline:
         assert race_info['race_name'] == 'ウインターチャンピオンオープン'
         assert race_info['course_type'] == 'ダ'
         assert race_info['course_length'] == 1400
+        assert race_info['course_curve'] == '右回り'
         assert race_info['course_condition'] == "不良"
         assert race_info['weather'] == 'くもり'
         assert race_info['moisture'] is None
@@ -239,6 +245,7 @@ class TestPostgreSQLPipeline:
                                '\t\t\n'
                                '\t\t']
         item['course_type_length'] = ['ダ1800m']
+        item['course_curve'] = ['\n                ダ\xa0\xa01800m(左回り)\xa0\xa0']
         item['place_name'] = ['盛岡:第12競走']
         item['race_id'] = ['sponsorCd=06&raceDy=20191118&opTrackCd=11&raceNb=12']
         item['race_name'] = ['\n\t\t\t初冬特別Ａ一組\n\t\t']
@@ -261,6 +268,7 @@ class TestPostgreSQLPipeline:
         assert new_item['race_name'] == '初冬特別Ａ一組'
         assert new_item['course_type'] == 'ダ'
         assert new_item['course_length'] == 1800
+        assert new_item['course_curve'] == '左回り'
         assert new_item['weather'] is None
         assert new_item['moisture'] is None
         assert new_item['added_money'] == '賞金\xa01着\xa0850,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa0221,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa0119,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa085,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa042,000円'
@@ -279,6 +287,7 @@ class TestPostgreSQLPipeline:
         assert race_info['race_name'] == '初冬特別Ａ一組'
         assert race_info['course_type'] == 'ダ'
         assert race_info['course_length'] == 1800
+        assert race_info['course_curve'] == '左回り'
         assert race_info['weather'] is None
         assert race_info['moisture'] is None
         assert race_info['added_money'] == '賞金\xa01着\xa0850,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t2着\xa0221,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t3着\xa0119,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t4着\xa085,000円\n\t\t\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\t5着\xa042,000円'

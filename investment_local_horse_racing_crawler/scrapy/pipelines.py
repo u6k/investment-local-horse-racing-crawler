@@ -65,31 +65,32 @@ class PostgreSQLPipeline(object):
     def process_item(self, item, spider):
         logger.debug("#process_item: start: item=%s" % item)
 
-        if isinstance(item, RaceInfoItem):
-            new_item = self.process_race_info_item(item, spider)
-        elif isinstance(item, RaceDenmaItem):
-            new_item = self.process_race_denma_item(item, spider)
-        elif isinstance(item, OddsWinPlaceItem):
-            new_item = self.process_odds_win_place_item(item, spider)
-        elif isinstance(item, RaceResultItem):
-            new_item = self.process_race_result_item(item, spider)
-        elif isinstance(item, RacePayoffItem):
-            new_item = self.process_race_payoff_item(item, spider)
-        elif isinstance(item, HorseItem):
-            new_item = self.process_horse_item(item, spider)
-        elif isinstance(item, JockeyItem):
-            new_item = self.process_jockey_item(item, spider)
-        elif isinstance(item, TrainerItem):
-            new_item = self.process_trainer_item(item, spider)
-        else:
-            raise DropItem("Unknown item type")
+        try:
+            if isinstance(item, RaceInfoItem):
+                new_item = self.process_race_info_item(item, spider)
+            elif isinstance(item, RaceDenmaItem):
+                new_item = self.process_race_denma_item(item, spider)
+            elif isinstance(item, OddsWinPlaceItem):
+                new_item = self.process_odds_win_place_item(item, spider)
+            elif isinstance(item, RaceResultItem):
+                new_item = self.process_race_result_item(item, spider)
+            elif isinstance(item, RacePayoffItem):
+                new_item = self.process_race_payoff_item(item, spider)
+            elif isinstance(item, HorseItem):
+                new_item = self.process_horse_item(item, spider)
+            elif isinstance(item, JockeyItem):
+                new_item = self.process_jockey_item(item, spider)
+            elif isinstance(item, TrainerItem):
+                new_item = self.process_trainer_item(item, spider)
+            else:
+                raise DropItem("Unknown item type")
 
-        self.db_cursor.execute("select 1")
-        results = self.db_cursor.fetchall()
-
-        logger.debug("#process_item: database results=%s" % results)
-
-        return new_item
+            return new_item
+        except DropItem as e:
+            raise e
+        except Exception:
+            logger.exception("Cause exception")
+            raise DropItem("Cause exception")
 
     def process_race_info_item(self, item, spider):
         logger.info("#process_race_info_item: start: item=%s" % item)
@@ -122,6 +123,15 @@ class PostgreSQLPipeline(object):
             i["course_length"] = int(course_type_length_re.group(2))
         else:
             raise DropItem("Unknown pattern course_type_length")
+
+        try:
+            course_curve_re = re.match("^.*\\((.+)\\).*$", item["course_curve"][0].strip())
+            if course_curve_re:
+                i["course_curve"] = course_curve_re.group(1)
+            else:
+                i["course_curve"] = None
+        except KeyError:
+            i["course_curve"] = None
 
         try:
             course_condition_str = item["course_condition"][0].strip()
@@ -168,7 +178,7 @@ class PostgreSQLPipeline(object):
 
         # Insert db
         self.db_cursor.execute("delete from race_info where race_id=%s", (i["race_id"],))
-        self.db_cursor.execute("insert into race_info (race_id, race_round, start_datetime, place_name, race_name, course_type, course_length, course_condition, weather, moisture, added_money) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (i["race_id"], i["race_round"], i["start_datetime"], i["place_name"], i["race_name"], i["course_type"], i["course_length"], i["course_condition"], i["weather"], i["moisture"], i["added_money"]))
+        self.db_cursor.execute("insert into race_info (race_id, race_round, start_datetime, place_name, race_name, course_type, course_length, course_curve, course_condition, weather, moisture, added_money) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (i["race_id"], i["race_round"], i["start_datetime"], i["place_name"], i["race_name"], i["course_type"], i["course_length"], i["course_curve"], i["course_condition"], i["weather"], i["moisture"], i["added_money"]))
         self.db_conn.commit()
 
         return i

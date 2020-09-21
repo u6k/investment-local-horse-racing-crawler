@@ -105,8 +105,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
         for a in response.xpath("//a"):
             href = a.xpath("@href").get()
 
-            if href is not None and href.startswith("/keiba/RaceList.do?"):
-                logger.info(f"#parse_race_refund_list: found race denma page: href={href}")
+            if href is not None and href.startswith("/keiba/OneDayRaceList.do?"):
+                logger.info(f"#parse_race_refund_list: found one day race list page: href={href}")
                 yield self._follow_delegate(response, href)
 
     def parse_one_day_race_list(self, response):
@@ -120,14 +120,14 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
         logger.info(f"#parse_one_day_race_list: start: url={response.url}")
 
-        for a in response.xpath("//a"):
-            href = a.xpath("@href").get()
+        for div in response.xpath("//div[@class='pB5']"):
+            href = div.xpath("strong/a/@href").get()
+            cb_kwargs = {'course_curve': div.xpath("text()")[3].get()}
 
-            if href is not None and href.startswith("/keiba/RaceList.do?raceDy="):
-                logger.info(f"#parse_one_day_race_list: found race denma page: href={href}")
-                yield self._follow_delegate(response, href)
+            logger.info(f"#parse_one_day_race_list: found race denma page: href={href}")
+            yield self._follow_delegate(response, href, cb_kwargs)
 
-    def parse_race_denma(self, response):
+    def parse_race_denma(self, response, course_curve=None):
         """ Parse race denma page.
 
         @url https://www.oddspark.com/keiba/RaceList.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
@@ -149,6 +149,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         loader.add_xpath("start_date", "//div[@id='RCdata2']/ul/li[@class='RCdate']/text()")
         loader.add_xpath("place_name", "//div[@id='RCdata2']/ul/li[@class='RCnum']/text()")
         loader.add_xpath("course_type_length", "//div[@id='RCdata2']/ul/li[@class='RCdst']/text()")
+        loader.add_value("course_curve", course_curve)
         loader.add_xpath("start_time", "//div[@id='RCdata2']/ul/li[@class='RCstm']/text()")
         loader.add_xpath("weather", "//div[@id='RCdata2']/ul/li[@class='RCwthr']/img/@src")
         loader.add_xpath("moisture", "//div[@id='RCdata2']/ul/li[@class='RCwatr']/span[@class='baba']/text()")
@@ -464,44 +465,44 @@ class LocalHorseRacingSpider(scrapy.Spider):
         logger.info(f"#parse_trainer: trainer={i}")
         yield i
 
-    def _follow_delegate(self, response, path):
-        logger.info(f"#_follow_delegate: start: path={path}")
+    def _follow_delegate(self, response, path, cb_kwargs=None):
+        logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
 
         if path.startswith("/keiba/KaisaiCalendar.do"):
             logger.debug(f"#_follow_delegate: follow calendar page")
-            return response.follow(path, callback=self.parse_calendar)
+            return response.follow(path, callback=self.parse_calendar, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceRefund.do?"):
             logger.debug(f"#_follow_delegate: follow race refund page")
-            return response.follow(path, callback=self.parse_race_refund_list)
+            return response.follow(path, callback=self.parse_race_refund_list, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/OneDayRaceList.do?"):
             logger.debug(f"#_follow_delegate: follow one day race list page")
-            return response.follow(path, callback=self.parse_one_day_race_list)
+            return response.follow(path, callback=self.parse_one_day_race_list, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceList.do?"):
             logger.debug(f"#_follow_delegate: follow race denma page")
-            return response.follow(path, callback=self.parse_race_denma)
+            return response.follow(path, callback=self.parse_race_denma, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?"):
             logger.debug(f"#_follow_delegate: follow odds page")
-            return response.follow(path, callback=self.parse_odds_win)
+            return response.follow(path, callback=self.parse_odds_win, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceResult.do?"):
             logger.debug(f"#_follow_delegate: follow race result page")
-            return response.follow(path, callback=self.parse_race_result)
+            return response.follow(path, callback=self.parse_race_result, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/HorseDetail.do?"):
             logger.debug(f"#_follow_delegate: follow horse page")
-            return response.follow(path, callback=self.parse_horse)
+            return response.follow(path, callback=self.parse_horse, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/JockeyDetail.do?"):
             logger.debug(f"#_follow_delegate: follow jockey page")
-            return response.follow(path, callback=self.parse_jockey)
+            return response.follow(path, callback=self.parse_jockey, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/TrainerDetail.do?"):
             logger.debug(f"#_follow_delegate: follow trainer page")
-            return response.follow(path, callback=self.parse_trainer)
+            return response.follow(path, callback=self.parse_trainer, cb_kwargs=cb_kwargs)
 
         else:
             logger.warning(f"#_follow_delegate: unknown path pattern")
