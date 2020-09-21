@@ -11,6 +11,7 @@ class RaceInfoItem(Item):
     start_date = Field()
     place_name = Field()
     course_type_length = Field()
+    course_curve = Field()
     start_time = Field()
     weather = Field()
     moisture = Field()
