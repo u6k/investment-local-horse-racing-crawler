@@ -127,7 +127,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.info(f"#parse_one_day_race_list: found race denma page: href={href}")
             yield self._follow_delegate(response, href, cb_kwargs)
 
-    def parse_race_denma(self, response, course_curve):
+    def parse_race_denma(self, response, course_curve=None):
         """ Parse race denma page.
 
         @url https://www.oddspark.com/keiba/RaceList.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
