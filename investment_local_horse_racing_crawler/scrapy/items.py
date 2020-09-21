@@ -11,6 +11,7 @@ class RaceInfoItem(Item):
     start_date = Field()
     place_name = Field()
     course_type_length = Field()
+    course_curve = Field()
     start_time = Field()
     weather = Field()
     moisture = Field()
@@ -48,7 +49,9 @@ class RaceResultItem(Item):
     horse_id = Field()
     result = Field()
     arrival_time = Field()
+    arrival_margin = Field()
     final_600_meters_time = Field()
+    corner_passing_order = Field()
 
 
 class RacePayoffItem(Item):
