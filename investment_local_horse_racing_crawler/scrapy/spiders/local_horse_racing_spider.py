@@ -127,7 +127,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.info(f"#parse_one_day_race_list: found race denma page: href={href}")
             yield self._follow_delegate(response, href, cb_kwargs)
 
-    def parse_race_denma(self, response):
+    def parse_race_denma(self, response, course_curve):
         """ Parse race denma page.
 
         @url https://www.oddspark.com/keiba/RaceList.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
@@ -149,6 +149,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         loader.add_xpath("start_date", "//div[@id='RCdata2']/ul/li[@class='RCdate']/text()")
         loader.add_xpath("place_name", "//div[@id='RCdata2']/ul/li[@class='RCnum']/text()")
         loader.add_xpath("course_type_length", "//div[@id='RCdata2']/ul/li[@class='RCdst']/text()")
+        loader.add_value("course_curve", course_curve)
         loader.add_xpath("start_time", "//div[@id='RCdata2']/ul/li[@class='RCstm']/text()")
         loader.add_xpath("weather", "//div[@id='RCdata2']/ul/li[@class='RCwthr']/img/@src")
         loader.add_xpath("moisture", "//div[@id='RCdata2']/ul/li[@class='RCwatr']/span[@class='baba']/text()")
