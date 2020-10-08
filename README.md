@@ -76,7 +76,13 @@ docker run --rm u6kapps/investment-local-horse-racing-crawler pipenv run migrate
 クロールを開始する。
 
 ```
-docker run --rm u6kapps/investment-local-horse-racing-crawler
+docker run --rm u6kapps/investment-local-horse-racing-crawler pipenv run crawl local_horse_racing
+```
+
+引数を指定してクロールする場合は、次のように実行する。
+
+```
+docker run --rm u6kapps/investment-local-horse-racing-crawler pipenv run crawl -a start_url=https://xxx.com/xxx -a recache_race=true -a recache_horse=false local_horse_racing
 ```
 
 シェルを起動する。

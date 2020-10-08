@@ -469,40 +469,40 @@ class LocalHorseRacingSpider(scrapy.Spider):
         logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
 
         if path.startswith("/keiba/KaisaiCalendar.do"):
-            logger.debug(f"#_follow_delegate: follow calendar page")
+            logger.debug("#_follow_delegate: follow calendar page")
             return response.follow(path, callback=self.parse_calendar, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceRefund.do?"):
-            logger.debug(f"#_follow_delegate: follow race refund page")
+            logger.debug("#_follow_delegate: follow race refund page")
             return response.follow(path, callback=self.parse_race_refund_list, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/OneDayRaceList.do?"):
-            logger.debug(f"#_follow_delegate: follow one day race list page")
+            logger.debug("#_follow_delegate: follow one day race list page")
             return response.follow(path, callback=self.parse_one_day_race_list, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceList.do?"):
-            logger.debug(f"#_follow_delegate: follow race denma page")
+            logger.debug("#_follow_delegate: follow race denma page")
             return response.follow(path, callback=self.parse_race_denma, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?"):
-            logger.debug(f"#_follow_delegate: follow odds page")
+            logger.debug("#_follow_delegate: follow odds page")
             return response.follow(path, callback=self.parse_odds_win, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceResult.do?"):
-            logger.debug(f"#_follow_delegate: follow race result page")
+            logger.debug("#_follow_delegate: follow race result page")
             return response.follow(path, callback=self.parse_race_result, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/HorseDetail.do?"):
-            logger.debug(f"#_follow_delegate: follow horse page")
+            logger.debug("#_follow_delegate: follow horse page")
             return response.follow(path, callback=self.parse_horse, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/JockeyDetail.do?"):
-            logger.debug(f"#_follow_delegate: follow jockey page")
+            logger.debug("#_follow_delegate: follow jockey page")
             return response.follow(path, callback=self.parse_jockey, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/TrainerDetail.do?"):
-            logger.debug(f"#_follow_delegate: follow trainer page")
+            logger.debug("#_follow_delegate: follow trainer page")
             return response.follow(path, callback=self.parse_trainer, cb_kwargs=cb_kwargs)
 
         else:
-            logger.warning(f"#_follow_delegate: unknown path pattern")
+            logger.warning("#_follow_delegate: unknown path pattern")
