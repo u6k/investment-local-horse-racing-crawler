@@ -1,3 +1,5 @@
+# TODO: Scrapyコマンドのテストに変更する
+
 import logging
 
 from investment_local_horse_racing_crawler import flask, VERSION

@@ -7,12 +7,13 @@ addons:
       - docker-ce
 
 script:
+  - cp .env.original .env
   - docker-compose build
   - docker-compose up -d
-  - docker-compose exec app pipenv run lint
-  - docker-compose exec app pipenv run check
-  - docker-compose exec app pipenv run migrate
-  - docker-compose exec app pipenv run test
+  - docker-compose run app pipenv run lint
+  - docker-compose run app pipenv run check
+  - docker-compose run app pipenv run migrate
+  - docker-compose run app pipenv run test
   - docker build -t u6kapps/investment-local-horse-racing-crawler -f Dockerfile.production .
 
 after_success:

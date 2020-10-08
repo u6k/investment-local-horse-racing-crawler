@@ -1,3 +1,5 @@
+# TODO: 削除する
+
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 import os
