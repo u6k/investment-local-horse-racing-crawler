@@ -19,9 +19,6 @@ class LocalHorseRacingSpider(scrapy.Spider):
         try:
             super(LocalHorseRacingSpider, self).__init__(*args, **kwargs)
 
-            # TODO: 削除する
-            raise RuntimeError("test")
-
             if start_date is not None and type(start_date) != datetime:
                 raise RuntimeError("type(start_date) is not datetime.")
 
