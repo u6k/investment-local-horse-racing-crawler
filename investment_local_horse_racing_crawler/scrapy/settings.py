@@ -25,6 +25,7 @@ HTTPCACHE_ENABLED = True
 HTTPCACHE_STORAGE = 'investment_local_horse_racing_crawler.scrapy.middlewares.S3CacheStorage'
 
 SPIDER_CONTRACTS = {
+    "investment_local_horse_racing_crawler.scrapy.contracts.CalendarContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.ScheduleListContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.OneDayRaceListContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.RaceRefundListContract": 10,

@@ -4,6 +4,13 @@
 from scrapy import Item, Field
 
 
+
+class CalendarItem(Item):
+    calendar_url = Field()
+    race_urls = Field()
+
+
+
 class RaceInfoItem(Item):
     race_id = Field()
     race_round = Field()
