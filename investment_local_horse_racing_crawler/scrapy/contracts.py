@@ -20,7 +20,7 @@ class CalendarContract(Contract):
             raise ContractFail(f"len(requests) <= 1: {len(requests)}")
 
         for request in requests:
-            if not request.url.startswith("https://www.oddspark.com/keiba/RaceRefund.do?"):
+            if not request.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
                 raise ContractFail(f"request is invalid: {request.url}")
 
         # Check item
@@ -36,12 +36,12 @@ class CalendarContract(Contract):
         if not item["calendar_url"][0].startswith("https://www.oddspark.com/keiba/KaisaiCalendar.do"):
             raise ContractFail(f"item.calendar_url is invalid: {item['calendar_url']}")
 
-        if len(item["race_urls"]) <= 1:
-            raise ContractFail(f"len(item.race_urls) <= 1: {len(item['race_urls'])}")
+        if len(item["race_list_urls"]) <= 1:
+            raise ContractFail(f"len(item.race_list_urls) <= 1: {len(item['race_list_urls'])}")
         
-        for race_url in item["race_urls"]:
-            if not race_url.startswith("/keiba/RaceRefund.do?"):
-                raise ContractFail(f"race_url is invalid: {race_url}")
+        for race_list_url in item["race_list_urls"]:
+            if not race_list_url.startswith("/keiba/OneDayRaceList.do?"):
+                raise ContractFail(f"race_list_url is invalid: {race_list_url}")
 
 
 

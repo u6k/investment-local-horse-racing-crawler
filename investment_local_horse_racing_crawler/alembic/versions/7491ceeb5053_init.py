@@ -21,7 +21,7 @@ def upgrade():
         "calendar_race_url",
         sa.Column("id", sa.String(255), primary_key=True),
         sa.Column("calendar_url", sa.String(255), nullable=False),
-        sa.Column("race_url", sa.String(255), nullable=False),
+        sa.Column("race_list_url", sa.String(255), nullable=False),
     )
 
 

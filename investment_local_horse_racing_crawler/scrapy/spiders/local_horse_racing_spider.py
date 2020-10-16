@@ -64,19 +64,19 @@ class LocalHorseRacingSpider(scrapy.Spider):
         # Build item
         loader = ItemLoader(item=CalendarItem(), response=response)
         loader.add_value("calendar_url", response.url)
-        loader.add_xpath("race_urls", "//table[contains(@class,'tbSched')]/tr/td/div/a/@href")
+        for href in response.xpath("//table[contains(@class,'tbSched')]/tr/td/div/a/@href"):
+            loader.add_value("race_list_urls", href.get().replace("RaceRefund", "OneDayRaceList"))
         i = loader.load_item()
 
         logger.debug(f"#parse_calendar: build calendar item={i}")
         yield i
 
         # Request
-        for race_url in i["race_urls"]:
-            logger.debug(f"#parse_calendar: found race page: url={race_url}")
-            yield self._follow_delegate(response, race_url)
+        for race_list_url in i["race_list_urls"]:
+            logger.debug(f"#parse_calendar: found race list page: url={race_list_url}")
+            yield self._follow_delegate(response, race_list_url)
 
-    def parse_race_refund_list(self, response):
-        pass
+    # def parse_race_refund_list(self, response):
     #     """ Parse race refund list page.
 
     #     @url https://www.oddspark.com/keiba/RaceRefund.do?opTrackCd=03&raceDy=20200301&sponsorCd=04
@@ -94,7 +94,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
     #             logger.info(f"#parse_race_refund_list: found one day race list page: href={href}")
     #             yield self._follow_delegate(response, href)
 
-    # def parse_one_day_race_list(self, response):
+    def parse_one_day_race_list(self, response):
+        pass
     #     """ Parse one day race list page.
 
     #     @url https://www.oddspark.com/keiba/OneDayRaceList.do?opTrackCd=42&raceDy=20200417&sponsorCd=20
@@ -457,13 +458,13 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug("#_follow_delegate: follow calendar page")
             return response.follow(path, callback=self.parse_calendar, cb_kwargs=cb_kwargs)
 
-        elif path.startswith("/keiba/RaceRefund.do?"):
-            logger.debug("#_follow_delegate: follow race refund page")
-            return response.follow(path, callback=self.parse_race_refund_list, cb_kwargs=cb_kwargs)
+        # elif path.startswith("/keiba/RaceRefund.do?"):
+        #     logger.debug("#_follow_delegate: follow race refund page")
+        #     return response.follow(path, callback=self.parse_race_refund_list, cb_kwargs=cb_kwargs)
 
-        # elif path.startswith("/keiba/OneDayRaceList.do?"):
-        #     logger.debug("#_follow_delegate: follow one day race list page")
-        #     return response.follow(path, callback=self.parse_one_day_race_list, cb_kwargs=cb_kwargs)
+        elif path.startswith("/keiba/OneDayRaceList.do?"):
+            logger.debug("#_follow_delegate: follow one day race list page")
+            return response.follow(path, callback=self.parse_one_day_race_list, cb_kwargs=cb_kwargs)
 
         # elif path.startswith("/keiba/RaceList.do?"):
         #     logger.debug("#_follow_delegate: follow race denma page")

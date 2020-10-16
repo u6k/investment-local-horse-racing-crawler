@@ -7,7 +7,7 @@ from scrapy import Item, Field
 
 class CalendarItem(Item):
     calendar_url = Field()
-    race_urls = Field()
+    race_list_urls = Field()
 
 
 

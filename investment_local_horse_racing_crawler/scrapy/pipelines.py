@@ -106,17 +106,17 @@ class PostgreSQLPipeline(object):
             (item["calendar_url"][0],))
 
         # Insert db
-        for race_url in item["race_urls"]:
+        for race_list_url in item["race_list_urls"]:
             calendar_url = item["calendar_url"][0]
-            id = hashlib.sha256((calendar_url + race_url).encode()).hexdigest()
+            id = hashlib.sha256((calendar_url + race_list_url).encode()).hexdigest()
 
-            logger.debug(f"#process_calendar_item: insert calendar_race_url: id={id}, calendar_url={calendar_url}, race_url={race_url}")
+            logger.debug(f"#process_calendar_item: insert calendar_race_url: id={id}, calendar_url={calendar_url}, race_list_url={race_list_url}")
 
             self.db_cursor.execute("""insert into calendar_race_url (
-                id, calendar_url, race_url
+                id, calendar_url, race_list_url
                 ) values (
                 %s, %s, %s
-                )""", (id, calendar_url, race_url))
+                )""", (id, calendar_url, race_list_url))
 
             self.db_conn.commit()
 
