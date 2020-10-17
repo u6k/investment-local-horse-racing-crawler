@@ -9,7 +9,7 @@ class CalendarItem(Item):
     race_list_urls = Field()
 
 
-class RaceSummaryMiniItem(Item):
+class RaceInfoMiniItem(Item):
     race_list_url = Field()
     race_name = Field()
     race_denma_url = Field()
@@ -18,30 +18,28 @@ class RaceSummaryMiniItem(Item):
 
 
 class RaceInfoItem(Item):
-    race_id = Field()
+    race_denma_url = Field()
     race_round = Field()
     race_name = Field()
     start_date = Field()
     place_name = Field()
     course_type_length = Field()
-    course_curve = Field()
     start_time = Field()
-    weather = Field()
-    moisture = Field()
+    weather_url = Field()
     course_condition = Field()
-    added_money = Field()
+    moisture = Field()
+    prize_money = Field()
 
 
 class RaceDenmaItem(Item):
-    race_id = Field()
+    race_denma_url = Field()
     bracket_number = Field()
     horse_number = Field()
-    horse_id = Field()
-    jockey_id = Field()
+    horse_url = Field()
+    jockey_url = Field()
     jockey_weight = Field()
-    trainer_id = Field()
-    odds_win = Field()
-    favorite = Field()
+    trainer_url = Field()
+    odds_win_favorite = Field()
     horse_weight = Field()
     horse_weight_diff = Field()
 

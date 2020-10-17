@@ -3,7 +3,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceSummaryMiniItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -54,10 +54,10 @@ class OneDayRaceListContract(Contract):
 
     def post_process(self, output):
         # Check item
-        items = [o for o in output if isinstance(o, RaceSummaryMiniItem)]
+        items = [o for o in output if isinstance(o, RaceInfoMiniItem)]
 
         if len(items) != 11:
-            raise ContractFail("len(RaceSummaryMiniItem) != 11")
+            raise ContractFail("len(RaceInfoMiniItem) != 11")
 
         for item in items:
             if len(item["race_list_url"]) != 1:
@@ -99,6 +99,132 @@ class OneDayRaceListContract(Contract):
 
 
 
+class RaceDenmaContract(Contract):
+    name = "race_denma"
+
+    def post_process(self, output):
+        # Check item (1)
+        items = [o for o in output if isinstance(o, RaceInfoItem)]
+
+        if len(items) != 1:
+            raise ContractFail("len(RaceInfoItem) != 1")
+
+        item = items[0]
+
+        if not item["race_denma_url"][0].startswith("https://www.oddspark.com/keiba/RaceList.do?"):
+            raise ContractFail("race_denma_url is invalid")
+
+        race_round_re = re.match("^R\d+$", item["race_round"][0])
+        if not race_round_re:
+            raise ContractFail("race_round is invalid")
+
+        if not item["race_name"][0]:
+            raise ContractFail("race_name is empty")
+
+        start_date_re = re.match("^\d{4}年\d{1,2}月\d{1,2}日\(\w\)$", item["start_date"][0])
+        if not start_date_re:
+            raise ContractFail("start_date is invalid")
+
+        if not item["place_name"][0]:
+            raise ContractFail("place_name is invalid")
+
+        course_type_length = re.match("^\w\d+m$", item["course_type_length"][0])
+        if not course_type_length:
+            raise ContractFail("course_type_length is invalid")
+
+        start_time_re = re.match("発走時間 \d{1,2}:\d{1,2}", item["start_time"][0])
+        if not start_time_re:
+            raise ContractFail("start_time is invalid")
+
+        if not item["weather_url"][0].startswith("/local/images/ico-tenki-"):
+            raise ContractFail("weather_url is invalid")
+
+        if "course_condition" in item:
+            if not item["course_condition"][0].startswith("/local/images/ico-baba-"):
+                raise ContractFail("course_condition is invalid")
+
+        if "moisture" in item:
+            moisture_re = re.match("^[\d\.]+\%$", item["moisture"][0])
+            if not moisture_re:
+                raise ContractFail("moisture is invalid")
+
+        prize_money_re = re.match("^.*賞金.*1着.*[\d,]+円.*2着.*[\d,]+円.*3着.*[\d,]+円.*4着.*[\d,]+円.*5着.*[\d,]+円.*$", item["prize_money"][0])
+        if not prize_money_re:
+            raise ContractFail("prize_money is invalid")
+
+        # Check item (2)
+        items = [o for o in output if isinstance(o, RaceDenmaItem)]
+
+        if len(items) == 0:
+            raise ContractFail("len(RaceDenmaItem) == 0")
+
+        for item in items:
+            if not item["race_denma_url"][0].startswith("https://www.oddspark.com/keiba/RaceList.do?"):
+                raise ContractFail("race_denma_url is invalid")
+
+            if not item["bracket_number"][0]:
+                raise ContractFail("bracket_number is empty")
+
+            if not item["horse_number"][0]:
+                raise ContractFail("horse_number is empty")
+
+            horse_url_re = re.match("^/keiba/HorseDetail\.do\?lineageNb=\d+$", item["horse_url"][0])
+            if not horse_url_re:
+                raise ContractFail("horse_url is invalid")
+
+            jockey_url_re = re.match("^/keiba/JockeyDetail\.do\?jkyNb=\d+$", item["jockey_url"][0])
+            if not jockey_url_re:
+                raise ContractFail("jockey_url is invalid")
+
+            jockey_weight_re = re.match("^.?\d+(\.\d+)?$", item["jockey_weight"][0])
+            if not jockey_weight_re:
+                raise ContractFail("jockey_weight is invalid")
+
+            trainer_url_re = re.match("/keiba/TrainerDetail\.do\?trainerNb=\d+$", item["trainer_url"][0])
+            if not trainer_url_re:
+                raise ContractFail("trainer_url is invalid")
+
+            odds_win_favorite_re = re.match("^[\d\.]+ +\(\d+人気\)$", item["odds_win_favorite"][0])
+            if not odds_win_favorite_re:
+                raise ContractFail("odds_win_favorite is invalid")
+
+            horse_weight_re = re.match("^\d+$", item["horse_weight"][0])
+            if not horse_weight_re:
+                raise ContractFail("horse_weight is invalid")
+
+            horse_weight_diff_re = re.match("^[\+\-±]\d+$", item["horse_weight_diff"][0])
+            if not horse_weight_diff_re:
+                raise ContractFail("horse_weight_diff is invalid")
+
+        # Check requests
+        requests = [o for o in output if isinstance(o, Request)]
+
+        # Check url pattern
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/Odds.do?") for r in requests)
+        if count != 1:
+            raise ContractFail("Odds page not found")
+
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/RaceResult.do?") for r in requests)
+        if count != 1:
+            raise ContractFail("Race result page not found")
+
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/HorseDetail.do?lineageNb=") for r in requests)
+        if count == 0:
+            raise ContractFail("Horse page not found")
+
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/JockeyDetail.do?jkyNb=") for r in requests)
+        if count == 0:
+            raise ContractFail("Jockey page not found")
+
+        count = sum(r.url.startswith("https://www.oddspark.com/keiba/TrainerDetail.do?trainerNb=") for r in requests)
+        if count == 0:
+            raise ContractFail("Trainer page not found")
+
+
+
+
+
+
 class ScheduleListContract(Contract):
     name = "schedule_list"
 
@@ -127,73 +253,6 @@ class ScheduleListContract(Contract):
         #         continue
 
         #     if r.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
-        #         continue
-
-        #     raise ContractFail(f"Unknown url: {r.url}")
-
-
-class RaceRefundListContract(Contract):
-    name = "race_refund_list"
-
-    def post_process(self, output):
-        pass
-        # # Check requests
-        # requests = [o for o in output if isinstance(o, Request)]
-        # if len(requests) == 0:
-        #     raise ContractFail("Empty requests")
-
-        # # Check unknown url
-        # for r in requests:
-        #     if r.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
-        #         continue
-
-        #     raise ContractFail(f"Unknown url: {r.url}")
-
-
-class RaceDenmaContract(Contract):
-    name = "race_denma"
-
-    def post_process(self, output):
-        pass
-        # # Check requests
-        # requests = [o for o in output if isinstance(o, Request)]
-
-        # # Check url pattern
-        # count = sum(r.url.startswith("https://www.oddspark.com/keiba/Odds.do?") for r in requests)
-        # if count != 1:
-        #     raise ContractFail("Odds page not found")
-
-        # count = sum(r.url.startswith("https://www.oddspark.com/keiba/RaceResult.do?") for r in requests)
-        # if count != 1:
-        #     raise ContractFail("Race result page not found")
-
-        # count = sum(r.url.startswith("https://www.oddspark.com/keiba/HorseDetail.do?") for r in requests)
-        # if count == 0:
-        #     raise ContractFail("Horse page not found")
-
-        # count = sum(r.url.startswith("https://www.oddspark.com/keiba/JockeyDetail.do?") for r in requests)
-        # if count == 0:
-        #     raise ContractFail("Jockey page not found")
-
-        # count = sum(r.url.startswith("https://www.oddspark.com/keiba/TrainerDetail.do?") for r in requests)
-        # if count == 0:
-        #     raise ContractFail("Trainer page not found")
-
-        # # Check unknown url
-        # for r in requests:
-        #     if r.url.startswith("https://www.oddspark.com/keiba/Odds.do?"):
-        #         continue
-
-        #     if r.url.startswith("https://www.oddspark.com/keiba/RaceResult.do?"):
-        #         continue
-
-        #     if r.url.startswith("https://www.oddspark.com/keiba/HorseDetail.do?"):
-        #         continue
-
-        #     if r.url.startswith("https://www.oddspark.com/keiba/JockeyDetail.do?"):
-        #         continue
-
-        #     if r.url.startswith("https://www.oddspark.com/keiba/TrainerDetail.do?"):
         #         continue
 
         #     raise ContractFail(f"Unknown url: {r.url}")

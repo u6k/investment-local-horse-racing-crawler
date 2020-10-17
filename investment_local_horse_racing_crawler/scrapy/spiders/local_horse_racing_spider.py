@@ -1,10 +1,9 @@
-import re
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceSummaryMiniItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -89,7 +88,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
         for div in response.xpath("//div[@class='pB5']"):
             # Build item
-            loader = ItemLoader(item=RaceSummaryMiniItem(), selector=div)
+            loader = ItemLoader(item=RaceInfoMiniItem(), selector=div)
             loader.add_value("race_list_url", response.url)
             loader.add_xpath("race_name", "normalize-space(strong/a/text())")
             loader.add_xpath("race_denma_url", "strong/a/@href")
@@ -104,101 +103,97 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug(f"#parse_one_day_race_list: found race denma page: url={i['race_denma_url'][0]}")
             yield self._follow_delegate(response, i["race_denma_url"][0])
 
-    def parse_race_denma(self, response, course_curve=None):
+    def parse_race_denma(self, response):
+        """ Parse race denma page.
+
+        @url https://www.oddspark.com/keiba/RaceList.do?raceDy=20200417&opTrackCd=42&raceNb=1&sponsorCd=20
+        @returns items 1
+        @returns requests 1
+        @race_denma
+        """
+
+        logger.info(f"#parse_race_denma: start: url={response.url}")
+
+        # Parse race info
+        logger.debug("#parse_race_denma: parse race info")
+
+        loader = ItemLoader(item=RaceInfoItem(), response=response)
+        loader.add_value("race_denma_url", response.url)
+        loader.add_xpath("race_round", "//div[@id='RCdata1']/span/text()")
+        loader.add_xpath("race_name", "normalize-space(//div[@id='RCdata2']/h3/text())")
+        loader.add_xpath("start_date", "//div[@id='RCdata2']/ul/li[@class='RCdate']/text()")
+        loader.add_xpath("place_name", "normalize-space(//div[@id='RCdata2']/ul/li[@class='RCnum']/text())")
+        loader.add_xpath("course_type_length", "//div[@id='RCdata2']/ul/li[@class='RCdst']/text()")
+        loader.add_xpath("start_time", "//div[@id='RCdata2']/ul/li[@class='RCstm']/text()")
+        loader.add_xpath("weather_url", "//div[@id='RCdata2']/ul/li[@class='RCwthr']/img/@src")
+        loader.add_xpath("moisture", "//div[@id='RCdata2']/ul/li[@class='RCwatr']/span[@class='baba']/text()")
+        loader.add_xpath("course_condition", "//div[@id='RCdata2']/ul/li[@class='RCcnd']/img/@src")
+        loader.add_xpath("prize_money", "normalize-space(//div[@id='RCdata2']/p/text())")
+        i = loader.load_item()
+
+        logger.info(f"#parse_race_denma: race info={i}")
+        yield i
+
+        # Parse race denma
+        logger.debug("#parse_race_denma: parse race denma")
+
+        for tr in response.xpath("//table[contains(@class,'ent1')]/tr"):
+            if len(tr.xpath("td")) == 0:
+                continue
+
+            if len(tr.xpath("td")) == 15:
+                bracket_number = tr.xpath("normalize-space(td[1]/text())").get()
+
+                loader = ItemLoader(item=RaceDenmaItem(), selector=tr)
+                loader.add_value("race_denma_url", response.url)
+                loader.add_value("bracket_number", bracket_number)
+                loader.add_xpath("horse_number", "normalize-space(td[3]/text())")
+                loader.add_xpath("horse_url", "td[5]/a/@href")
+                loader.add_xpath("jockey_url", "td[6]/a[1]/@href")
+                loader.add_xpath("jockey_weight", "normalize-space(td[6]/strong/text())")
+                loader.add_xpath("trainer_url", "td[6]/a[2]/@href")
+                loader.add_xpath("odds_win_favorite", "normalize-space(td[7])")
+                loader.add_xpath("horse_weight", "normalize-space(td[8]/text()[1])")
+                loader.add_xpath("horse_weight_diff", "normalize-space(td[8]/text()[2])")
+                i = loader.load_item()
+
+                logger.info(f"#parse_race_denma: race denma={i}")
+                yield i
+            elif len(tr.xpath("td")) == 13:
+                loader = ItemLoader(item=RaceDenmaItem(), selector=tr)
+                loader.add_value("race_denma_url", response.url)
+                loader.add_value("bracket_number", bracket_number)
+                loader.add_xpath("horse_number", "normalize-space(td[1]/text())")
+                loader.add_xpath("horse_url", "td[3]/a/@href")
+                loader.add_xpath("jockey_url", "td[4]/a[1]/@href")
+                loader.add_xpath("jockey_weight", "normalize-space(td[4]/strong/text())")
+                loader.add_xpath("trainer_url", "td[4]/a[2]/@href")
+                loader.add_xpath("odds_win_favorite", "normalize-space(td[5])")
+                loader.add_xpath("horse_weight", "normalize-space(td[6]/text()[1])")
+                loader.add_xpath("horse_weight_diff", "normalize-space(td[6]/text()[2])")
+                i = loader.load_item()
+
+                logger.info(f"#parse_race_denma: race denma={i}")
+                yield i
+            else:
+                logger.warn("#parse_race_denma: unknown record")
+
+        # Parse link
+        for a in response.xpath("//a"):
+            href = a.xpath("@href").get()
+
+            if href is None:
+                continue
+
+            if href.startswith("/keiba/Odds.do?") \
+                    or href.startswith("/keiba/RaceResult.do?") \
+                    or href.startswith("/keiba/HorseDetail.do?") \
+                    or href.startswith("/keiba/JockeyDetail.do?") \
+                    or href.startswith("/keiba/TrainerDetail.do?"):
+                yield self._follow_delegate(response, href)
+
+    def parse_race_result(self, response):
         pass
-    #     """ Parse race denma page.
-
-    #     @url https://www.oddspark.com/keiba/RaceList.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
-    #     @returns items 1
-    #     @returns requests 1
-    #     @race_denma
-    #     """
-
-    #     logger.info(f"#parse_race_denma: start: url={response.url}")
-
-    #     # Parse race info
-    #     logger.debug("#parse_race_denma: parse race info")
-
-    #     loader = ItemLoader(item=RaceInfoItem(), response=response)
-    #     race_id = response.url.split("?")[-1]
-    #     loader.add_value("race_id", race_id)
-    #     loader.add_xpath("race_round", "//div[@id='RCdata1']/span/text()")
-    #     loader.add_xpath("race_name", "//div[@id='RCdata2']/h3/text()")
-    #     loader.add_xpath("start_date", "//div[@id='RCdata2']/ul/li[@class='RCdate']/text()")
-    #     loader.add_xpath("place_name", "//div[@id='RCdata2']/ul/li[@class='RCnum']/text()")
-    #     loader.add_xpath("course_type_length", "//div[@id='RCdata2']/ul/li[@class='RCdst']/text()")
-    #     loader.add_value("course_curve", course_curve)
-    #     loader.add_xpath("start_time", "//div[@id='RCdata2']/ul/li[@class='RCstm']/text()")
-    #     loader.add_xpath("weather", "//div[@id='RCdata2']/ul/li[@class='RCwthr']/img/@src")
-    #     loader.add_xpath("moisture", "//div[@id='RCdata2']/ul/li[@class='RCwatr']/span[@class='baba']/text()")
-    #     loader.add_xpath("course_condition", "//div[@id='RCdata2']/ul/li[@class='RCcnd']/img/@src")
-    #     loader.add_xpath("added_money", "//div[@id='RCdata2']/p/text()")
-    #     i = loader.load_item()
-
-    #     logger.info(f"#parse_race_denma: race info={i}")
-    #     yield i
-
-    #     # Parse race denma
-    #     logger.debug("#parse_race_denma: parse race denma")
-
-    #     for tr in response.xpath("//table[contains(@class,'ent1')]/tr"):
-    #         if len(tr.xpath("td")) == 0:
-    #             continue
-
-    #         if len(tr.xpath("td")) == 15:
-    #             bracket_number = tr.xpath("td[1]/text()").get()
-
-    #             loader = ItemLoader(item=RaceDenmaItem(), selector=tr)
-    #             loader.add_value("race_id", race_id)
-    #             loader.add_value("bracket_number", bracket_number)
-    #             loader.add_xpath("horse_number", "td[3]/text()")
-    #             loader.add_xpath("horse_id", "td[5]/a/@href")
-    #             loader.add_xpath("jockey_id", "td[6]/a[1]/@href")
-    #             loader.add_xpath("jockey_weight", "td[6]/strong/text()")
-    #             loader.add_xpath("trainer_id", "td[6]/a[2]/@href")
-    #             loader.add_xpath("odds_win", "td[7]/span/text()")
-    #             loader.add_xpath("favorite", "td[7]/text()")
-    #             loader.add_xpath("horse_weight", "td[8]/text()[1]")
-    #             loader.add_xpath("horse_weight_diff", "td[8]/text()[2]")
-    #             i = loader.load_item()
-
-    #             logger.info(f"#parse_race_denma: race denma={i}")
-    #             yield i
-    #         elif len(tr.xpath("td")) == 13:
-    #             loader = ItemLoader(item=RaceDenmaItem(), selector=tr)
-    #             loader.add_value("race_id", race_id)
-    #             loader.add_value("bracket_number", bracket_number)
-    #             loader.add_xpath("horse_number", "td[1]/text()")
-    #             loader.add_xpath("horse_id", "td[3]/a/@href")
-    #             loader.add_xpath("jockey_id", "td[4]/a[1]/@href")
-    #             loader.add_xpath("jockey_weight", "td[4]/strong/text()")
-    #             loader.add_xpath("trainer_id", "td[4]/a[2]/@href")
-    #             loader.add_xpath("odds_win", "td[5]/span/text()")
-    #             loader.add_xpath("favorite", "td[5]/text()")
-    #             loader.add_xpath("horse_weight", "td[6]/text()[1]")
-    #             loader.add_xpath("horse_weight_diff", "td[6]/text()[2]")
-    #             i = loader.load_item()
-
-    #             logger.info(f"#parse_race_denma: race denma={i}")
-    #             yield i
-    #         else:
-    #             logger.warn("#parse_race_denma: unknown record")
-
-    #     # Parse link
-    #     for a in response.xpath("//a"):
-    #         href = a.xpath("@href").get()
-
-    #         if href is None:
-    #             continue
-
-    #         if href.startswith("/keiba/Odds.do?") \
-    #                 or href.startswith("/keiba/RaceResult.do?") \
-    #                 or href.startswith("/keiba/HorseDetail.do?") \
-    #                 or href.startswith("/keiba/JockeyDetail.do?") \
-    #                 or href.startswith("/keiba/TrainerDetail.do?"):
-    #             yield self._follow_delegate(response, href)
-
-    # def parse_race_result(self, response):
     #     """ Parse race result page.
 
     #     @url https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=10
@@ -255,7 +250,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
     #         logger.info(f"#parse_race_result: race payoff={i}")
     #         yield i
 
-    # def parse_odds_win(self, response):
+    def parse_odds_win(self, response):
+        pass
     #     """ Parse odds(win) page.
 
     #     @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
@@ -300,7 +296,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
     #         logger.info(f"#parse_odds_win: odds win/place={i}")
     #         yield i
 
-    # def parse_horse(self, response):
+    def parse_horse(self, response):
+        pass
     #     """ Parse horse page.
 
     #     @url https://www.oddspark.com/keiba/HorseDetail.do?lineageNb=2280190375
@@ -358,7 +355,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
     #     logger.info(f"#parse_horse: horse={i}")
     #     yield i
 
-    # def parse_jockey(self, response):
+    def parse_jockey(self, response):
+        pass
     #     """ Parse jockey page.
 
     #     @url https://www.oddspark.com/keiba/JockeyDetail.do?jkyNb=038071
@@ -403,7 +401,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
     #     logger.info(f"#parse_jockey: jockey={i}")
     #     yield i
 
-    # def parse_trainer(self, response):
+    def parse_trainer(self, response):
+        pass
     #     """ Parse trainer page.
 
     #     @url https://www.oddspark.com/keiba/TrainerDetail.do?trainerNb=018052
@@ -458,25 +457,25 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug("#_follow_delegate: follow race denma page")
             return response.follow(path, callback=self.parse_race_denma, cb_kwargs=cb_kwargs)
 
-        # elif path.startswith("/keiba/RaceResult.do?"):
-        #     logger.debug("#_follow_delegate: follow race result page")
-        #     return response.follow(path, callback=self.parse_race_result, cb_kwargs=cb_kwargs)
+        elif path.startswith("/keiba/Odds.do?"):
+            logger.debug("#_follow_delegate: follow odds page")
+            return response.follow(path, callback=self.parse_odds_win, cb_kwargs=cb_kwargs)
 
-        # elif path.startswith("/keiba/Odds.do?"):
-        #     logger.debug("#_follow_delegate: follow odds page")
-        #     return response.follow(path, callback=self.parse_odds_win, cb_kwargs=cb_kwargs)
+        elif path.startswith("/keiba/RaceResult.do?"):
+            logger.debug("#_follow_delegate: follow race result page")
+            return response.follow(path, callback=self.parse_race_result, cb_kwargs=cb_kwargs)
 
-        # elif path.startswith("/keiba/HorseDetail.do?"):
-        #     logger.debug("#_follow_delegate: follow horse page")
-        #     return response.follow(path, callback=self.parse_horse, cb_kwargs=cb_kwargs)
+        elif path.startswith("/keiba/HorseDetail.do?"):
+            logger.debug("#_follow_delegate: follow horse page")
+            return response.follow(path, callback=self.parse_horse, cb_kwargs=cb_kwargs)
 
-        # elif path.startswith("/keiba/JockeyDetail.do?"):
-        #     logger.debug("#_follow_delegate: follow jockey page")
-        #     return response.follow(path, callback=self.parse_jockey, cb_kwargs=cb_kwargs)
+        elif path.startswith("/keiba/JockeyDetail.do?"):
+            logger.debug("#_follow_delegate: follow jockey page")
+            return response.follow(path, callback=self.parse_jockey, cb_kwargs=cb_kwargs)
 
-        # elif path.startswith("/keiba/TrainerDetail.do?"):
-        #     logger.debug("#_follow_delegate: follow trainer page")
-        #     return response.follow(path, callback=self.parse_trainer, cb_kwargs=cb_kwargs)
+        elif path.startswith("/keiba/TrainerDetail.do?"):
+            logger.debug("#_follow_delegate: follow trainer page")
+            return response.follow(path, callback=self.parse_trainer, cb_kwargs=cb_kwargs)
 
         else:
             logger.warning("#_follow_delegate: unknown path pattern")
