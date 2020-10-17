@@ -1,8 +1,9 @@
+import re
 from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceSummaryMiniItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -14,34 +15,86 @@ class CalendarContract(Contract):
     name = "calendar"
 
     def post_process(self, output):
-        # Check requests
-        requests = [o for o in output if isinstance(o, Request)]
-        if len(requests) <= 1:
-            raise ContractFail(f"len(requests) <= 1: {len(requests)}")
-
-        for request in requests:
-            if not request.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
-                raise ContractFail(f"request is invalid: {request.url}")
-
         # Check item
         items = [o for o in output if isinstance(o, CalendarItem)]
+
         if len(items) != 1:
             raise ContractFail("CalendarItems is not 1")
 
         item = items[0]
 
         if len(item["calendar_url"]) != 1:
-            raise ContractFail(f"len(item.calendar_url) is not 1: {len(item['calendar_url'])}")
+            raise ContractFail("len(item.calendar_url) is not 1")
 
         if not item["calendar_url"][0].startswith("https://www.oddspark.com/keiba/KaisaiCalendar.do"):
-            raise ContractFail(f"item.calendar_url is invalid: {item['calendar_url']}")
+            raise ContractFail("item.calendar_url is invalid")
 
         if len(item["race_list_urls"]) <= 1:
-            raise ContractFail(f"len(item.race_list_urls) <= 1: {len(item['race_list_urls'])}")
+            raise ContractFail(f"len(item.race_list_urls) <= 1")
         
         for race_list_url in item["race_list_urls"]:
             if not race_list_url.startswith("/keiba/OneDayRaceList.do?"):
-                raise ContractFail(f"race_list_url is invalid: {race_list_url}")
+                raise ContractFail(f"race_list_url is invalid")
+
+        # Check requests
+        requests = [o for o in output if isinstance(o, Request)]
+        
+        if len(requests) <= 1:
+            raise ContractFail(f"len(requests) <= 1")
+
+        for request in requests:
+            if not request.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
+                raise ContractFail(f"request is invalid")
+
+
+
+
+class OneDayRaceListContract(Contract):
+    name = "one_day_race_list"
+
+    def post_process(self, output):
+        # Check item
+        items = [o for o in output if isinstance(o, RaceSummaryMiniItem)]
+
+        if len(items) != 11:
+            raise ContractFail("len(RaceSummaryMiniItem) != 11")
+
+        for item in items:
+            if len(item["race_list_url"]) != 1:
+                raise ContractFail("len(race_list_url) != 1")
+            if not item["race_list_url"][0].startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
+                raise ContractFail("race_list_url[0] is invalid")
+
+            if len(item["race_name"]) != 1:
+                raise ContractFail("len(race_name) != 1")
+            if not item["race_name"][0]:
+                raise ContractFail("race_name[0] is empty")
+
+            if len(item["race_denma_url"]) != 1:
+                raise ContractFail("len(race_denma_url) != 1")
+            if not item["race_denma_url"][0].startswith("/keiba/RaceList.do?"):
+                raise ContractFail("race_denma_url[0] is invalid")
+
+            if len(item["course_length"]) != 1:
+                raise ContractFail("len(course_length) != 1")
+            if not item["course_length"][0]:
+                raise ContractFail("course_length[0] is empty")
+
+            if len(item["start_time"]) != 1:
+                raise ContractFail("len(start_time) != 1")
+            start_time_re = re.match("^\d+:\d+", item["start_time"][0])
+            if not start_time_re:
+                raise ContractFail("start_time is invalid pattern")
+
+        # Check requests
+        requests = [o for o in output if isinstance(o, Request)]
+        
+        if len(requests) != 11:
+            raise ContractFail(f"len(requests) != 11")
+
+        for request in requests:
+            if not request.url.startswith("https://www.oddspark.com/keiba/RaceList.do?"):
+                raise ContractFail("request is invalid")
 
 
 
@@ -93,27 +146,6 @@ class RaceRefundListContract(Contract):
         # for r in requests:
         #     if r.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
         #         continue
-
-        #     raise ContractFail(f"Unknown url: {r.url}")
-
-
-class OneDayRaceListContract(Contract):
-    name = "one_day_race_list"
-
-    def post_process(self, output):
-        pass
-        # # Check requests
-        # requests = [o for o in output if isinstance(o, Request)]
-        # if len(requests) == 0:
-        #     raise ContractFail("Empty requests")
-
-        # # Check unknown url
-        # for r in requests:
-        #     if r.url.startswith("https://www.oddspark.com/keiba/RaceList.do?"):
-        #         if ('直線' in r.cb_kwargs['course_curve']) or ('右回り' in r.cb_kwargs['course_curve']) or ('左回り' in r.cb_kwargs['course_curve']):
-        #             continue
-
-        #         raise ContractFail(f"Unknown course curve: {r.cb_kwargs['course_curve']}")
 
         #     raise ContractFail(f"Unknown url: {r.url}")
 

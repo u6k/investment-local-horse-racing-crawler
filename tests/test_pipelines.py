@@ -7,7 +7,7 @@ from scrapy.crawler import Crawler
 from scrapy.exceptions import DropItem
 
 from investment_local_horse_racing_crawler.scrapy.spiders.local_horse_racing_spider import LocalHorseRacingSpider
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceSummaryMiniItem
 from investment_local_horse_racing_crawler.scrapy.pipelines import PostgreSQLPipeline
 
 
@@ -29,6 +29,7 @@ class TestPostgreSQLPipeline:
 
         # Setting db
         self.pipeline.db_cursor.execute("delete from calendar_race_url")
+        self.pipeline.db_cursor.execute("delete from race_summary_mini")
 
     def teardown(self):
         self.pipeline.close_spider(None)
@@ -130,6 +131,7 @@ class TestPostgreSQLPipeline:
         eq_(len(records), 77)
 
         for record in records:
+            eq_(len(record["id"]), 64)
             eq_(record["calendar_url"], "https://www.oddspark.com/keiba/KaisaiCalendar.do?target=202004")
             ok_(record["race_list_url"].startswith("/keiba/OneDayRaceList.do?"))
 
@@ -141,6 +143,84 @@ class TestPostgreSQLPipeline:
 
         records = self.pipeline.db_cursor.fetchall()
         eq_(len(records), 77)
+
+    def test_process_race_summary_mini_item_1(self):
+        # Setup
+        item = RaceSummaryMiniItem()
+        item['course_length'] = ['1R\xa0\xa0サラ系３歳１０組３歳１０ レース結果 ダ\xa0\xa01400m(右回り)\xa0\xa0発走時間\xa011:10']
+        item['race_denma_url'] = ['/keiba/RaceList.do?raceDy=20200417&opTrackCd=42&raceNb=1&sponsorCd=20']
+        item['race_list_url'] = ['https://www.oddspark.com/keiba/OneDayRaceList.do?opTrackCd=42&raceDy=20200417&sponsorCd=20']
+        item['race_name'] = ['1R\xa0\xa0サラ系３歳１０組３歳１０']
+        item['start_time'] = ['11:10']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_summary_mini")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from race_summary_mini")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+        record = records[0]
+        eq_(len(record['id']), 64)
+        eq_(record['course_length'], '1R\xa0\xa0サラ系３歳１０組３歳１０ レース結果 ダ\xa0\xa01400m(右回り)\xa0\xa0発走時間\xa011:10')
+        eq_(record['race_denma_url'], '/keiba/RaceList.do?raceDy=20200417&opTrackCd=42&raceNb=1&sponsorCd=20')
+        eq_(record['race_list_url'], 'https://www.oddspark.com/keiba/OneDayRaceList.do?opTrackCd=42&raceDy=20200417&sponsorCd=20')
+        eq_(record['race_name'], '1R\xa0\xa0サラ系３歳１０組３歳１０')
+        eq_(record['start_time'], '11:10')
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from race_summary_mini")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+    def test_process_race_summary_mini_item_2(self):
+        # Setup
+        item = RaceSummaryMiniItem()
+        item['course_length'] = ['11R\xa0\xa0狩勝賞オープン－１ ダ\xa0\xa0200m(直線)\xa0\xa0発走時間\xa020:10']
+        item['race_denma_url'] = ['/keiba/RaceList.do?raceDy=20201019&opTrackCd=03&raceNb=11&sponsorCd=04']
+        item['race_list_url'] = ['https://www.oddspark.com/keiba/OneDayRaceList.do?opTrackCd=03&raceDy=20201019&sponsorCd=04']
+        item['race_name'] = ['11R\xa0\xa0狩勝賞オープン－１']
+        item['start_time'] = ['20:10']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_summary_mini")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from race_summary_mini")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+        record = records[0]
+        eq_(len(record['id']), 64)
+        eq_(record['course_length'], '11R\xa0\xa0狩勝賞オープン－１ ダ\xa0\xa0200m(直線)\xa0\xa0発走時間\xa020:10')
+        eq_(record['race_denma_url'], '/keiba/RaceList.do?raceDy=20201019&opTrackCd=03&raceNb=11&sponsorCd=04')
+        eq_(record['race_list_url'], 'https://www.oddspark.com/keiba/OneDayRaceList.do?opTrackCd=03&raceDy=20201019&sponsorCd=04')
+        eq_(record['race_name'],  '11R\xa0\xa0狩勝賞オープン－１')
+        eq_(record['start_time'], '20:10')
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from race_summary_mini")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
 
     # def test_process_race_info_item_1(self):
     #     # Setup

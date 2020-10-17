@@ -4,11 +4,17 @@
 from scrapy import Item, Field
 
 
-
 class CalendarItem(Item):
     calendar_url = Field()
     race_list_urls = Field()
 
+
+class RaceSummaryMiniItem(Item):
+    race_list_url = Field()
+    race_name = Field()
+    race_denma_url = Field()
+    course_length = Field()
+    start_time = Field()
 
 
 class RaceInfoItem(Item):

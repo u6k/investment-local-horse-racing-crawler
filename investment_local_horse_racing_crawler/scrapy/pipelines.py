@@ -9,7 +9,7 @@ from scrapy.exceptions import DropItem
 import urllib.parse
 import hashlib
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoItem, RaceDenmaItem, OddsWinPlaceItem, RaceResultItem, RacePayoffItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceSummaryMiniItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -70,6 +70,8 @@ class PostgreSQLPipeline(object):
             # TODO: DB格納方法を修正する
             if isinstance(item, CalendarItem):
                 self.process_calendar_item(item, spider)
+            elif isinstance(item, RaceSummaryMiniItem):
+                self.process_race_summary_mini_item(item, spider)
             # if isinstance(item, RaceInfoItem):
             #     new_item = self.process_race_info_item(item, spider)
             # elif isinstance(item, RaceDenmaItem):
@@ -92,7 +94,7 @@ class PostgreSQLPipeline(object):
             return item
         except DropItem as e:
             raise e
-        except Exception:
+        except Exception as e:
             logger.exception("Cause exception")
             raise DropItem("Cause exception")
     
@@ -100,7 +102,7 @@ class PostgreSQLPipeline(object):
         logger.info(f"#process_calendar_item: start: item={item}")
 
         # Delete db
-        logger.debug(f"#process_calendar_item: delete calendar_race_url: calendar_url={item['calendar_url'][0]}")
+        logger.debug(f"#process_calendar_item: delete calendar_race_url")
         
         self.db_cursor.execute("delete from calendar_race_url where calendar_url=%s",
             (item["calendar_url"][0],))
@@ -119,6 +121,33 @@ class PostgreSQLPipeline(object):
                 )""", (id, calendar_url, race_list_url))
 
             self.db_conn.commit()
+
+    def process_race_summary_mini_item(self, item, spider):
+        logger.info(f"#process_race_summary_mini_item: start: item={item}")
+
+        # Delete db
+        logger.debug(f"#process_race_summary_mini_item: delete")
+
+        self.db_cursor.execute("delete from race_summary_mini where race_list_url=%s",
+            (item["race_list_url"][0],))
+
+        # Insert db
+        id = hashlib.sha256((item["race_list_url"][0] + item["race_denma_url"][0]).encode()).hexdigest()
+
+        self.db_cursor.execute("""insert into race_summary_mini (
+            id, race_list_url, race_name, race_denma_url, course_length, start_time
+            ) values (
+            %s, %s, %s, %s, %s, %s
+            )""", (
+                id,
+                item["race_list_url"][0],
+                item["race_name"][0],
+                item["race_denma_url"][0],
+                item["course_length"][0],
+                item["start_time"][0],
+            ))
+
+        self.db_conn.commit()
 
     # def process_race_info_item(self, item, spider):
     #     logger.info("#process_race_info_item: start: item=%s" % item)

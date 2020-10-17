@@ -24,6 +24,16 @@ def upgrade():
         sa.Column("race_list_url", sa.String(255), nullable=False),
     )
 
+    op.create_table(
+        "race_summary_mini",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("race_list_url", sa.String(255), nullable=False),
+        sa.Column("race_name", sa.String(255), nullable=False),
+        sa.Column("race_denma_url", sa.String(255), nullable=False),
+        sa.Column("course_length", sa.String(255), nullable=False),
+        sa.Column("start_time", sa.String(255), nullable=False),
+    )
+
 
 def downgrade():
     pass
