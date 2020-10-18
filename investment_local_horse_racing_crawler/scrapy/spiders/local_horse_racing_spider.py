@@ -346,17 +346,17 @@ class LocalHorseRacingSpider(scrapy.Spider):
         logger.info(f"#parse_trainer: trainer={i}")
         yield i
 
-    def parse_odds_win(self, response):
+    def parse_odds_win_place(self, response):
+        """ Parse odds(win/place) page.
+
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
+        @returns items 1
+        @returns requests 1
+        @odds_win_place
+        """
+
+        logger.info(f"#parse_odds_win_place: start: url={response.url}")
         pass
-    #     """ Parse odds(win) page.
-
-    #     @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
-    #     @returns items 1
-    #     @returns requests 0 0
-    #     @odds_win
-    #     """
-
-    #     logger.info(f"#parse_odds_win: start: url={response.url}")
 
     #     # Parse odds win/place
     #     logger.debug("#parse_odds_win: parse odds win/place")
@@ -407,10 +407,6 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug("#_follow_delegate: follow race denma page")
             return response.follow(path, callback=self.parse_race_denma, cb_kwargs=cb_kwargs)
 
-        elif path.startswith("/keiba/Odds.do?"):
-            logger.debug("#_follow_delegate: follow odds page")
-            return response.follow(path, callback=self.parse_odds_win, cb_kwargs=cb_kwargs)
-
         elif path.startswith("/keiba/RaceResult.do?"):
             logger.debug("#_follow_delegate: follow race result page")
             return response.follow(path, callback=self.parse_race_result, cb_kwargs=cb_kwargs)
@@ -426,6 +422,10 @@ class LocalHorseRacingSpider(scrapy.Spider):
         elif path.startswith("/keiba/TrainerDetail.do?"):
             logger.debug("#_follow_delegate: follow trainer page")
             return response.follow(path, callback=self.parse_trainer, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?"):
+            logger.debug("#_follow_delegate: follow odds win/place page")
+            return response.follow(path, callback=self.parse_odds_win_place, cb_kwargs=cb_kwargs)
 
         else:
             logger.warning("#_follow_delegate: unknown path pattern")

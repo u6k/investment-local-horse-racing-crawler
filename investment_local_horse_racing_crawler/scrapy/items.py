@@ -69,15 +69,6 @@ class RaceRefundItem(Item):
     favorite = Field()
 
 
-class OddsWinPlaceItem(Item):
-    race_id = Field()
-    horse_number = Field()
-    horse_id = Field()
-    odds_win = Field()
-    odds_place_min = Field()
-    odds_place_max = Field()
-
-
 class HorseItem(Item):
     horse_url = Field()
     horse_name = Field()
@@ -112,3 +103,21 @@ class TrainerItem(Item):
     birthday = Field()
     gender = Field()
     belong_to = Field()
+
+
+class OddsWinPlaceItem(Item):
+    odds_url = Field()
+    horse_number = Field()
+    horse_url = Field()
+    odds_win = Field()
+    odds_place = Field()
+
+class OddsBracketQuinellaItem(Item):
+    odds_url = Field()
+    horse_number_1 = Field()
+    horse_number_2 = Field()
+    odds = Field()
+
+class OddsUrlItem(Item):
+    odds_url = Field()
+    odds_sub_urls = Field()

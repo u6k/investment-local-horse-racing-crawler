@@ -3,7 +3,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsBracketQuinellaItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -464,17 +464,85 @@ class TrainerContract(Contract):
             raise ContractFail("requests is not empty")
 
 
-class OddsWinContract(Contract):
-    name = "odds_win"
+class OddsWinPlaceContract(Contract):
+    name = "odds_win_place"
 
     def post_process(self, output):
-        pass
-        # count = sum(isinstance(o, OddsWinPlaceItem) for o in output)
-        # if count == 0:
-        #     raise ContractFail("Empty output")
+        # Check item - OddsWinPlaceItem
+        items = [o for o in output if isinstance(o, OddsWinPlaceItem)]
 
-        # for o in output:
-        #     if isinstance(o, OddsWinPlaceItem):
-        #         continue
+        if len(items) == 0:
+            raise ContractFail("len(OddsWinPlaceItem)")
 
-        #     raise ContractFail("Unknown output")
+        for item in items:
+            if not item["odds_url"][0].startswith("https://www.oddspark.com/keiba/Odds.do?"):
+                raise ContractFail("odds_url")
+
+            horse_number_re = re.match(r"^\d+$", item["horse_number"][0])
+            if not horse_number_re:
+                raise ContractFail("horse_number")
+
+            horse_url_re = re.match(r"/keiba/HorseDetail\.do\?lineageNb=\d+$", item["horse_url"][0])
+            if not horse_url_re:
+                raise ContractFail("horse_url")
+
+            odds_win_re = re.match(r"^\d+\.\d+$", item["odds_win"][0])
+            if not odds_win_re:
+                raise ContractFail("odds_win")
+
+            odds_place_re = re.match(r"^\d+\.\d+ - \d+\.\d+$", item["odds_place"][0])
+            if not odds_place_re:
+                raise ContractFail("odds_place")
+
+        # Check item - OddsBracketQuinellaItem
+        items = [o for o in output if isinstance(o, OddsBracketQuinellaItem)]
+
+        if len(items) == 0:
+            raise ContractFail("len(OddsBracketQuinellaItem)")
+
+        for item in items:
+            if not item["odds_url"][0].startswith("https://www.oddspark.com/keiba/Odds.do?"):
+                raise ContractFail("odds_url")
+
+            horse_number_1_re = re.match(r"^\d+$", item["horse_number_1"][0])
+            if not horse_number_1_re:
+                raise ContractFail("horse_number_1")
+
+            horse_number_2_re = re.match(r"^\d+$", item["horse_number_2"][0])
+            if not horse_number_2_re:
+                raise ContractFail("horse_number_2")
+
+            odds_re = re.match(r"^\d+\.\d+$", item["odds"][0])
+            if not odds_re:
+                raise ContractFail("odds")
+
+        # Check item - OddsUrlItem
+        items = [o for o in output if isinstance(o, OddsUrlItem)]
+
+        if len(items) != 1:
+            raise ContractFail("len(OddsUrlItem)")
+
+        item = items[0]
+
+        odds_url_re = re.match(r"https://www\.oddspark\.com/keiba/Odds\.do\?", item["odds_url"][0])
+        if not odds_url_re:
+            raise ContractFail("odds_url")
+
+        if len(item["odds_sub_urls"]) <= 1:
+            raise ContractFail("len(odds_sub_urls)")
+
+        for odds_sub_url in item["odds_sub_urls"]:
+            odds_sub_url_re = re.match(r"https://www\.oddspark\.com/keiba/Odds\.do\?", odds_sub_url)
+            if not odds_sub_url_re:
+                raise ContractFail("odds_sub_url")
+
+        # Check request
+        requests = [o for o in output if isinstance(o, Request)]
+
+        if len(requests) <= 1:
+            raise ContractFail("len(requests)")
+
+        for request in requests:
+            request_re = re.match(r"https://www\.oddspark\.com/keiba/Odds\.do\?", request.url)
+            if not request_re:
+                raise ContractFail("request")
