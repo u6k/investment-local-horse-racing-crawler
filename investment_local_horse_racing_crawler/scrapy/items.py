@@ -79,11 +79,12 @@ class OddsWinPlaceItem(Item):
 
 
 class HorseItem(Item):
-    horse_id = Field()
+    horse_url = Field()
     horse_name = Field()
     gender_age = Field()
     birthday = Field()
     coat_color = Field()
+    trainer_url = Field()
     owner = Field()
     breeder = Field()
     breeding_farm = Field()
@@ -96,16 +97,17 @@ class HorseItem(Item):
 
 
 class JockeyItem(Item):
-    jockey_id = Field()
+    jockey_url = Field()
     jockey_name = Field()
     birthday = Field()
     gender = Field()
     belong_to = Field()
+    trainer_url = Field()
     first_licensing_year = Field()
 
 
 class TrainerItem(Item):
-    trainer_id = Field()
+    trainer_url = Field()
     trainer_name = Field()
     birthday = Field()
     gender = Field()

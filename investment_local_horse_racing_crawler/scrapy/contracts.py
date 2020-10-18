@@ -3,7 +3,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -312,6 +312,158 @@ class RaceResultContract(Contract):
             raise ContractFail("requests is not empty")
 
 
+class HorseContract(Contract):
+    name = "horse"
+
+    def post_process(self, output):
+        # Check item
+        items = [o for o in output if isinstance(o, HorseItem)]
+
+        if len(items) != 1:
+            raise ContractFail("len(HorseItem)")
+
+        item = items[0]
+
+        horse_url_re = re.match(r"^https://www\.oddspark\.com/keiba/HorseDetail\.do\?lineageNb=\d+$", item["horse_url"][0])
+        if not horse_url_re:
+            raise ContractFail("horse_url")
+
+        if not item["horse_name"][0]:
+            raise ContractFail("horse_name")
+
+        gender_age_re = re.match(r"^\w+｜\d+ 歳$", item["gender_age"][0])
+        if not gender_age_re:
+            raise ContractFail("gender_age")
+
+        birthday_re = re.match(r"^\d{4}年\d{1,2}月\d{1,2}日$", item["birthday"][0])
+        if not birthday_re:
+            raise ContractFail("birthday")
+
+        coat_color_re = re.match(r"^\w+毛$", item["coat_color"][0])
+        if not coat_color_re:
+            raise ContractFail("coat_color")
+
+        trainer_url_re = re.match(r"^/keiba/TrainerDetail\.do\?trainerNb=\d+$", item["trainer_url"][0])
+        if not trainer_url_re:
+            raise ContractFail("trainer_url")
+
+        if not item["owner"][0]:
+            raise ContractFail("owner")
+
+        if not item["breeder"][0]:
+            raise ContractFail("breeder")
+
+        if not item["breeding_farm"][0]:
+            raise ContractFail("breeding_farm")
+
+        if not item["parent_horse_name_1"][0]:
+            raise ContractFail("parent_horse_name_1")
+
+        if not item["parent_horse_name_2"][0]:
+            raise ContractFail("parent_horse_name_2")
+
+        if not item["grand_parent_horse_name_1"][0]:
+            raise ContractFail("grand_parent_horse_name_1")
+
+        if not item["grand_parent_horse_name_2"][0]:
+            raise ContractFail("grand_parent_horse_name_2")
+
+        if not item["grand_parent_horse_name_3"][0]:
+            raise ContractFail("grand_parent_horse_name_3")
+
+        if not item["grand_parent_horse_name_4"][0]:
+            raise ContractFail("grand_parent_horse_name_4")
+
+        # Check request
+        requests = [o for o in output if isinstance(o, Request)]
+
+        if len(requests) > 0:
+            raise ContractFail("len(requests)")
+
+
+
+class JockeyContract(Contract):
+    name = "jockey"
+
+    def post_process(self, output):
+        # Check item
+        items = [o for o in output if isinstance(o, JockeyItem)]
+
+        if len(items) != 1:
+            raise ContractFail("len(JockeyItem)")
+
+        item = items[0]
+
+        jockey_url_re = re.match(r"^https://www\.oddspark\.com/keiba/JockeyDetail\.do\?jkyNb=\d+$", item["jockey_url"][0])
+        if not jockey_url_re:
+            raise ContractFail("jockey_url")
+
+        if not item["jockey_name"][0]:
+            raise ContractFail("jockey_name")
+
+        birthday_re = re.match(r"^\d{4}年\d{1,2}月\d{1,2}日$", item["birthday"][0])
+        if not birthday_re:
+            raise ContractFail("birthday")
+
+        gender_re = re.match(r"^男|女$", item["gender"][0])
+        if not gender_re:
+            raise ContractFail("gender")
+
+        if not item["belong_to"][0]:
+            raise ContractFail("belong_to")
+
+        trainer_url_re = re.match(r"^/keiba/TrainerDetail\.do\?trainerNb=\d+$", item["trainer_url"][0])
+        if not trainer_url_re:
+            raise ContractFail("trainer_url")
+
+        first_licensing_year_re = re.match(r"^\d+年$", item["first_licensing_year"][0])
+        if not first_licensing_year_re:
+            raise ContractFail("first_licensing_year")
+
+        # Check request
+        requests = [o for o in output if isinstance(o, Request)]
+
+        if len(requests) > 0:
+            raise ContractFail("requests is not empty")
+
+
+class TrainerContract(Contract):
+    name = "trainer"
+
+    def post_process(self, output):
+        # Check item
+        items = [o for o in output if isinstance(o, TrainerItem)]
+
+        if len(items) != 1:
+            raise ContractFail("len(TrainerItem)")
+
+        item = items[0]
+
+        trainer_url_re = re.match(r"https://www\.oddspark\.com/keiba/TrainerDetail\.do\?trainerNb=\d+$", item["trainer_url"][0])
+        if not trainer_url_re:
+            raise ContractFail("trainer_url")
+
+        if not item["trainer_name"][0]:
+            raise ContractFail("trainer_name")
+
+        birthday_re = re.match(r"^\d{4}年\d{1,2}月\d{1,2}日$", item["birthday"][0])
+        if not birthday_re:
+            raise ContractFail("birthday")
+
+        gender_re = re.match(r"^男|女$", item["gender"][0])
+        if not gender_re:
+            raise ContractFail("gender")
+
+        if not item["belong_to"][0]:
+            raise ContractFail("belong_to")
+
+        # Check request
+        requests = [o for o in output if isinstance(o, Request)]
+
+        if len(requests) > 0:
+            raise ContractFail("requests is not empty")
+
+
 class OddsWinContract(Contract):
     name = "odds_win"
 
@@ -323,54 +475,6 @@ class OddsWinContract(Contract):
 
         # for o in output:
         #     if isinstance(o, OddsWinPlaceItem):
-        #         continue
-
-        #     raise ContractFail("Unknown output")
-
-
-class HorseContract(Contract):
-    name = "horse"
-
-    def post_process(self, output):
-        pass
-        # count = sum(isinstance(o, HorseItem) for o in output)
-        # if count == 0:
-        #     raise ContractFail("Empty horse")
-
-        # for o in output:
-        #     if isinstance(o, HorseItem):
-        #         continue
-
-        #     raise ContractFail("Unknown output")
-
-
-class JockeyContract(Contract):
-    name = "jockey"
-
-    def post_process(self, output):
-        pass
-        # count = sum(isinstance(o, JockeyItem) for o in output)
-        # if count == 0:
-        #     raise ContractFail("Empty jockey")
-
-        # for o in output:
-        #     if isinstance(o, JockeyItem):
-        #         continue
-
-        #     raise ContractFail("Unknown output")
-
-
-class TrainerContract(Contract):
-    name = "trainer"
-
-    def post_process(self, output):
-        pass
-        # count = sum(isinstance(o, TrainerItem) for o in output)
-        # if count == 0:
-        #     raise ContractFail("Empty trainer")
-
-        # for o in output:
-        #     if isinstance(o, TrainerItem):
         #         continue
 
         #     raise ContractFail("Unknown output")

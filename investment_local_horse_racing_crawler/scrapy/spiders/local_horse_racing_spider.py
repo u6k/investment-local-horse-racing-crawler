@@ -3,7 +3,7 @@ from dateutil.relativedelta import relativedelta
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -259,6 +259,93 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug(f"#parse_race_result: race refund item={i}")
             yield i
 
+    def parse_horse(self, response):
+        """ Parse horse page.
+
+        @url https://www.oddspark.com/keiba/HorseDetail.do?lineageNb=2280190375
+        @returns items 1 1
+        @returns requests 0 0
+        @horse
+        """
+
+        logger.info(f"#parse_horse: start: url={response.url}")
+
+        # Parse horse
+        logger.debug("#parse_horse: parse horse")
+
+        loader = ItemLoader(item=HorseItem(), response=response)
+        loader.add_value("horse_url", response.url)
+        loader.add_xpath("horse_name", "normalize-space(//div[@id='content']/div[2]/span[1]/text())")
+        loader.add_xpath("gender_age", "normalize-space(//div[@id='content']/div[2]/span[2]/text())")
+        loader.add_xpath("birthday", "normalize-space(//table[contains(@class,'tb72')]/tr[1]/td/text())")
+        loader.add_xpath("coat_color", "normalize-space(//table[contains(@class,'tb72')]/tr[2]/td/text())")
+        loader.add_xpath("trainer_url", "//table[contains(@class,'tb72')]/tr[3]/td/a/@href")
+        loader.add_xpath("owner", "normalize-space(//table[contains(@class,'tb72')]/tr[4]/td/text())")
+        loader.add_xpath("breeder", "normalize-space(//table[contains(@class,'tb72')]/tr[5]/td/text())")
+        loader.add_xpath("breeding_farm", "normalize-space(//table[contains(@class,'tb72')]/tr[6]/td/text())")
+        loader.add_xpath("parent_horse_name_1", "normalize-space(//table[contains(@class,'tb71')]/tr[2]/td[1]/text())")
+        loader.add_xpath("parent_horse_name_2", "normalize-space(//table[contains(@class,'tb71')]/tr[4]/td[1]/text())")
+        loader.add_xpath("grand_parent_horse_name_1", "normalize-space(//table[contains(@class,'tb71')]/tr[2]/td[2]/text())")
+        loader.add_xpath("grand_parent_horse_name_2", "normalize-space(//table[contains(@class,'tb71')]/tr[3]/td[1]/text())")
+        loader.add_xpath("grand_parent_horse_name_3", "normalize-space(//table[contains(@class,'tb71')]/tr[4]/td[2]/text())")
+        loader.add_xpath("grand_parent_horse_name_4", "normalize-space(//table[contains(@class,'tb71')]/tr[5]/td[1]/text())")
+        i = loader.load_item()
+
+        logger.info(f"#parse_horse: horse={i}")
+        yield i
+
+    def parse_jockey(self, response):
+        """ Parse jockey page.
+
+        @url https://www.oddspark.com/keiba/JockeyDetail.do?jkyNb=038071
+        @returns items 1 1
+        @returns requests 0 0
+        @jockey
+        """
+
+        logger.info(f"#parse_jockey: start: url={response.url}")
+
+        # Parse jockey
+        logger.debug("#parse_jockey: parse jockey")
+
+        loader = ItemLoader(item=JockeyItem(), response=response)
+        loader.add_value("jockey_url", response.url)
+        loader.add_xpath("jockey_name", "normalize-space(//div[@id='content']/div[2]/span[1]/text())")
+        loader.add_xpath("birthday", "normalize-space(//table[contains(@class,'tb72')]/tr[1]/td/text())")
+        loader.add_xpath("gender", "normalize-space(//table[contains(@class,'tb72')]/tr[2]/td/text())")
+        loader.add_xpath("belong_to", "normalize-space(//table[contains(@class,'tb72')]/tr[3]/td/text())")
+        loader.add_xpath("trainer_url", "//table[contains(@class,'tb72')]/tr[4]/td/a/@href")
+        loader.add_xpath("first_licensing_year", "normalize-space(//table[contains(@class,'tb72')]/tr[5]/td/text())")
+        i = loader.load_item()
+
+        logger.info(f"#parse_jockey: jockey={i}")
+        yield i
+
+    def parse_trainer(self, response):
+        """ Parse trainer page.
+
+        @url https://www.oddspark.com/keiba/TrainerDetail.do?trainerNb=018052
+        @returns items 1 1
+        @returns requests 0 0
+        @trainer
+        """
+
+        logger.info(f"#parse_trainer: start: url={response.url}")
+
+        # Parse trainer
+        logger.debug("#parse_trainer: parse trainer")
+
+        loader = ItemLoader(item=TrainerItem(), response=response)
+        loader.add_value("trainer_url", response.url)
+        loader.add_xpath("trainer_name", "normalize-space(//div[contains(@class,'section')]/div/span[1]/text())")
+        loader.add_xpath("birthday", "normalize-space(//table[contains(@class,'tb72')]/tr[1]/td/text())")
+        loader.add_xpath("gender", "normalize-space(//table[contains(@class,'tb72')]/tr[2]/td/text())")
+        loader.add_xpath("belong_to", "normalize-space(//table[contains(@class,'tb72')]/tr[3]/td/text())")
+        i = loader.load_item()
+
+        logger.info(f"#parse_trainer: trainer={i}")
+        yield i
+
     def parse_odds_win(self, response):
         pass
     #     """ Parse odds(win) page.
@@ -304,152 +391,6 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
     #         logger.info(f"#parse_odds_win: odds win/place={i}")
     #         yield i
-
-    def parse_horse(self, response):
-        pass
-    #     """ Parse horse page.
-
-    #     @url https://www.oddspark.com/keiba/HorseDetail.do?lineageNb=2280190375
-    #     @returns items 1 1
-    #     @returns requests 0 0
-    #     @horse
-    #     """
-
-    #     logger.info(f"#parse_horse: start: url={response.url}")
-
-    #     # Parse horse
-    #     logger.debug("#parse_horse: parse horse")
-
-    #     loader = ItemLoader(item=HorseItem(), response=response)
-    #     loader.add_value("horse_id", response.url.split("?")[-1])
-    #     loader.add_xpath("horse_name", "//div[@id='content']/div[2]/span[1]/text()")
-    #     loader.add_xpath("gender_age", "//div[@id='content']/div[2]/span[2]/text()")
-
-    #     if response.xpath("//table[contains(@class,'tb72')]/tr[1]/th/text()").get() != "生年月日":
-    #         raise RuntimeError("Unknown header birthday")
-    #     else:
-    #         loader.add_xpath("birthday", "//table[contains(@class,'tb72')]/tr[1]/td/text()")
-
-    #     if response.xpath("//table[contains(@class,'tb72')]/tr[2]/th/text()").get() != "毛色":
-    #         raise RuntimeError("Unknown header coat_color")
-    #     else:
-    #         loader.add_xpath("coat_color", "//table[contains(@class,'tb72')]/tr[2]/td/text()")
-
-    #     if response.xpath("//table[contains(@class,'tb72')]/tr[4]/th/text()").get() != "馬主":
-    #         raise RuntimeError("Unknown header owner")
-    #     else:
-    #         loader.add_xpath("owner", "//table[contains(@class,'tb72')]/tr[4]/td/text()")
-
-    #     if response.xpath("//table[contains(@class,'tb72')]/tr[5]/th/text()").get() != "生産者":
-    #         raise RuntimeError("Unknown header breeder")
-    #     else:
-    #         loader.add_xpath("breeder", "//table[contains(@class,'tb72')]/tr[5]/td/text()")
-
-    #     if response.xpath("//table[contains(@class,'tb72')]/tr[6]/th/text()").get() != "産地":
-    #         raise RuntimeError("Unknown header breeding_farm")
-    #     else:
-    #         loader.add_xpath("breeding_farm", "//table[contains(@class,'tb72')]/tr[6]/td/text()")
-
-    #     if response.xpath("//table[contains(@class,'tb71')]/tr[1]/td/text()").get() != "血統":
-    #         raise RuntimeError("Unknown table parents")
-
-    #     loader.add_xpath("parent_horse_name_1", "//table[contains(@class,'tb71')]/tr[2]/td[1]/text()")
-    #     loader.add_xpath("parent_horse_name_2", "//table[contains(@class,'tb71')]/tr[4]/td[1]/text()")
-    #     loader.add_xpath("grand_parent_horse_name_1", "//table[contains(@class,'tb71')]/tr[2]/td[2]/text()")
-    #     loader.add_xpath("grand_parent_horse_name_2", "//table[contains(@class,'tb71')]/tr[3]/td[1]/text()")
-    #     loader.add_xpath("grand_parent_horse_name_3", "//table[contains(@class,'tb71')]/tr[4]/td[2]/text()")
-    #     loader.add_xpath("grand_parent_horse_name_4", "//table[contains(@class,'tb71')]/tr[5]/td[1]/text()")
-    #     i = loader.load_item()
-
-    #     logger.info(f"#parse_horse: horse={i}")
-    #     yield i
-
-    def parse_jockey(self, response):
-        pass
-    #     """ Parse jockey page.
-
-    #     @url https://www.oddspark.com/keiba/JockeyDetail.do?jkyNb=038071
-    #     @returns items 1 1
-    #     @returns requests 0 0
-    #     @jockey
-    #     """
-
-    #     logger.info(f"#parse_jockey: start: url={response.url}")
-
-    #     # Parse jockey
-    #     logger.debug("#parse_jockey: parse jockey")
-
-    #     loader = ItemLoader(item=JockeyItem(), response=response)
-    #     loader.add_value("jockey_id", response.url.split("?")[-1])
-    #     loader.add_xpath("jockey_name", "//div[@id='content']/div[2]/span[1]/text()")
-
-    #     table = response.xpath("//table[contains(@class,'tb72')]")[0]
-
-    #     if table.xpath("tr[1]/th/text()").get() != "生年月日":
-    #         raise RuntimeError("Unknown header birthday")
-    #     else:
-    #         loader.add_value("birthday", table.xpath("tr[1]/td/text()").get())
-
-    #     if table.xpath("tr[2]/th/text()").get() != "性別":
-    #         raise RuntimeError("Unknown header gender")
-    #     else:
-    #         loader.add_value("gender", table.xpath("tr[2]/td/text()").get())
-
-    #     if table.xpath("tr[3]/th/text()").get() != "所属":
-    #         raise RuntimeError("Unknown header belong_to")
-    #     else:
-    #         loader.add_value("belong_to", table.xpath("tr[3]/td/text()").get())
-
-    #     if table.xpath("tr[5]/th/text()").get() != "初免許年":
-    #         raise RuntimeError("Unknown header first_licensing_year")
-    #     else:
-    #         loader.add_value("first_licensing_year", table.xpath("tr[5]/td/text()").get())
-
-    #     i = loader.load_item()
-
-    #     logger.info(f"#parse_jockey: jockey={i}")
-    #     yield i
-
-    def parse_trainer(self, response):
-        pass
-    #     """ Parse trainer page.
-
-    #     @url https://www.oddspark.com/keiba/TrainerDetail.do?trainerNb=018052
-    #     @returns items 1 1
-    #     @returns requests 0 0
-    #     @trainer
-    #     """
-
-    #     logger.info(f"#parse_trainer: start: url={response.url}")
-
-    #     # Parse trainer
-    #     logger.debug("#parse_trainer: parse trainer")
-
-    #     loader = ItemLoader(item=TrainerItem(), response=response)
-    #     loader.add_value("trainer_id", response.url.split("?")[-1])
-    #     loader.add_xpath("trainer_name", "//div[contains(@class,'section')]/div/span[1]/text()")
-
-    #     table = response.xpath("//table[contains(@class,'tb72')]")[0]
-
-    #     if table.xpath("tr[1]/th/text()").get() != "生年月日":
-    #         raise RuntimeError("Unknown header birthday")
-    #     else:
-    #         loader.add_value("birthday", table.xpath("tr[1]/td/text()").get())
-
-    #     if table.xpath("tr[2]/th/text()").get() != "性別":
-    #         raise RuntimeError("Unknown header birthday")
-    #     else:
-    #         loader.add_value("gender", table.xpath("tr[2]/td/text()").get())
-
-    #     if table.xpath("tr[3]/th/text()").get() != "所属":
-    #         raise RuntimeError("Unknown header birthday")
-    #     else:
-    #         loader.add_value("belong_to", table.xpath("tr[3]/td/text()").get())
-
-    #     i = loader.load_item()
-
-    #     logger.info(f"#parse_trainer: trainer={i}")
-    #     yield i
 
     def _follow_delegate(self, response, path, cb_kwargs=None):
         logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
