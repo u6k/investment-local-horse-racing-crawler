@@ -3,7 +3,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -221,41 +221,95 @@ class RaceDenmaContract(Contract):
             raise ContractFail("Trainer page not found")
 
 
-
-
-
-
-class ScheduleListContract(Contract):
-    name = "schedule_list"
+class RaceResultContract(Contract):
+    name = "race_result"
 
     def post_process(self, output):
-        pass
-        # # Check requests
-        # requests = [o for o in output if isinstance(o, Request)]
-        # if len(requests) == 0:
-        #     raise ContractFail("Empty requests")
+        # Check item - RaceResultItem
+        items = [o for o in output if isinstance(o, RaceResultItem)]
 
-        # # Check url pattern
-        # count = sum(r.url.startswith("https://www.oddspark.com/keiba/KaisaiCalendar.do?") for r in requests)
-        # if count != 1:
-        #     raise ContractFail("Previous calendar page not found")
+        if len(items) == 0:
+            raise ContractFail("RaceResultItem is empty")
 
-        # count = sum(r.url.startswith("https://www.oddspark.com/keiba/RaceRefund.do?") for r in requests)
-        # if count == 0:
-        #     raise ContractFail("Race refund list page not found")
+        for item in items:
+            if not item["race_result_url"][0].startswith("https://www.oddspark.com/keiba/RaceResult.do?"):
+                raise ContractFail("race_result_url is invalid")
 
-        # # Check unknown url
-        # for r in requests:
-        #     if r.url.startswith("https://www.oddspark.com/keiba/KaisaiCalendar.do?"):
-        #         continue
+            if not item["result"][0]:
+                raise ContractFail("result is invalid")
 
-        #     if r.url.startswith("https://www.oddspark.com/keiba/RaceRefund.do?"):
-        #         continue
+            if not item["bracket_number"][0]:
+                raise ContractFail("bracket_number is invalid")
 
-        #     if r.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
-        #         continue
+            if not item["horse_number"][0]:
+                raise ContractFail("horse_number is invalid")
 
-        #     raise ContractFail(f"Unknown url: {r.url}")
+            horse_url_re = re.match(r"^/keiba/HorseDetail\.do\?lineageNb=\d+$", item["horse_url"][0])
+            if not horse_url_re:
+                raise ContractFail("horse_url is invalid")
+
+            arrival_time_re = re.match(r"^(\d+:)\d+\.\d+$", item["arrival_time"][0])
+            if not arrival_time_re:
+                raise ContractFail("arrival_time is invalid")
+
+            if "arrival_margin" in item:
+                if not item["arrival_margin"][0]:
+                    raise ContractFail("arrival_margin is invalid")
+
+            final_600_meters_time_re = re.match(r"^[\d\.]+$", item["final_600_meters_time"][0])
+            if not final_600_meters_time_re:
+                raise ContractFail("final_600_meters_time is invalid")
+
+            corner_passing_order_re = re.match(r"^\d+\-\d+\-\d+\-\d+$", item["corner_passing_order"][0])
+            if not corner_passing_order_re:
+                raise ContractFail("corner_passing_order is invalid")
+
+        # Check item - RaceCornerPassingOrderItem
+        items = [o for o in output if isinstance(o, RaceCornerPassingOrderItem)]
+
+        if len(items) != 4:
+            raise ContractFail("len(RaceCornerPassingOrderItem) != 4")
+
+        for item in items:
+            if not item["race_result_url"][0].startswith("https://www.oddspark.com/keiba/RaceResult.do?"):
+                raise ContractFail("race_result_url is invalid")
+
+            corner_number_re = re.match(r"^.コーナー$", item["corner_number"][0])
+            if not corner_number_re:
+                raise ContractFail("corner_number is invalid")
+
+            if not item["passing_order"][0]:
+                raise ContractFail("passing_order is invalid")
+
+        # Check item - RaceRefundItem
+        items = [o for o in output if isinstance(o, RaceRefundItem)]
+
+        if len(items) == 0:
+            raise ContractFail("RaceRefundItem is empty")
+
+        for item in items:
+            if not item["race_result_url"][0].startswith("https://www.oddspark.com/keiba/RaceResult.do?"):
+                raise ContractFail("race_result_url is invalid")
+
+            if not item["betting_type"][0]:
+                raise ContractFail("betting_type is invalid")
+
+            if not item["horse_number"][0]:
+                raise ContractFail("horse_number is invalid")
+
+            refund_money_re = re.match(r"^[\d\,]+円$", item["refund_money"][0])
+            if not refund_money_re:
+                raise ContractFail("refund_money is invalid")
+
+            favorite_re = re.match(r"^\d+番人気$", item["favorite"][0])
+            if not favorite_re:
+                raise ContractFail("favorite is invalid")
+
+        # Check requests
+        requests = [o for o in output if isinstance(o, Request)]
+
+        if len(requests) > 0:
+            raise ContractFail("requests is not empty")
 
 
 class OddsWinContract(Contract):
@@ -269,29 +323,6 @@ class OddsWinContract(Contract):
 
         # for o in output:
         #     if isinstance(o, OddsWinPlaceItem):
-        #         continue
-
-        #     raise ContractFail("Unknown output")
-
-
-class RaceResultContract(Contract):
-    name = "race_result"
-
-    def post_process(self, output):
-        pass
-        # count = sum(isinstance(o, RaceResultItem) for o in output)
-        # if count == 0:
-        #     raise ContractFail("Empty race result")
-
-        # count = sum(isinstance(o, RacePayoffItem) for o in output)
-        # if count == 0:
-        #     raise ContractFail("Empty race payoff")
-
-        # for o in output:
-        #     if isinstance(o, RaceResultItem):
-        #         continue
-
-        #     if isinstance(o, RacePayoffItem):
         #         continue
 
         #     raise ContractFail("Unknown output")

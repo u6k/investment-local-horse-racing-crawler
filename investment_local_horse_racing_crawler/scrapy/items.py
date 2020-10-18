@@ -44,6 +44,31 @@ class RaceDenmaItem(Item):
     horse_weight_diff = Field()
 
 
+class RaceResultItem(Item):
+    race_result_url = Field()
+    result = Field()
+    bracket_number = Field()
+    horse_number = Field()
+    horse_url = Field()
+    arrival_time = Field()
+    arrival_margin = Field()
+    final_600_meters_time = Field()
+    corner_passing_order = Field()
+
+class RaceCornerPassingOrderItem(Item):
+    race_result_url = Field()
+    corner_number = Field()
+    passing_order = Field()
+
+
+class RaceRefundItem(Item):
+    race_result_url = Field()
+    betting_type = Field()
+    horse_number = Field()
+    refund_money = Field()
+    favorite = Field()
+
+
 class OddsWinPlaceItem(Item):
     race_id = Field()
     horse_number = Field()
@@ -51,26 +76,6 @@ class OddsWinPlaceItem(Item):
     odds_win = Field()
     odds_place_min = Field()
     odds_place_max = Field()
-
-
-class RaceResultItem(Item):
-    race_id = Field()
-    bracket_number = Field()
-    horse_number = Field()
-    horse_id = Field()
-    result = Field()
-    arrival_time = Field()
-    arrival_margin = Field()
-    final_600_meters_time = Field()
-    corner_passing_order = Field()
-
-
-class RacePayoffItem(Item):
-    race_id = Field()
-    payoff_type = Field()
-    horse_number = Field()
-    odds = Field()
-    favorite = Field()
 
 
 class HorseItem(Item):
