@@ -7,7 +7,7 @@ from scrapy.crawler import Crawler
 from scrapy.exceptions import DropItem
 
 from investment_local_horse_racing_crawler.scrapy.spiders.local_horse_racing_spider import LocalHorseRacingSpider
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem
 from investment_local_horse_racing_crawler.scrapy.pipelines import PostgreSQLPipeline
 
 
@@ -32,6 +32,9 @@ class TestPostgreSQLPipeline:
         self.pipeline.db_cursor.execute("delete from race_info_mini")
         self.pipeline.db_cursor.execute("delete from race_info")
         self.pipeline.db_cursor.execute("delete from race_denma")
+        self.pipeline.db_cursor.execute("delete from race_result")
+        self.pipeline.db_cursor.execute("delete from race_corner_passing_order")
+        self.pipeline.db_cursor.execute("delete from race_refund")
 
     def teardown(self):
         self.pipeline.close_spider(None)
@@ -417,6 +420,125 @@ class TestPostgreSQLPipeline:
 
         # Check db (2)
         self.pipeline.db_cursor.execute("select * from race_denma")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+    def test_process_race_result_item_1(self):
+        # Setup
+        item = RaceResultItem()
+        item['arrival_time'] = ['1:25.1']
+        item['bracket_number'] = ['7']
+        item['corner_passing_order'] = ['2-2-2-2']
+        item['final_600_meters_time'] = ['40.2']
+        item['horse_number'] = ['9']
+        item['horse_url'] = ['/keiba/HorseDetail.do?lineageNb=2015101250']
+        item['race_result_url'] = ['https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=10']
+        item['result'] = ['1']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_result")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from race_result")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+        record = records[0]
+        eq_(len(record['id']), 64)
+        eq_(record['arrival_time'], '1:25.1')
+        eq_(record['bracket_number'], '7')
+        eq_(record['corner_passing_order'], '2-2-2-2')
+        eq_(record['final_600_meters_time'], '40.2')
+        eq_(record['horse_number'], '9')
+        eq_(record['horse_url'], '/keiba/HorseDetail.do?lineageNb=2015101250')
+        eq_(record['race_result_url'], 'https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=10')
+        eq_(record['result'], '1')
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from race_result")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+    def test_process_race_corner_passing_order_item_1(self):
+        # Setup
+        item = RaceCornerPassingOrderItem()
+        item['corner_number'] = ['１コーナー']
+        item['passing_order'] = ['1, 9, 6, 12, 11, 7, 2, 5, 4, 8, 3, 10']
+        item['race_result_url'] = ['https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=10']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_corner_passing_order")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from race_corner_passing_order")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+        record = records[0]
+        eq_(len(record['id']), 64)
+        eq_(record['corner_number'], '１コーナー')
+        eq_(record['passing_order'], '1, 9, 6, 12, 11, 7, 2, 5, 4, 8, 3, 10')
+        eq_(record['race_result_url'], 'https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=10')
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from race_corner_passing_order")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+    def test_process_race_refund_item_1(self):
+        # Setup
+        item = RaceRefundItem()
+        item['betting_type'] = ['複勝']
+        item['favorite'] = ['11番人気']
+        item['horse_number'] = ['9']
+        item['race_result_url'] = ['https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=10']
+        item['refund_money'] = ['520円']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from race_refund")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from race_refund")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+        record = records[0]
+        eq_(len(record['id']), 64)
+        eq_(record['betting_type'], '複勝')
+        eq_(record['favorite'], '11番人気')
+        eq_(record['horse_number'], '9')
+        eq_(record['race_result_url'], 'https://www.oddspark.com/keiba/RaceResult.do?sponsorCd=29&raceDy=20200301&opTrackCd=55&raceNb=10')
+        eq_(record['refund_money'], '520円')
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from race_refund")
 
         records = self.pipeline.db_cursor.fetchall()
         eq_(len(records), 1)

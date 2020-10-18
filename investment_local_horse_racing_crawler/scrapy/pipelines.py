@@ -9,7 +9,7 @@ from scrapy.exceptions import DropItem
 import urllib.parse
 import hashlib
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -75,6 +75,12 @@ class PostgreSQLPipeline(object):
                 self.process_race_info_item(item, spider)
             elif isinstance(item, RaceDenmaItem):
                 self.process_race_denma_item(item, spider)
+            elif isinstance(item, RaceResultItem):
+                self.process_race_result_item(item, spider)
+            elif isinstance(item, RaceCornerPassingOrderItem):
+                self.process_race_corner_passing_order_item(item, spider)
+            elif isinstance(item, RaceRefundItem):
+                self.process_race_refund_item(item, spider)
             else:
                 raise DropItem("Unknown item type")
 
@@ -233,6 +239,119 @@ class PostgreSQLPipeline(object):
                 item["odds_win_favorite"][0] if "odds_win_favorite" in item else None,
                 item["horse_weight"][0] if "horse_weight" in item else None,
                 item["horse_weight_diff"][0] if "horse_weight_diff" in item else None
+            ))
+
+        self.db_conn.commit()
+
+    def process_race_result_item(self, item, spider):
+        logger.info(f"#process_race_result_item: start: item={item}")
+
+        # Delete db
+        race_result_url = item["race_result_url"][0]
+        horse_url = item["horse_url"][0]
+        id = hashlib.sha256((race_result_url + horse_url).encode()).hexdigest()
+
+        logger.debug(f"#process_race_result_item: delete: id={id}, race_result_url={race_result_url}, horse_url={horse_url}")
+
+        self.db_cursor.execute("delete from race_result where id=%s",
+            (id,))
+
+        # Insert db
+        logger.debug(f"#process_race_result_item: insert: id={id}, race_result_url={race_result_url}, horse_url={horse_url}")
+
+        self.db_cursor.execute("""insert into race_result (
+                id,
+                race_result_url,
+                result,
+                bracket_number,
+                horse_number,
+                horse_url,
+                arrival_time,
+                arrival_margin,
+                final_600_meters_time,
+                corner_passing_order
+            ) values (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+            )""", (
+                id,
+                race_result_url,
+                item["result"][0] if "result" in item else None,
+                item["bracket_number"][0] if "bracket_number" in item else None,
+                item["horse_number"][0] if "horse_number" in item else None,
+                horse_url,
+                item["arrival_time"][0] if "arrival_time" in item else None,
+                item["arrival_margin"][0] if "arrival_margin" in item else None,
+                item["final_600_meters_time"][0] if "final_600_meters_time" in item else None,
+                item["corner_passing_order"][0] if "corner_passing_order" in item else None
+            ))
+
+        self.db_conn.commit()
+
+    def process_race_corner_passing_order_item(self, item, spider):
+        logger.info(f"#process_race_corner_passing_order_item: start: item={item}")
+
+        # Delete db
+        race_result_url = item["race_result_url"][0]
+        corner_number = item["corner_number"][0]
+        id = hashlib.sha256((race_result_url + corner_number).encode()).hexdigest()
+
+        logger.debug(f"#process_race_corner_passing_order_item: delete: id={id}, race_result_url={race_result_url}, corner_number={corner_number}")
+
+        self.db_cursor.execute("delete from race_corner_passing_order where id=%s",
+            (id,))
+
+        # Insert db
+        logger.debug(f"#process_race_corner_passing_order_item: insert: id={id}, race_result_url={race_result_url}, corner_number={corner_number}")
+
+        self.db_cursor.execute("""insert into race_corner_passing_order (
+                id,
+                race_result_url,
+                corner_number,
+                passing_order
+            ) values (
+                %s, %s, %s, %s
+            )""", (
+                id,
+                race_result_url,
+                corner_number,
+                item["passing_order"][0] if "passing_order" in item else None
+            ))
+
+        self.db_conn.commit()
+
+    def process_race_refund_item(self, item, spider):
+        logger.info(f"#process_race_refund_item: start: item={item}")
+
+        # Delete db
+        race_result_url = item["race_result_url"][0]
+        betting_type = item["betting_type"][0]
+        horse_number = item["horse_number"][0]
+        id = hashlib.sha256((race_result_url + betting_type + horse_number).encode()).hexdigest()
+
+        logger.debug(f"#process_race_refund_item: delete: id={id}, race_result_url={race_result_url}, betting_type={betting_type}, horse_number={horse_number}")
+
+        self.db_cursor.execute("delete from race_refund where id=%s",
+            (id,))
+
+        # Insert db
+        logger.debug(f"#process_race_refund_item: insert: id={id}, race_result_url={race_result_url}, betting_type={betting_type}, horse_number={horse_number}")
+
+        self.db_cursor.execute("""insert into race_refund (
+                id,
+                race_result_url,
+                betting_type,
+                horse_number,
+                refund_money,
+                favorite
+            ) values (
+                %s, %s, %s, %s, %s, %s
+            )""", (
+                id,
+                race_result_url,
+                betting_type,
+                horse_number,
+                item["refund_money"][0] if "refund_money" in item else None,
+                item["favorite"][0] if "favorite" in item else None
             ))
 
         self.db_conn.commit()

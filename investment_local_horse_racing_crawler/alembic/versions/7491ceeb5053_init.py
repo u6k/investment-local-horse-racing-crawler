@@ -64,6 +64,39 @@ def upgrade():
         sa.Column("horse_weight", sa.String(255), nullable=True),
         sa.Column("horse_weight_diff", sa.String(255), nullable=True),
     )
+    
+    op.create_table(
+        "race_result",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("race_result_url", sa.String(255), nullable=False),
+        sa.Column("result", sa.String(255), nullable=True),
+        sa.Column("bracket_number", sa.String(255), nullable=True),
+        sa.Column("horse_number", sa.String(255), nullable=True),
+        sa.Column("horse_url", sa.String(255), nullable=False),
+        sa.Column("arrival_time", sa.String(255), nullable=True),
+        sa.Column("arrival_margin", sa.String(255), nullable=True),
+        sa.Column("final_600_meters_time", sa.String(255), nullable=True),
+        sa.Column("corner_passing_order", sa.String(255), nullable=True),
+    )
+    
+    op.create_table(
+        "race_corner_passing_order",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("race_result_url", sa.String(255), nullable=False),
+        sa.Column("corner_number", sa.String(255), nullable=True),
+        sa.Column("passing_order", sa.String(255), nullable=True),
+    )
+    
+    op.create_table(
+        "race_refund",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("race_result_url", sa.String(255), nullable=False),
+        sa.Column("betting_type", sa.String(255), nullable=True),
+        sa.Column("horse_number", sa.String(255), nullable=True),
+        sa.Column("refund_money", sa.String(255), nullable=True),
+        sa.Column("favorite", sa.String(255), nullable=True),
+    )
+    
 
 
 
