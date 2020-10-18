@@ -7,7 +7,7 @@ from scrapy.crawler import Crawler
 from scrapy.exceptions import DropItem
 
 from investment_local_horse_racing_crawler.scrapy.spiders.local_horse_racing_spider import LocalHorseRacingSpider
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem
 from investment_local_horse_racing_crawler.scrapy.pipelines import PostgreSQLPipeline
 
 
@@ -35,6 +35,9 @@ class TestPostgreSQLPipeline:
         self.pipeline.db_cursor.execute("delete from race_result")
         self.pipeline.db_cursor.execute("delete from race_corner_passing_order")
         self.pipeline.db_cursor.execute("delete from race_refund")
+        self.pipeline.db_cursor.execute("delete from horse")
+        self.pipeline.db_cursor.execute("delete from jockey")
+        self.pipeline.db_cursor.execute("delete from trainer")
 
     def teardown(self):
         self.pipeline.close_spider(None)
@@ -539,6 +542,147 @@ class TestPostgreSQLPipeline:
 
         # Check db (2)
         self.pipeline.db_cursor.execute("select * from race_refund")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+    def test_process_horse_item_1(self):
+        # Setup
+        item = HorseItem()
+        item['birthday'] = ['2016年3月30日']
+        item['breeder'] = ['橋\u3000本\u3000岩\u3000雄']
+        item['breeding_farm'] = ['北海道日高郡新ひだか町']
+        item['coat_color'] = ['栗毛']
+        item['gender_age'] = ['牡｜4 歳']
+        item['grand_parent_horse_name_1'] = ['ハイパワード\u200b']
+        item['grand_parent_horse_name_2'] = ['スーパーマコト\u200b']
+        item['grand_parent_horse_name_3'] = ['肖\u3000命\u200b']
+        item['grand_parent_horse_name_4'] = ['宝\u3000秀\u200b']
+        item['horse_name'] = ['ミヤビホウリキ\xa0']
+        item['horse_url'] = ['https://www.oddspark.com/keiba/HorseDetail.do?lineageNb=2280190375']
+        item['owner'] = ['中島雅也']
+        item['parent_horse_name_1'] = ['アサノカイリキ\u200b']
+        item['parent_horse_name_2'] = ['千\u3000花\u200b']
+        item['trainer_url'] = ['/keiba/TrainerDetail.do?trainerNb=018052']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from horse")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from horse")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+        record = records[0]
+        eq_(len(record['id']), 64)
+        eq_(record['birthday'], '2016年3月30日')
+        eq_(record['breeder'], '橋\u3000本\u3000岩\u3000雄')
+        eq_(record['breeding_farm'], '北海道日高郡新ひだか町')
+        eq_(record['coat_color'], '栗毛')
+        eq_(record['gender_age'], '牡｜4 歳')
+        eq_(record['grand_parent_horse_name_1'], 'ハイパワード\u200b')
+        eq_(record['grand_parent_horse_name_2'], 'スーパーマコト\u200b')
+        eq_(record['grand_parent_horse_name_3'], '肖\u3000命\u200b')
+        eq_(record['grand_parent_horse_name_4'], '宝\u3000秀\u200b')
+        eq_(record['horse_name'], 'ミヤビホウリキ\xa0')
+        eq_(record['horse_url'], 'https://www.oddspark.com/keiba/HorseDetail.do?lineageNb=2280190375')
+        eq_(record['owner'], '中島雅也')
+        eq_(record['parent_horse_name_1'], 'アサノカイリキ\u200b')
+        eq_(record['parent_horse_name_2'], '千\u3000花\u200b')
+        eq_(record['trainer_url'], '/keiba/TrainerDetail.do?trainerNb=018052')
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from horse")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+    def test_process_jockey_item_1(self):
+        # Setup
+        item = JockeyItem()
+        item['belong_to'] = ['ばんえい']
+        item['birthday'] = ['1983年9月23日']
+        item['first_licensing_year'] = ['2007年']
+        item['gender'] = ['男']
+        item['jockey_name'] = ['船\u3000山\u3000\u3000蔵\u3000人\xa0']
+        item['jockey_url'] = ['https://www.oddspark.com/keiba/JockeyDetail.do?jkyNb=038071']
+        item['trainer_url'] = ['/keiba/TrainerDetail.do?trainerNb=018017']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from jockey")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from jockey")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+        record = records[0]
+        eq_(len(record['id']), 64)
+        eq_(record['belong_to'], 'ばんえい')
+        eq_(record['birthday'], '1983年9月23日')
+        eq_(record['first_licensing_year'], '2007年')
+        eq_(record['gender'], '男')
+        eq_(record['jockey_name'], '船\u3000山\u3000\u3000蔵\u3000人\xa0')
+        eq_(record['jockey_url'], 'https://www.oddspark.com/keiba/JockeyDetail.do?jkyNb=038071')
+        eq_(record['trainer_url'], '/keiba/TrainerDetail.do?trainerNb=018017')
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from jockey")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+    def test_process_trainer_item_1(self):
+        # Setup
+        item = TrainerItem()
+        item['belong_to'] = ['ばんえい']
+        item['birthday'] = ['1959年1月2日']
+        item['gender'] = ['男']
+        item['trainer_name'] = ['小\u3000林\u3000\u3000勝\u3000二\xa0']
+        item['trainer_url'] = ['https://www.oddspark.com/keiba/TrainerDetail.do?trainerNb=018052']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from trainer")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from trainer")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+        record = records[0]
+        eq_(len(record['id']), 64)
+        eq_(record['belong_to'], 'ばんえい')
+        eq_(record['birthday'], '1959年1月2日')
+        eq_(record['gender'], '男')
+        eq_(record['trainer_name'], '小\u3000林\u3000\u3000勝\u3000二\xa0')
+        eq_(record['trainer_url'], 'https://www.oddspark.com/keiba/TrainerDetail.do?trainerNb=018052')
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from trainer")
 
         records = self.pipeline.db_cursor.fetchall()
         eq_(len(records), 1)

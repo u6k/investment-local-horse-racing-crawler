@@ -9,7 +9,7 @@ from scrapy.exceptions import DropItem
 import urllib.parse
 import hashlib
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -81,6 +81,12 @@ class PostgreSQLPipeline(object):
                 self.process_race_corner_passing_order_item(item, spider)
             elif isinstance(item, RaceRefundItem):
                 self.process_race_refund_item(item, spider)
+            elif isinstance(item, HorseItem):
+                self.process_horse_item(item, spider)
+            elif isinstance(item, JockeyItem):
+                self.process_jockey_item(item, spider)
+            elif isinstance(item, TrainerItem):
+                self.process_trainer_item(item, spider)
             else:
                 raise DropItem("Unknown item type")
 
@@ -352,6 +358,135 @@ class PostgreSQLPipeline(object):
                 horse_number,
                 item["refund_money"][0] if "refund_money" in item else None,
                 item["favorite"][0] if "favorite" in item else None
+            ))
+
+        self.db_conn.commit()
+
+    def process_horse_item(self, item, spider):
+        logger.info(f"#process_horse_item: start: item={item}")
+
+        # Delete db
+        horse_url = item["horse_url"][0]
+        id = hashlib.sha256((horse_url).encode()).hexdigest()
+
+        logger.debug(f"#process_horse_item: delete: id={id}, horse_url={horse_url}")
+
+        self.db_cursor.execute("delete from horse where id=%s",
+            (id,))
+
+        # Insert db
+        logger.debug(f"#process_horse_item: insert: id={id}, horse_url={horse_url}")
+
+        self.db_cursor.execute("""insert into horse (
+                id,
+                horse_url,
+                horse_name,
+                gender_age,
+                birthday,
+                coat_color,
+                trainer_url,
+                owner,
+                breeder,
+                breeding_farm,
+                parent_horse_name_1,
+                parent_horse_name_2,
+                grand_parent_horse_name_1,
+                grand_parent_horse_name_2,
+                grand_parent_horse_name_3,
+                grand_parent_horse_name_4
+            ) values (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+            )""", (
+                id,
+                horse_url,
+                item["horse_name"][0] if "horse_name" in item else None,
+                item["gender_age"][0] if "gender_age" in item else None,
+                item["birthday"][0] if "birthday" in item else None,
+                item["coat_color"][0] if "coat_color" in item else None,
+                item["trainer_url"][0] if "trainer_url" in item else None,
+                item["owner"][0] if "owner" in item else None,
+                item["breeder"][0] if "breeder" in item else None,
+                item["breeding_farm"][0] if "breeding_farm" in item else None,
+                item["parent_horse_name_1"][0] if "parent_horse_name_1" in item else None,
+                item["parent_horse_name_2"][0] if "parent_horse_name_2" in item else None,
+                item["grand_parent_horse_name_1"][0] if "grand_parent_horse_name_1" in item else None,
+                item["grand_parent_horse_name_2"][0] if "grand_parent_horse_name_2" in item else None,
+                item["grand_parent_horse_name_3"][0] if "grand_parent_horse_name_3" in item else None,
+                item["grand_parent_horse_name_4"][0] if "grand_parent_horse_name_4" in item else None
+            ))
+
+        self.db_conn.commit()
+
+    def process_jockey_item(self, item, spider):
+        logger.info(f"#process_jockey_item: start: item={item}")
+
+        # Delete db
+        jockey_url = item["jockey_url"][0]
+        id = hashlib.sha256((jockey_url).encode()).hexdigest()
+
+        logger.debug(f"#process_jockey_item: delete: id={id}, jockey_url={jockey_url}")
+
+        self.db_cursor.execute("delete from jockey where id=%s",
+            (id,))
+
+        # Insert db
+        logger.debug(f"#process_jockey_item: insert: id={id}, jockey_url={jockey_url}")
+
+        self.db_cursor.execute("""insert into jockey (
+                id,
+                jockey_url,
+                jockey_name,
+                birthday,
+                gender,
+                belong_to,
+                trainer_url,
+                first_licensing_year
+            ) values (
+                %s, %s, %s, %s, %s, %s, %s, %s
+            )""", (
+                id,
+                jockey_url,
+                item["jockey_name"][0] if "jockey_name" in item else None,
+                item["birthday"][0] if "birthday" in item else None,
+                item["gender"][0] if "gender" in item else None,
+                item["belong_to"][0] if "belong_to" in item else None,
+                item["trainer_url"][0] if "trainer_url" in item else None,
+                item["first_licensing_year"][0] if "first_licensing_year" in item else None
+            ))
+
+        self.db_conn.commit()
+
+    def process_trainer_item(self, item, spider):
+        logger.info(f"#process_trainer_item: start: item={item}")
+
+        # Delete db
+        trainer_url = item["trainer_url"][0]
+        id = hashlib.sha256((trainer_url).encode()).hexdigest()
+
+        logger.debug(f"#process_trainer_item: delete: id={id}, trainer_url={trainer_url}")
+
+        self.db_cursor.execute("delete from trainer where id=%s",
+            (id,))
+
+        # Insert db
+        logger.debug(f"#process_trainer_item: insert: id={id}, trainer_url={trainer_url}")
+
+        self.db_cursor.execute("""insert into trainer (
+                id,
+                trainer_url,
+                trainer_name,
+                birthday,
+                gender,
+                belong_to
+            ) values (
+                %s, %s, %s, %s, %s, %s
+            )""", (
+                id,
+                trainer_url,
+                item["trainer_name"][0] if "trainer_name" in item else None,
+                item["birthday"][0] if "birthday" in item else None,
+                item["gender"][0] if "gender" in item else None,
+                item["belong_to"][0] if "belong_to" in item else None
             ))
 
         self.db_conn.commit()

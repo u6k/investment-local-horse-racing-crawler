@@ -97,6 +97,47 @@ def upgrade():
         sa.Column("favorite", sa.String(255), nullable=True),
     )
     
+    op.create_table(
+        "horse",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("horse_url", sa.String(255), nullable=False),
+        sa.Column("horse_name", sa.String(255), nullable=True),
+        sa.Column("gender_age", sa.String(255), nullable=True),
+        sa.Column("birthday", sa.String(255), nullable=True),
+        sa.Column("coat_color", sa.String(255), nullable=True),
+        sa.Column("trainer_url", sa.String(255), nullable=True),
+        sa.Column("owner", sa.String(255), nullable=True),
+        sa.Column("breeder", sa.String(255), nullable=True),
+        sa.Column("breeding_farm", sa.String(255), nullable=True),
+        sa.Column("parent_horse_name_1", sa.String(255), nullable=True),
+        sa.Column("parent_horse_name_2", sa.String(255), nullable=True),
+        sa.Column("grand_parent_horse_name_1", sa.String(255), nullable=True),
+        sa.Column("grand_parent_horse_name_2", sa.String(255), nullable=True),
+        sa.Column("grand_parent_horse_name_3", sa.String(255), nullable=True),
+        sa.Column("grand_parent_horse_name_4", sa.String(255), nullable=True),
+    )
+    
+    op.create_table(
+        "jockey",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("jockey_url", sa.String(255), nullable=False),
+        sa.Column("jockey_name", sa.String(255), nullable=True),
+        sa.Column("birthday", sa.String(255), nullable=True),
+        sa.Column("gender", sa.String(255), nullable=True),
+        sa.Column("belong_to", sa.String(255), nullable=True),
+        sa.Column("trainer_url", sa.String(255), nullable=True),
+        sa.Column("first_licensing_year", sa.String(255), nullable=True),
+    )
+    
+    op.create_table(
+        "trainer",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("trainer_url", sa.String(255), nullable=False),
+        sa.Column("trainer_name", sa.String(255), nullable=True),
+        sa.Column("birthday", sa.String(255), nullable=True),
+        sa.Column("gender", sa.String(255), nullable=True),
+        sa.Column("belong_to", sa.String(255), nullable=True),
+    )
 
 
 
