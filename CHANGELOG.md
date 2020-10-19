@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#8794: WebAPIではなくジョブとしてクロールを実行するようにする](https://redmine.u6k.me/issues/8794)
 - [#8790: スクレイピング 処理で抽出した文字列をそのままDBに格納する](https://redmine.u6k.me/issues/8790)
 
+### Removed
+- [#8812: 不要なパラメーターを除去する](https://redmine.u6k.me/issues/8812)
+
 ## [1.5.0] - 2020-09-22
 ### Added
 - [#8512: 着差を取得する](https://redmine.u6k.me/issues/8512)
