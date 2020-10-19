@@ -12,20 +12,12 @@ logger = get_logger(__name__)
 class LocalHorseRacingSpider(scrapy.Spider):
     name = "local_horse_racing"
 
-    def __init__(self, start_url="https://www.oddspark.com/keiba/KaisaiCalendar.do", start_date=datetime(1900, 1, 1), end_date=datetime(2100, 1, 1), recache_race=False, recache_horse=False, *args, **kwargs):
-        logger.info(f"#__init__: start: start_url={start_url}, start_date={start_date}, end_date={end_date}, recache_race={recache_race}, recache_horse={recache_horse}")
+    def __init__(self, start_url="https://www.oddspark.com/keiba/KaisaiCalendar.do", recache_race=False, recache_horse=False, *args, **kwargs):
+        logger.info(f"#__init__: start: start_url={start_url}, recache_race={recache_race}, recache_horse={recache_horse}")
         try:
             super(LocalHorseRacingSpider, self).__init__(*args, **kwargs)
 
-            if start_date is not None and type(start_date) != datetime:
-                raise RuntimeError("type(start_date) is not datetime.")
-
-            if end_date is not None and type(end_date) != datetime:
-                raise RuntimeError("type(end_date) is not datetime.")
-
             self.start_urls = [start_url]
-            self.start_date = start_date
-            self.end_date = end_date
             self.recache_race = recache_race
             self.recache_horse = recache_horse
         except Exception:
@@ -40,8 +32,6 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """
 
         logger.info(f"#parse: start: url={response.url}")
-        logger.info(f"#parse: start_date={self.start_date}")
-        logger.info(f"#parse: end_date={self.end_date}")
         logger.info(f"#parse: recache_race={self.recache_race}")
         logger.info(f"#parse: recache_horse={self.recache_horse}")
 
