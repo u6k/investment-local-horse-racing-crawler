@@ -4,11 +4,13 @@
 from scrapy import Item, Field
 
 
+# カレンダー・ページのリンク先
 class CalendarItem(Item):
     calendar_url = Field()
     race_list_urls = Field()
 
 
+# レース情報(ミニ)
 class RaceInfoMiniItem(Item):
     race_list_url = Field()
     race_name = Field()
@@ -17,6 +19,7 @@ class RaceInfoMiniItem(Item):
     start_time = Field()
 
 
+# 出馬ページのレース情報
 class RaceInfoItem(Item):
     race_denma_url = Field()
     race_round = Field()
@@ -31,6 +34,8 @@ class RaceInfoItem(Item):
     prize_money = Field()
 
 
+
+# 出馬ページのリスト
 class RaceDenmaItem(Item):
     race_denma_url = Field()
     bracket_number = Field()
@@ -44,6 +49,8 @@ class RaceDenmaItem(Item):
     horse_weight_diff = Field()
 
 
+
+# 結果ページのリスト
 class RaceResultItem(Item):
     race_result_url = Field()
     result = Field()
@@ -55,12 +62,18 @@ class RaceResultItem(Item):
     final_600_meters_time = Field()
     corner_passing_order = Field()
 
+
+
+
+# 結果ページのコーナー通過順
 class RaceCornerPassingOrderItem(Item):
     race_result_url = Field()
     corner_number = Field()
     passing_order = Field()
 
 
+
+# 結果ページの払い戻し金
 class RaceRefundItem(Item):
     race_result_url = Field()
     betting_type = Field()
@@ -69,6 +82,8 @@ class RaceRefundItem(Item):
     favorite = Field()
 
 
+
+# 競走馬ページ
 class HorseItem(Item):
     horse_url = Field()
     horse_name = Field()
@@ -87,6 +102,9 @@ class HorseItem(Item):
     grand_parent_horse_name_4 = Field()
 
 
+
+
+# 騎手ページ
 class JockeyItem(Item):
     jockey_url = Field()
     jockey_name = Field()
@@ -97,6 +115,9 @@ class JockeyItem(Item):
     first_licensing_year = Field()
 
 
+
+
+# 調教師ページ
 class TrainerItem(Item):
     trainer_url = Field()
     trainer_name = Field()
@@ -105,6 +126,9 @@ class TrainerItem(Item):
     belong_to = Field()
 
 
+
+
+# オッズ(単勝・複勝)ページ
 class OddsWinPlaceItem(Item):
     odds_url = Field()
     horse_number = Field()
@@ -112,12 +136,9 @@ class OddsWinPlaceItem(Item):
     odds_win = Field()
     odds_place = Field()
 
-class OddsBracketQuinellaItem(Item):
-    odds_url = Field()
-    horse_number_1 = Field()
-    horse_number_2 = Field()
-    odds = Field()
 
+
+# オッズ・ページからのリンク先
 class OddsUrlItem(Item):
     odds_url = Field()
     odds_sub_urls = Field()
