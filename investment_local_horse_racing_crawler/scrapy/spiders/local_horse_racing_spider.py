@@ -1,4 +1,3 @@
-from datetime import datetime
 import scrapy
 from scrapy.loader import ItemLoader
 
