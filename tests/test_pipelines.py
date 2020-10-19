@@ -1,13 +1,13 @@
 import logging
 from datetime import datetime
 import os
-from nose.tools import * # noqa
+from nose.tools import *  # noqa
 
 from scrapy.crawler import Crawler
 from scrapy.exceptions import DropItem
 
 from investment_local_horse_racing_crawler.scrapy.spiders.local_horse_racing_spider import LocalHorseRacingSpider
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsUrlItem
 from investment_local_horse_racing_crawler.scrapy.pipelines import PostgreSQLPipeline
 
 
@@ -38,6 +38,8 @@ class TestPostgreSQLPipeline:
         self.pipeline.db_cursor.execute("delete from horse")
         self.pipeline.db_cursor.execute("delete from jockey")
         self.pipeline.db_cursor.execute("delete from trainer")
+        self.pipeline.db_cursor.execute("delete from odds_win_place")
+        self.pipeline.db_cursor.execute("delete from odds_url")
 
     def teardown(self):
         self.pipeline.close_spider(None)
@@ -327,7 +329,6 @@ class TestPostgreSQLPipeline:
 
         records = self.pipeline.db_cursor.fetchall()
         eq_(len(records), 1)
-
 
     def test_process_race_denma_item_1(self):
         # Setup
@@ -686,3 +687,81 @@ class TestPostgreSQLPipeline:
 
         records = self.pipeline.db_cursor.fetchall()
         eq_(len(records), 1)
+
+    def test_process_odds_win_place_item_1(self):
+        # Setup
+        item = OddsWinPlaceItem()
+        item['horse_number'] = ['1']
+        item['horse_url'] = ['/keiba/HorseDetail.do?lineageNb=2280190375']
+        item['odds_place'] = ['1.0 - 1.2']
+        item['odds_url'] = ['https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1']
+        item['odds_win'] = ['5.5']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from odds_win_place")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from odds_win_place")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+        record = records[0]
+        eq_(len(record['id']), 64)
+        eq_(record['horse_number'], '1')
+        eq_(record['horse_url'], '/keiba/HorseDetail.do?lineageNb=2280190375')
+        eq_(record['odds_place'], '1.0 - 1.2')
+        eq_(record['odds_url'], 'https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1')
+        eq_(record['odds_win'], '5.5')
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from odds_win_place")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 1)
+
+    def test_process_odds_url_item_1(self):
+        # Setup
+        item = OddsUrlItem()
+        item['odds_sub_urls'] = [
+            '/keiba/Odds.do?sponsorCd=04&opTrackCd=03&raceDy=20200301&raceNb=1&viewType=0&betType=6',
+            '/keiba/Odds.do?sponsorCd=04&opTrackCd=03&raceDy=20200301&raceNb=1&viewType=0&betType=5',
+            '/keiba/Odds.do?sponsorCd=04&opTrackCd=03&raceDy=20200301&raceNb=1&viewType=0&betType=7',
+            '/keiba/Odds.do?sponsorCd=04&opTrackCd=03&raceDy=20200301&raceNb=1&viewType=0&betType=9',
+            '/keiba/Odds.do?sponsorCd=04&opTrackCd=03&raceDy=20200301&raceNb=1&viewType=0&betType=8'
+        ]
+        item['odds_url'] = ['https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1']
+
+        # Before check
+        self.pipeline.db_cursor.execute("select * from odds_url")
+        eq_(len(self.pipeline.db_cursor.fetchall()), 0)
+
+        # Execute
+        self.pipeline.process_item(item, None)
+
+        # Check db
+        self.pipeline.db_cursor.execute("select * from odds_url")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 5)
+
+        for record in records:
+            eq_(len(record['id']), 64)
+            eq_(record['odds_url'], 'https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1')
+            ok_(record['odds_sub_url'].startswith("/keiba/Odds.do?"))
+
+        # Execute (2)
+        self.pipeline.process_item(item, None)
+
+        # Check db (2)
+        self.pipeline.db_cursor.execute("select * from odds_url")
+
+        records = self.pipeline.db_cursor.fetchall()
+        eq_(len(records), 5)

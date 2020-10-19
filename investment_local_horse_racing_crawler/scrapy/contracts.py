@@ -10,7 +10,6 @@ from investment_local_horse_racing_crawler.app_logging import get_logger
 logger = get_logger(__name__)
 
 
-
 class CalendarContract(Contract):
     name = "calendar"
 
@@ -31,22 +30,20 @@ class CalendarContract(Contract):
 
         if len(item["race_list_urls"]) <= 1:
             raise ContractFail(f"len(item.race_list_urls) <= 1")
-        
+
         for race_list_url in item["race_list_urls"]:
             if not race_list_url.startswith("/keiba/OneDayRaceList.do?"):
                 raise ContractFail(f"race_list_url is invalid")
 
         # Check requests
         requests = [o for o in output if isinstance(o, Request)]
-        
+
         if len(requests) <= 1:
             raise ContractFail(f"len(requests) <= 1")
 
         for request in requests:
             if not request.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
                 raise ContractFail(f"request is invalid")
-
-
 
 
 class OneDayRaceListContract(Contract):
@@ -88,15 +85,13 @@ class OneDayRaceListContract(Contract):
 
         # Check requests
         requests = [o for o in output if isinstance(o, Request)]
-        
+
         if len(requests) != 11:
             raise ContractFail(f"len(requests) != 11")
 
         for request in requests:
             if not request.url.startswith("https://www.oddspark.com/keiba/RaceList.do?"):
                 raise ContractFail("request is invalid")
-
-
 
 
 class RaceDenmaContract(Contract):
@@ -379,7 +374,6 @@ class HorseContract(Contract):
 
         if len(requests) > 0:
             raise ContractFail("len(requests)")
-
 
 
 class JockeyContract(Contract):

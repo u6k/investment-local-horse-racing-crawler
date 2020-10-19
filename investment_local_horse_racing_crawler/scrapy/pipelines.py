@@ -9,7 +9,7 @@ from scrapy.exceptions import DropItem
 import urllib.parse
 import hashlib
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsUrlItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -87,6 +87,10 @@ class PostgreSQLPipeline(object):
                 self.process_jockey_item(item, spider)
             elif isinstance(item, TrainerItem):
                 self.process_trainer_item(item, spider)
+            elif isinstance(item, OddsWinPlaceItem):
+                self.process_odds_win_place_item(item, spider)
+            elif isinstance(item, OddsUrlItem):
+                self.process_odds_url_item(item, spider)
             else:
                 raise DropItem("Unknown item type")
 
@@ -96,7 +100,7 @@ class PostgreSQLPipeline(object):
         except Exception as e:
             logger.exception("Cause exception")
             raise DropItem("Cause exception")
-    
+
     def process_calendar_item(self, item, spider):
         logger.info(f"#process_calendar_item: start: item={item}")
 
@@ -104,9 +108,9 @@ class PostgreSQLPipeline(object):
         calendar_url = item["calendar_url"][0]
 
         logger.debug(f"#process_calendar_item: delete: calendar_url={calendar_url}")
-        
+
         self.db_cursor.execute("delete from calendar_race_url where calendar_url=%s",
-            (calendar_url,))
+                               (calendar_url,))
 
         # Insert db
         for race_list_url in item["race_list_urls"]:
@@ -132,7 +136,7 @@ class PostgreSQLPipeline(object):
         logger.debug(f"#process_race_info_mini_item: delete: race_list_url={race_list_url}, race_denma_url={race_denma_url}")
 
         self.db_cursor.execute("delete from race_info_mini where race_list_url=%s and race_denma_url=%s",
-            (race_list_url, race_denma_url))
+                               (race_list_url, race_denma_url))
 
         # Insert db
         id = hashlib.sha256((race_list_url + race_denma_url).encode()).hexdigest()
@@ -144,13 +148,13 @@ class PostgreSQLPipeline(object):
             ) values (
                 %s, %s, %s, %s, %s, %s
             )""", (
-                id,
-                race_list_url,
-                item["race_name"][0] if "race_name" in item else None,
-                race_denma_url,
-                item["course_length"][0] if "course_length" in item else None,
-                item["start_time"][0] if "start_time" in item else None,
-            ))
+            id,
+            race_list_url,
+            item["race_name"][0] if "race_name" in item else None,
+            race_denma_url,
+            item["course_length"][0] if "course_length" in item else None,
+            item["start_time"][0] if "start_time" in item else None,
+        ))
 
         self.db_conn.commit()
 
@@ -163,7 +167,7 @@ class PostgreSQLPipeline(object):
         logger.debug(f"#process_race_info_item: delete: race_denma_url={race_denma_url}")
 
         self.db_cursor.execute("delete from race_info where race_denma_url=%s",
-            (race_denma_url,))
+                               (race_denma_url,))
 
         # Insert db
         id = hashlib.sha256(race_denma_url.encode()).hexdigest()
@@ -186,19 +190,19 @@ class PostgreSQLPipeline(object):
             ) values (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )""", (
-                id,
-                race_denma_url,
-                item["race_round"][0] if "race_round" in item else None,
-                item["race_name"][0] if "race_name" in item else None,
-                item["start_date"][0] if "start_date" in item else None,
-                item["place_name"][0] if "place_name" in item else None,
-                item["course_type_length"][0] if "course_type_length" in item else None,
-                item["start_time"][0] if "start_time" in item else None,
-                item["weather_url"][0] if "weather_url" in item else None,
-                item["course_condition"][0] if "course_condition" in item else None,
-                item["moisture"][0] if "moisture" in item else None,
-                item["prize_money"][0] if "prize_money" in item else None
-            ))
+            id,
+            race_denma_url,
+            item["race_round"][0] if "race_round" in item else None,
+            item["race_name"][0] if "race_name" in item else None,
+            item["start_date"][0] if "start_date" in item else None,
+            item["place_name"][0] if "place_name" in item else None,
+            item["course_type_length"][0] if "course_type_length" in item else None,
+            item["start_time"][0] if "start_time" in item else None,
+            item["weather_url"][0] if "weather_url" in item else None,
+            item["course_condition"][0] if "course_condition" in item else None,
+            item["moisture"][0] if "moisture" in item else None,
+            item["prize_money"][0] if "prize_money" in item else None
+        ))
 
         self.db_conn.commit()
 
@@ -212,7 +216,7 @@ class PostgreSQLPipeline(object):
         logger.debug(f"#process_race_denma_item: delete: race_denma_url={race_denma_url}, horse_url={horse_url}")
 
         self.db_cursor.execute("delete from race_denma where race_denma_url=%s and horse_url=%s",
-            (race_denma_url, horse_url))
+                               (race_denma_url, horse_url))
 
         # Insert db
         id = hashlib.sha256((race_denma_url + horse_url).encode()).hexdigest()
@@ -234,18 +238,18 @@ class PostgreSQLPipeline(object):
             ) values (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )""", (
-                id,
-                race_denma_url,
-                item["bracket_number"][0] if "bracket_number" in item else None,
-                item["horse_number"][0] if "horse_number" in item else None,
-                horse_url,
-                item["jockey_url"][0] if "jockey_url" in item else None,
-                item["jockey_weight"][0] if "jockey_weight" in item else None,
-                item["trainer_url"][0] if "trainer_url" in item else None,
-                item["odds_win_favorite"][0] if "odds_win_favorite" in item else None,
-                item["horse_weight"][0] if "horse_weight" in item else None,
-                item["horse_weight_diff"][0] if "horse_weight_diff" in item else None
-            ))
+            id,
+            race_denma_url,
+            item["bracket_number"][0] if "bracket_number" in item else None,
+            item["horse_number"][0] if "horse_number" in item else None,
+            horse_url,
+            item["jockey_url"][0] if "jockey_url" in item else None,
+            item["jockey_weight"][0] if "jockey_weight" in item else None,
+            item["trainer_url"][0] if "trainer_url" in item else None,
+            item["odds_win_favorite"][0] if "odds_win_favorite" in item else None,
+            item["horse_weight"][0] if "horse_weight" in item else None,
+            item["horse_weight_diff"][0] if "horse_weight_diff" in item else None
+        ))
 
         self.db_conn.commit()
 
@@ -260,7 +264,7 @@ class PostgreSQLPipeline(object):
         logger.debug(f"#process_race_result_item: delete: id={id}, race_result_url={race_result_url}, horse_url={horse_url}")
 
         self.db_cursor.execute("delete from race_result where id=%s",
-            (id,))
+                               (id,))
 
         # Insert db
         logger.debug(f"#process_race_result_item: insert: id={id}, race_result_url={race_result_url}, horse_url={horse_url}")
@@ -279,17 +283,17 @@ class PostgreSQLPipeline(object):
             ) values (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )""", (
-                id,
-                race_result_url,
-                item["result"][0] if "result" in item else None,
-                item["bracket_number"][0] if "bracket_number" in item else None,
-                item["horse_number"][0] if "horse_number" in item else None,
-                horse_url,
-                item["arrival_time"][0] if "arrival_time" in item else None,
-                item["arrival_margin"][0] if "arrival_margin" in item else None,
-                item["final_600_meters_time"][0] if "final_600_meters_time" in item else None,
-                item["corner_passing_order"][0] if "corner_passing_order" in item else None
-            ))
+            id,
+            race_result_url,
+            item["result"][0] if "result" in item else None,
+            item["bracket_number"][0] if "bracket_number" in item else None,
+            item["horse_number"][0] if "horse_number" in item else None,
+            horse_url,
+            item["arrival_time"][0] if "arrival_time" in item else None,
+            item["arrival_margin"][0] if "arrival_margin" in item else None,
+            item["final_600_meters_time"][0] if "final_600_meters_time" in item else None,
+            item["corner_passing_order"][0] if "corner_passing_order" in item else None
+        ))
 
         self.db_conn.commit()
 
@@ -304,7 +308,7 @@ class PostgreSQLPipeline(object):
         logger.debug(f"#process_race_corner_passing_order_item: delete: id={id}, race_result_url={race_result_url}, corner_number={corner_number}")
 
         self.db_cursor.execute("delete from race_corner_passing_order where id=%s",
-            (id,))
+                               (id,))
 
         # Insert db
         logger.debug(f"#process_race_corner_passing_order_item: insert: id={id}, race_result_url={race_result_url}, corner_number={corner_number}")
@@ -317,11 +321,11 @@ class PostgreSQLPipeline(object):
             ) values (
                 %s, %s, %s, %s
             )""", (
-                id,
-                race_result_url,
-                corner_number,
-                item["passing_order"][0] if "passing_order" in item else None
-            ))
+            id,
+            race_result_url,
+            corner_number,
+            item["passing_order"][0] if "passing_order" in item else None
+        ))
 
         self.db_conn.commit()
 
@@ -337,7 +341,7 @@ class PostgreSQLPipeline(object):
         logger.debug(f"#process_race_refund_item: delete: id={id}, race_result_url={race_result_url}, betting_type={betting_type}, horse_number={horse_number}")
 
         self.db_cursor.execute("delete from race_refund where id=%s",
-            (id,))
+                               (id,))
 
         # Insert db
         logger.debug(f"#process_race_refund_item: insert: id={id}, race_result_url={race_result_url}, betting_type={betting_type}, horse_number={horse_number}")
@@ -352,13 +356,13 @@ class PostgreSQLPipeline(object):
             ) values (
                 %s, %s, %s, %s, %s, %s
             )""", (
-                id,
-                race_result_url,
-                betting_type,
-                horse_number,
-                item["refund_money"][0] if "refund_money" in item else None,
-                item["favorite"][0] if "favorite" in item else None
-            ))
+            id,
+            race_result_url,
+            betting_type,
+            horse_number,
+            item["refund_money"][0] if "refund_money" in item else None,
+            item["favorite"][0] if "favorite" in item else None
+        ))
 
         self.db_conn.commit()
 
@@ -372,7 +376,7 @@ class PostgreSQLPipeline(object):
         logger.debug(f"#process_horse_item: delete: id={id}, horse_url={horse_url}")
 
         self.db_cursor.execute("delete from horse where id=%s",
-            (id,))
+                               (id,))
 
         # Insert db
         logger.debug(f"#process_horse_item: insert: id={id}, horse_url={horse_url}")
@@ -397,23 +401,23 @@ class PostgreSQLPipeline(object):
             ) values (
                 %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
             )""", (
-                id,
-                horse_url,
-                item["horse_name"][0] if "horse_name" in item else None,
-                item["gender_age"][0] if "gender_age" in item else None,
-                item["birthday"][0] if "birthday" in item else None,
-                item["coat_color"][0] if "coat_color" in item else None,
-                item["trainer_url"][0] if "trainer_url" in item else None,
-                item["owner"][0] if "owner" in item else None,
-                item["breeder"][0] if "breeder" in item else None,
-                item["breeding_farm"][0] if "breeding_farm" in item else None,
-                item["parent_horse_name_1"][0] if "parent_horse_name_1" in item else None,
-                item["parent_horse_name_2"][0] if "parent_horse_name_2" in item else None,
-                item["grand_parent_horse_name_1"][0] if "grand_parent_horse_name_1" in item else None,
-                item["grand_parent_horse_name_2"][0] if "grand_parent_horse_name_2" in item else None,
-                item["grand_parent_horse_name_3"][0] if "grand_parent_horse_name_3" in item else None,
-                item["grand_parent_horse_name_4"][0] if "grand_parent_horse_name_4" in item else None
-            ))
+            id,
+            horse_url,
+            item["horse_name"][0] if "horse_name" in item else None,
+            item["gender_age"][0] if "gender_age" in item else None,
+            item["birthday"][0] if "birthday" in item else None,
+            item["coat_color"][0] if "coat_color" in item else None,
+            item["trainer_url"][0] if "trainer_url" in item else None,
+            item["owner"][0] if "owner" in item else None,
+            item["breeder"][0] if "breeder" in item else None,
+            item["breeding_farm"][0] if "breeding_farm" in item else None,
+            item["parent_horse_name_1"][0] if "parent_horse_name_1" in item else None,
+            item["parent_horse_name_2"][0] if "parent_horse_name_2" in item else None,
+            item["grand_parent_horse_name_1"][0] if "grand_parent_horse_name_1" in item else None,
+            item["grand_parent_horse_name_2"][0] if "grand_parent_horse_name_2" in item else None,
+            item["grand_parent_horse_name_3"][0] if "grand_parent_horse_name_3" in item else None,
+            item["grand_parent_horse_name_4"][0] if "grand_parent_horse_name_4" in item else None
+        ))
 
         self.db_conn.commit()
 
@@ -427,7 +431,7 @@ class PostgreSQLPipeline(object):
         logger.debug(f"#process_jockey_item: delete: id={id}, jockey_url={jockey_url}")
 
         self.db_cursor.execute("delete from jockey where id=%s",
-            (id,))
+                               (id,))
 
         # Insert db
         logger.debug(f"#process_jockey_item: insert: id={id}, jockey_url={jockey_url}")
@@ -444,15 +448,15 @@ class PostgreSQLPipeline(object):
             ) values (
                 %s, %s, %s, %s, %s, %s, %s, %s
             )""", (
-                id,
-                jockey_url,
-                item["jockey_name"][0] if "jockey_name" in item else None,
-                item["birthday"][0] if "birthday" in item else None,
-                item["gender"][0] if "gender" in item else None,
-                item["belong_to"][0] if "belong_to" in item else None,
-                item["trainer_url"][0] if "trainer_url" in item else None,
-                item["first_licensing_year"][0] if "first_licensing_year" in item else None
-            ))
+            id,
+            jockey_url,
+            item["jockey_name"][0] if "jockey_name" in item else None,
+            item["birthday"][0] if "birthday" in item else None,
+            item["gender"][0] if "gender" in item else None,
+            item["belong_to"][0] if "belong_to" in item else None,
+            item["trainer_url"][0] if "trainer_url" in item else None,
+            item["first_licensing_year"][0] if "first_licensing_year" in item else None
+        ))
 
         self.db_conn.commit()
 
@@ -466,7 +470,7 @@ class PostgreSQLPipeline(object):
         logger.debug(f"#process_trainer_item: delete: id={id}, trainer_url={trainer_url}")
 
         self.db_cursor.execute("delete from trainer where id=%s",
-            (id,))
+                               (id,))
 
         # Insert db
         logger.debug(f"#process_trainer_item: insert: id={id}, trainer_url={trainer_url}")
@@ -481,12 +485,79 @@ class PostgreSQLPipeline(object):
             ) values (
                 %s, %s, %s, %s, %s, %s
             )""", (
+            id,
+            trainer_url,
+            item["trainer_name"][0] if "trainer_name" in item else None,
+            item["birthday"][0] if "birthday" in item else None,
+            item["gender"][0] if "gender" in item else None,
+            item["belong_to"][0] if "belong_to" in item else None
+        ))
+
+        self.db_conn.commit()
+
+    def process_odds_win_place_item(self, item, spider):
+        logger.info(f"#process_odds_win_place_item: start: item={item}")
+
+        # Delete db
+        odds_url = item["odds_url"][0]
+        horse_url = item["horse_url"][0]
+        id = hashlib.sha256((odds_url + horse_url).encode()).hexdigest()
+
+        logger.debug(f"#process_odds_win_place_item: delete: id={id}, odds_url={odds_url}, horse_url={horse_url}")
+
+        self.db_cursor.execute("delete from odds_win_place where id=%s",
+                               (id,))
+
+        # Insert db
+        logger.debug(f"#process_odds_win_place_item: insert: id={id}, odds_url={odds_url}, horse_url={horse_url}")
+
+        self.db_cursor.execute("""insert into odds_win_place (
                 id,
-                trainer_url,
-                item["trainer_name"][0] if "trainer_name" in item else None,
-                item["birthday"][0] if "birthday" in item else None,
-                item["gender"][0] if "gender" in item else None,
-                item["belong_to"][0] if "belong_to" in item else None
+                odds_url,
+                horse_number,
+                horse_url,
+                odds_win,
+                odds_place
+            ) values (
+                %s, %s, %s, %s, %s, %s
+            )""", (
+            id,
+            odds_url,
+            item["horse_number"][0] if "horse_number" in item else None,
+            horse_url,
+            item["odds_win"][0] if "odds_win" in item else None,
+            item["odds_place"][0] if "odds_place" in item else None,
+        ))
+
+        self.db_conn.commit()
+
+    def process_odds_url_item(self, item, spider):
+        logger.info(f"#process_odds_url_item: start: item={item}")
+
+        # Delete db
+        odds_url = item["odds_url"][0]
+
+        logger.debug(f"#process_odds_url_item: delete: odds_url={odds_url}")
+
+        self.db_cursor.execute("delete from odds_url where odds_url=%s",
+                               (odds_url,))
+
+        # Insert db
+        for odds_sub_url in item["odds_sub_urls"]:
+            id = hashlib.sha256((odds_url + odds_sub_url).encode()).hexdigest()
+
+            logger.debug(f"#process_odds_url_item: insert: id={id}, odds_url={odds_url}, odds_sub_url={odds_sub_url}")
+
+            self.db_cursor.execute("""insert into odds_url (
+                    id,
+                    odds_url,
+                    odds_sub_url
+                ) values (
+                    %s, %s, %s
+                )""", (
+                id,
+                odds_url,
+                odds_sub_url
             ))
 
         self.db_conn.commit()

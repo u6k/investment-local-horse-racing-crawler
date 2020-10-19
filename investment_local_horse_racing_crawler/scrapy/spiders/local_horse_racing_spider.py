@@ -409,7 +409,6 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
         for href in i["odds_sub_urls"]:
             yield self._follow_delegate(response, href)
-                
 
     def _follow_delegate(self, response, path, cb_kwargs=None):
         logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")

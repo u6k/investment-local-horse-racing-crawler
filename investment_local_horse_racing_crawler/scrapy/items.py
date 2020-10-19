@@ -34,7 +34,6 @@ class RaceInfoItem(Item):
     prize_money = Field()
 
 
-
 # 出馬ページのリスト
 class RaceDenmaItem(Item):
     race_denma_url = Field()
@@ -47,7 +46,6 @@ class RaceDenmaItem(Item):
     odds_win_favorite = Field()
     horse_weight = Field()
     horse_weight_diff = Field()
-
 
 
 # 結果ページのリスト
@@ -63,14 +61,11 @@ class RaceResultItem(Item):
     corner_passing_order = Field()
 
 
-
-
 # 結果ページのコーナー通過順
 class RaceCornerPassingOrderItem(Item):
     race_result_url = Field()
     corner_number = Field()
     passing_order = Field()
-
 
 
 # 結果ページの払い戻し金
@@ -80,7 +75,6 @@ class RaceRefundItem(Item):
     horse_number = Field()
     refund_money = Field()
     favorite = Field()
-
 
 
 # 競走馬ページ
@@ -102,8 +96,6 @@ class HorseItem(Item):
     grand_parent_horse_name_4 = Field()
 
 
-
-
 # 騎手ページ
 class JockeyItem(Item):
     jockey_url = Field()
@@ -115,8 +107,6 @@ class JockeyItem(Item):
     first_licensing_year = Field()
 
 
-
-
 # 調教師ページ
 class TrainerItem(Item):
     trainer_url = Field()
@@ -126,8 +116,6 @@ class TrainerItem(Item):
     belong_to = Field()
 
 
-
-
 # オッズ(単勝・複勝)ページ
 class OddsWinPlaceItem(Item):
     odds_url = Field()
@@ -135,7 +123,6 @@ class OddsWinPlaceItem(Item):
     horse_url = Field()
     odds_win = Field()
     odds_place = Field()
-
 
 
 # オッズ・ページからのリンク先

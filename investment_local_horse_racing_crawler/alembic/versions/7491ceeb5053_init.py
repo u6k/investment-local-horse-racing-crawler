@@ -64,7 +64,7 @@ def upgrade():
         sa.Column("horse_weight", sa.String(255), nullable=True),
         sa.Column("horse_weight_diff", sa.String(255), nullable=True),
     )
-    
+
     op.create_table(
         "race_result",
         sa.Column("id", sa.String(255), primary_key=True),
@@ -78,7 +78,7 @@ def upgrade():
         sa.Column("final_600_meters_time", sa.String(255), nullable=True),
         sa.Column("corner_passing_order", sa.String(255), nullable=True),
     )
-    
+
     op.create_table(
         "race_corner_passing_order",
         sa.Column("id", sa.String(255), primary_key=True),
@@ -86,7 +86,7 @@ def upgrade():
         sa.Column("corner_number", sa.String(255), nullable=True),
         sa.Column("passing_order", sa.String(255), nullable=True),
     )
-    
+
     op.create_table(
         "race_refund",
         sa.Column("id", sa.String(255), primary_key=True),
@@ -96,7 +96,7 @@ def upgrade():
         sa.Column("refund_money", sa.String(255), nullable=True),
         sa.Column("favorite", sa.String(255), nullable=True),
     )
-    
+
     op.create_table(
         "horse",
         sa.Column("id", sa.String(255), primary_key=True),
@@ -116,7 +116,7 @@ def upgrade():
         sa.Column("grand_parent_horse_name_3", sa.String(255), nullable=True),
         sa.Column("grand_parent_horse_name_4", sa.String(255), nullable=True),
     )
-    
+
     op.create_table(
         "jockey",
         sa.Column("id", sa.String(255), primary_key=True),
@@ -128,7 +128,7 @@ def upgrade():
         sa.Column("trainer_url", sa.String(255), nullable=True),
         sa.Column("first_licensing_year", sa.String(255), nullable=True),
     )
-    
+
     op.create_table(
         "trainer",
         sa.Column("id", sa.String(255), primary_key=True),
@@ -139,6 +139,22 @@ def upgrade():
         sa.Column("belong_to", sa.String(255), nullable=True),
     )
 
+    op.create_table(
+        "odds_win_place",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("odds_url", sa.String(255), nullable=False),
+        sa.Column("horse_number", sa.String(255), nullable=True),
+        sa.Column("horse_url", sa.String(255), nullable=False),
+        sa.Column("odds_win", sa.String(255), nullable=True),
+        sa.Column("odds_place", sa.String(255), nullable=True),
+    )
+
+    op.create_table(
+        "odds_url",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("odds_url", sa.String(255), nullable=False),
+        sa.Column("odds_sub_url", sa.String(255), nullable=False),
+    )
 
 
 def downgrade():
