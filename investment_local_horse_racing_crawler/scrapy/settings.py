@@ -25,15 +25,14 @@ HTTPCACHE_ENABLED = True
 HTTPCACHE_STORAGE = 'investment_local_horse_racing_crawler.scrapy.middlewares.S3CacheStorage'
 
 SPIDER_CONTRACTS = {
-    "investment_local_horse_racing_crawler.scrapy.contracts.ScheduleListContract": 10,
+    "investment_local_horse_racing_crawler.scrapy.contracts.CalendarContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.OneDayRaceListContract": 10,
-    "investment_local_horse_racing_crawler.scrapy.contracts.RaceRefundListContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.RaceDenmaContract": 10,
-    "investment_local_horse_racing_crawler.scrapy.contracts.OddsWinContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.RaceResultContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.HorseContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.JockeyContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.TrainerContract": 10,
+    "investment_local_horse_racing_crawler.scrapy.contracts.OddsWinPlaceContract": 10,
 }
 
 S3_ENDPOINT = os.environ["S3_ENDPOINT"]

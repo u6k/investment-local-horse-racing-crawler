@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unrelease]
 ### Changed
 - [#8794: WebAPIではなくジョブとしてクロールを実行するようにする](https://redmine.u6k.me/issues/8794)
+- [#8790: スクレイピング 処理で抽出した文字列をそのままDBに格納する](https://redmine.u6k.me/issues/8790)
 
 ## [1.5.0] - 2020-09-22
 ### Added
