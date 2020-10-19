@@ -1,10 +1,8 @@
 import logging
-from datetime import datetime
 import os
-from nose.tools import *  # noqa
+from nose.tools import eq_, ok_
 
 from scrapy.crawler import Crawler
-from scrapy.exceptions import DropItem
 
 from investment_local_horse_racing_crawler.scrapy.spiders.local_horse_racing_spider import LocalHorseRacingSpider
 from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsUrlItem

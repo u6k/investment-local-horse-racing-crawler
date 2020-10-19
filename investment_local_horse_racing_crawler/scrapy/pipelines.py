@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
 
-from datetime import datetime
 import psycopg2
 from psycopg2.extras import DictCursor
-import re
 from scrapy.exceptions import DropItem
-import urllib.parse
 import hashlib
 
 from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsUrlItem
@@ -97,7 +94,7 @@ class PostgreSQLPipeline(object):
             return item
         except DropItem as e:
             raise e
-        except Exception as e:
+        except Exception:
             logger.exception("Cause exception")
             raise DropItem("Cause exception")
 

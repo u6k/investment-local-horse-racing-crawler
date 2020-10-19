@@ -29,21 +29,21 @@ class CalendarContract(Contract):
             raise ContractFail("item.calendar_url is invalid")
 
         if len(item["race_list_urls"]) <= 1:
-            raise ContractFail(f"len(item.race_list_urls) <= 1")
+            raise ContractFail("len(item.race_list_urls) <= 1")
 
         for race_list_url in item["race_list_urls"]:
             if not race_list_url.startswith("/keiba/OneDayRaceList.do?"):
-                raise ContractFail(f"race_list_url is invalid")
+                raise ContractFail("race_list_url is invalid")
 
         # Check requests
         requests = [o for o in output if isinstance(o, Request)]
 
         if len(requests) <= 1:
-            raise ContractFail(f"len(requests) <= 1")
+            raise ContractFail("len(requests) <= 1")
 
         for request in requests:
             if not request.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
-                raise ContractFail(f"request is invalid")
+                raise ContractFail("request is invalid")
 
 
 class OneDayRaceListContract(Contract):
@@ -79,7 +79,7 @@ class OneDayRaceListContract(Contract):
 
             if len(item["start_time"]) != 1:
                 raise ContractFail("len(start_time) != 1")
-            start_time_re = re.match("^\d+:\d+", item["start_time"][0])
+            start_time_re = re.match(r"^\d+:\d+$", item["start_time"][0])
             if not start_time_re:
                 raise ContractFail("start_time is invalid pattern")
 
@@ -87,7 +87,7 @@ class OneDayRaceListContract(Contract):
         requests = [o for o in output if isinstance(o, Request)]
 
         if len(requests) != 11:
-            raise ContractFail(f"len(requests) != 11")
+            raise ContractFail("len(requests) != 11")
 
         for request in requests:
             if not request.url.startswith("https://www.oddspark.com/keiba/RaceList.do?"):
@@ -109,25 +109,25 @@ class RaceDenmaContract(Contract):
         if not item["race_denma_url"][0].startswith("https://www.oddspark.com/keiba/RaceList.do?"):
             raise ContractFail("race_denma_url is invalid")
 
-        race_round_re = re.match("^R\d+$", item["race_round"][0])
+        race_round_re = re.match(r"^R\d+$", item["race_round"][0])
         if not race_round_re:
             raise ContractFail("race_round is invalid")
 
         if not item["race_name"][0]:
             raise ContractFail("race_name is empty")
 
-        start_date_re = re.match("^\d{4}年\d{1,2}月\d{1,2}日\(\w\)$", item["start_date"][0])
+        start_date_re = re.match(r"^\d{4}年\d{1,2}月\d{1,2}日\(\w\)$", item["start_date"][0])
         if not start_date_re:
             raise ContractFail("start_date is invalid")
 
         if not item["place_name"][0]:
             raise ContractFail("place_name is invalid")
 
-        course_type_length = re.match("^\w\d+m$", item["course_type_length"][0])
+        course_type_length = re.match(r"^\w\d+m$", item["course_type_length"][0])
         if not course_type_length:
             raise ContractFail("course_type_length is invalid")
 
-        start_time_re = re.match("発走時間 \d{1,2}:\d{1,2}", item["start_time"][0])
+        start_time_re = re.match(r"^発走時間 \d{1,2}:\d{1,2}$", item["start_time"][0])
         if not start_time_re:
             raise ContractFail("start_time is invalid")
 
@@ -139,11 +139,11 @@ class RaceDenmaContract(Contract):
                 raise ContractFail("course_condition is invalid")
 
         if "moisture" in item:
-            moisture_re = re.match("^[\d\.]+\%$", item["moisture"][0])
+            moisture_re = re.match(r"^[\d\.]+\%$", item["moisture"][0])
             if not moisture_re:
                 raise ContractFail("moisture is invalid")
 
-        prize_money_re = re.match("^.*賞金.*1着.*[\d,]+円.*2着.*[\d,]+円.*3着.*[\d,]+円.*4着.*[\d,]+円.*5着.*[\d,]+円.*$", item["prize_money"][0])
+        prize_money_re = re.match(r"^.*賞金.*1着.*[\d,]+円.*2着.*[\d,]+円.*3着.*[\d,]+円.*4着.*[\d,]+円.*5着.*[\d,]+円.*$", item["prize_money"][0])
         if not prize_money_re:
             raise ContractFail("prize_money is invalid")
 
@@ -163,31 +163,31 @@ class RaceDenmaContract(Contract):
             if not item["horse_number"][0]:
                 raise ContractFail("horse_number is empty")
 
-            horse_url_re = re.match("^/keiba/HorseDetail\.do\?lineageNb=\d+$", item["horse_url"][0])
+            horse_url_re = re.match(r"^/keiba/HorseDetail\.do\?lineageNb=\d+$", item["horse_url"][0])
             if not horse_url_re:
                 raise ContractFail("horse_url is invalid")
 
-            jockey_url_re = re.match("^/keiba/JockeyDetail\.do\?jkyNb=\d+$", item["jockey_url"][0])
+            jockey_url_re = re.match(r"^/keiba/JockeyDetail\.do\?jkyNb=\d+$", item["jockey_url"][0])
             if not jockey_url_re:
                 raise ContractFail("jockey_url is invalid")
 
-            jockey_weight_re = re.match("^.?\d+(\.\d+)?$", item["jockey_weight"][0])
+            jockey_weight_re = re.match(r"^.?\d+(\.\d+)?$", item["jockey_weight"][0])
             if not jockey_weight_re:
                 raise ContractFail("jockey_weight is invalid")
 
-            trainer_url_re = re.match("/keiba/TrainerDetail\.do\?trainerNb=\d+$", item["trainer_url"][0])
+            trainer_url_re = re.match(r"^/keiba/TrainerDetail\.do\?trainerNb=\d+$", item["trainer_url"][0])
             if not trainer_url_re:
                 raise ContractFail("trainer_url is invalid")
 
-            odds_win_favorite_re = re.match("^[\d\.]+ +\(\d+人気\)$", item["odds_win_favorite"][0])
+            odds_win_favorite_re = re.match(r"^[\d\.]+ +\(\d+人気\)$", item["odds_win_favorite"][0])
             if not odds_win_favorite_re:
                 raise ContractFail("odds_win_favorite is invalid")
 
-            horse_weight_re = re.match("^\d+$", item["horse_weight"][0])
+            horse_weight_re = re.match(r"^\d+$", item["horse_weight"][0])
             if not horse_weight_re:
                 raise ContractFail("horse_weight is invalid")
 
-            horse_weight_diff_re = re.match("^[\+\-±]\d+$", item["horse_weight_diff"][0])
+            horse_weight_diff_re = re.match(r"^[\+\-±]\d+$", item["horse_weight_diff"][0])
             if not horse_weight_diff_re:
                 raise ContractFail("horse_weight_diff is invalid")
 

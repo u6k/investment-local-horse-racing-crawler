@@ -1,5 +1,4 @@
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
 import scrapy
 from scrapy.loader import ItemLoader
 
@@ -388,7 +387,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
             yield i
 
         # Parse odds urls
-        logger.debug(f"#parse_odds_win: parse odds urls")
+        logger.debug("#parse_odds_win: parse odds urls")
 
         loader = ItemLoader(OddsUrlItem(), response=response)
         loader.add_value("odds_url", response.url)
@@ -405,7 +404,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         yield i
 
         # Request odds urls
-        logger.debug(f"#parse_odds_win: request odds urls")
+        logger.debug("#parse_odds_win: request odds urls")
 
         for href in i["odds_sub_urls"]:
             yield self._follow_delegate(response, href)
