@@ -33,6 +33,11 @@ SPIDER_CONTRACTS = {
     "investment_local_horse_racing_crawler.scrapy.contracts.JockeyContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.TrainerContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.OddsWinPlaceContract": 10,
+    "investment_local_horse_racing_crawler.scrapy.contracts.OddsQuinellaContract": 10,
+    "investment_local_horse_racing_crawler.scrapy.contracts.OddsExactaContract": 10,
+    "investment_local_horse_racing_crawler.scrapy.contracts.OddsQuinellaPlaceContract": 10,
+    "investment_local_horse_racing_crawler.scrapy.contracts.OddsTrioContract": 10,
+    "investment_local_horse_racing_crawler.scrapy.contracts.OddsTrifectaContract": 10,
 }
 
 S3_ENDPOINT = os.environ["S3_ENDPOINT"]
