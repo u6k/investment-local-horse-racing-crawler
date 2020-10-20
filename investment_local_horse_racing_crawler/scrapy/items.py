@@ -125,7 +125,40 @@ class OddsWinPlaceItem(Item):
     odds_place = Field()
 
 
-# オッズ・ページからのリンク先
-class OddsUrlItem(Item):
+# オッズ(馬連)ページ
+class OddsQuinellaItem(Item):
     odds_url = Field()
-    odds_sub_urls = Field()
+    horse_number_1 = Field()
+    horse_number_2 = Field()
+    odds = Field()
+
+
+# オッズ(馬単)ページ
+class OddsExactaItem(Item):
+    odds_url = Field()
+    horse_number_1 = Field()
+    horse_number_2 = Field()
+    odds = Field()
+
+
+# オッズ(ワイド)ページ
+class OddsQuinellaPlaceItem(Item):
+    odds_url = Field()
+    horse_number_1 = Field()
+    horse_number_2 = Field()
+    odds = Field()
+
+
+# オッズ(三連複)ページ
+class OddsTrioItem(Item):
+    odds_url = Field()
+    horse_number_1_2 = Field()
+    horse_number_3 = Field()
+    odds = Field()
+
+
+# オッズ(三連単)ページ
+class OddsTrifectaItem(Item):
+    odds_url = Field()
+    horse_number = Field()
+    odds = Field()
