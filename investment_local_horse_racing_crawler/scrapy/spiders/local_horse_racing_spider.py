@@ -394,7 +394,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
         logger.info(f"#parse_odds_quinella: start: url={response.url}")
 
-        # Parse odds exacta
+        # Parse odds quinella
         horse_numbers = []
 
         for tr in response.xpath("//table[@summary='odds']/tr"):
@@ -436,13 +436,48 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def parse_odds_exacta(self, response):
         """ Parse odds(exacta) page.
 
-        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=5
-        @returns items 0 0
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=8&betType=5
+        @returns items 1
         @returns requests 0 0
         @odds_exacta
         """
 
         logger.info(f"#parse_odds_exacta: start: url={response.url}")
+
+        # Parse odds exacta
+        for table in response.xpath("//table[@summary='odds']"):
+            horse_numbers = []
+
+            for tr in table.xpath("tr"):
+                if len(horse_numbers) == 0:
+                    for td in tr.xpath("*"):
+                        logger.debug(f"#parse_odds_exacta: horse_number_1={td.xpath('text()').get()}")
+                        horse_numbers.append(td.xpath('text()').get())
+                else:
+                    horse_number_2 = None
+                    column_number = 0
+
+                    for td in tr.xpath("*"):
+                        if horse_number_2 is None and "th2" in td.attrib["class"]:
+                            logger.debug(f"#parse_odds_exacta: horse_number_2={td.xpath('text()').get()}")
+                            horse_number_2 = td.xpath('text()').get()
+                        elif horse_number_2 is not None and "blank" in td.attrib["class"]:
+                            logger.debug("#parse_odds_exacta: blank odds")
+                            horse_number_2 = None
+                            column_number += 1
+                        elif horse_number_2 is not None:
+                            loader = ItemLoader(item=OddsExactaItem(), selector=td)
+                            loader.add_value("odds_url", response.url)
+                            loader.add_value("horse_number_1", horse_numbers[column_number])
+                            loader.add_value("horse_number_2", horse_number_2)
+                            loader.add_xpath("odds", "span/text()")
+                            i = loader.load_item()
+
+                            logger.debug(f"#parse_odds_exacta: odds exacta={i}")
+                            yield i
+
+                            horse_number_2 = None
+                            column_number += 1
 
     def parse_odds_quinella_place(self, response):
         """ Parse odds(quinella place) page.
