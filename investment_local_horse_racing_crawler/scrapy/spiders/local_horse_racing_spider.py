@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsQuinellaItem, OddsExactaItem, OddsQuinellaPlaceItem, OddsTrioItem, OddsTrifectaItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -347,7 +347,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse odds(win/place) page.
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=1
-        @returns items 0 0
+        @returns items 1
         @returns requests 0 0
         @odds_win_place
         """
@@ -355,8 +355,6 @@ class LocalHorseRacingSpider(scrapy.Spider):
         logger.info(f"#parse_odds_win_place: start: url={response.url}")
 
         # Parse odds win/place
-        logger.debug("#parse_odds_win: parse odds win/place")
-
         for tr in response.xpath("//table[contains(@class,'tb71')]/tr"):
             if len(tr.xpath("td")) == 0:
                 continue
@@ -388,12 +386,52 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse odds(quinella) page.
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=6
-        @returns items 0 0
+        #@url https://www.oddspark.com/keiba/Odds.do?sponsorCd=06&opTrackCd=11&raceDy=20201018&raceNb=7&viewType=0&betType=6
+        @returns items 1
         @returns requests 0 0
         @odds_quinella
         """
 
         logger.info(f"#parse_odds_quinella: start: url={response.url}")
+
+        # Parse odds exacta
+        horse_numbers = []
+
+        for tr in response.xpath("//table[@summary='odds']/tr"):
+            if len(horse_numbers) == 0:
+                for td in tr.xpath("*"):
+                    logger.debug(f"#parse_odds_quinella: horse_number_1={td.xpath('text()').get()}")
+                    horse_numbers.append(td.xpath('text()').get())
+            else:
+                horse_number_2 = None
+                column_number = 0
+
+                for td in tr.xpath("*"):
+                    if horse_number_2 is None and td.xpath("name()").get() == "th" and "colspan" not in td.attrib:
+                        logger.debug(f"#parse_odds_quinella: horse_number_2={td.xpath('text()').get()}")
+                        horse_number_2 = td.xpath('text()').get()
+                    elif horse_number_2 is not None and td.xpath("name()").get() == "td":
+                        loader = ItemLoader(item=OddsQuinellaItem(), selector=td)
+                        loader.add_value("odds_url", response.url)
+                        loader.add_value("horse_number_1", horse_numbers[column_number])
+                        loader.add_value("horse_number_2", horse_number_2)
+                        loader.add_xpath("odds", "span/text()")
+                        i = loader.load_item()
+
+                        logger.debug(f"#parse_odds_quinella: odds quinella={i}")
+                        yield i
+
+                        horse_number_2 = None
+                        column_number += 1
+                    elif horse_number_2 is None and td.xpath("name()").get() == "td" and td.attrib["colspan"] == "2":
+                        logger.debug("#parse_odds_quinella: empty column")
+                        column_number += 1
+                    elif horse_number_2 is None and td.xpath("name()").get() == "th" and td.attrib["colspan"] == "2":
+                        logger.debug(f"#parse_odds_quinella: horse_number={td.xpath('text()').get()}")
+                        horse_numbers[column_number] = td.xpath('text()').get()
+                        column_number += 1
+                    else:
+                        logger.warn(f"#parse_odds_quinella: unknown data: td={td}")
 
     def parse_odds_exacta(self, response):
         """ Parse odds(exacta) page.
