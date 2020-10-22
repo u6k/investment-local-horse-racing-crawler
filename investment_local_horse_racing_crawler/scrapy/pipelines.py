@@ -86,8 +86,6 @@ class PostgreSQLPipeline(object):
                 self.process_trainer_item(item, spider)
             elif isinstance(item, OddsWinPlaceItem):
                 self.process_odds_win_place_item(item, spider)
-            elif isinstance(item, OddsUrlItem):
-                self.process_odds_url_item(item, spider)
             else:
                 raise DropItem("Unknown item type")
 

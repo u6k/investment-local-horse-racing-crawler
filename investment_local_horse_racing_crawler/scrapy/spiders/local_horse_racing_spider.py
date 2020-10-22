@@ -179,16 +179,15 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 yield self._follow_delegate(response, href)
 
         query_parameter = response.url.split("?")[1]
-        logger.warn(f"#parse_race_denma: query_parameter={query_parameter}")  # TODO
 
-        self._follow_delegate(response, "/keiba/RaceResult.do?" + query_parameter)
+        yield self._follow_delegate(response, "/keiba/RaceResult.do?" + query_parameter)
 
-        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=1")
-        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=6")
-        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=5")
-        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=7")
-        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=9")
-        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=8")
+        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=1")
+        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=6")
+        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=5")
+        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=7")
+        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=9")
+        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=8")
 
     def parse_race_result(self, response):
         """ Parse race result page.
@@ -348,7 +347,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse odds(win/place) page.
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=1
-        @returns items 1
+        @returns items 0 0
         @returns requests 0 0
         @odds_win_place
         """
@@ -389,7 +388,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse odds(quinella) page.
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=6
-        @returns items 1
+        @returns items 0 0
         @returns requests 0 0
         @odds_quinella
         """
@@ -400,7 +399,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse odds(exacta) page.
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=5
-        @returns items 1
+        @returns items 0 0
         @returns requests 0 0
         @odds_exacta
         """
@@ -411,7 +410,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse odds(quinella place) page.
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=7
-        @returns items 1
+        @returns items 0 0
         @returns requests 0 0
         @odds_quinella_place
         """
@@ -422,7 +421,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse odds(trio) page.
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=9
-        @returns items 1
+        @returns items 0 0
         @returns requests 0 0
         @odds_trio
         """
@@ -433,7 +432,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         """ Parse odds(trifecta) page.
 
         @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=8
-        @returns items 1
+        @returns items 0 0
         @returns requests 0 0
         @odds_trifecta
         """

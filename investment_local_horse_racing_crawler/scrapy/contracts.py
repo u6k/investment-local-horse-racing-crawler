@@ -530,7 +530,7 @@ class OddsQuinellaContract(Contract):
         # Check request
         requests = [o for o in output if isinstance(o, Request)]
 
-        if len(items) != 0:
+        if len(requests) != 0:
             raise ContractFail("len(Request)")
 
 
@@ -564,7 +564,7 @@ class OddsExactaContract(Contract):
         # Check request
         requests = [o for o in output if isinstance(o, Request)]
 
-        if len(items) != 0:
+        if len(requests) != 0:
             raise ContractFail("len(Request)")
 
 
@@ -598,7 +598,7 @@ class OddsQuinellaPlaceContract(Contract):
         # Check request
         requests = [o for o in output if isinstance(o, Request)]
 
-        if len(items) != 0:
+        if len(requests) != 0:
             raise ContractFail("len(Request)")
 
 
@@ -632,7 +632,7 @@ class OddsTrioContract(Contract):
         # Check request
         requests = [o for o in output if isinstance(o, Request)]
 
-        if len(items) != 0:
+        if len(requests) != 0:
             raise ContractFail("len(Request)")
 
 
@@ -662,5 +662,5 @@ class OddsTrifectaContract(Contract):
         # Check request
         requests = [o for o in output if isinstance(o, Request)]
 
-        if len(items) != 0:
+        if len(requests) != 0:
             raise ContractFail("len(Request)")
