@@ -194,6 +194,10 @@ class RaceDenmaContract(Contract):
         # Check requests
         requests = [o for o in output if isinstance(o, Request)]
 
+        for r in requests:
+            print("***")
+            print(r.url)  # TODO
+
         # Check url pattern
         count = sum(r.url.startswith("https://www.oddspark.com/keiba/Odds.do?") for r in requests)
         if count != 6:

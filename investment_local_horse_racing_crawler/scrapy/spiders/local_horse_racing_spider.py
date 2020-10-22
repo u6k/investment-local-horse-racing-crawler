@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsUrlItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -173,12 +173,22 @@ class LocalHorseRacingSpider(scrapy.Spider):
             if href is None:
                 continue
 
-            if href.startswith("/keiba/Odds.do?") \
-                    or href.startswith("/keiba/RaceResult.do?") \
-                    or href.startswith("/keiba/HorseDetail.do?") \
+            if href.startswith("/keiba/HorseDetail.do?") \
                     or href.startswith("/keiba/JockeyDetail.do?") \
                     or href.startswith("/keiba/TrainerDetail.do?"):
                 yield self._follow_delegate(response, href)
+
+        query_parameter = response.url.split("?")[1]
+        logger.warn(f"#parse_race_denma: query_parameter={query_parameter}")  # TODO
+
+        self._follow_delegate(response, "/keiba/RaceResult.do?" + query_parameter)
+
+        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=1")
+        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=6")
+        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=5")
+        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=7")
+        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=9")
+        self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=8")
 
     def parse_race_result(self, response):
         """ Parse race result page.
@@ -337,7 +347,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def parse_odds_win_place(self, response):
         """ Parse odds(win/place) page.
 
-        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=1
         @returns items 1
         @returns requests 0 0
         @odds_win_place
@@ -375,28 +385,60 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug(f"#parse_odds_win: odds win/place={i}")
             yield i
 
-        # Parse odds urls
-        logger.debug("#parse_odds_win: parse odds urls")
+    def parse_odds_quinella(self, response):
+        """ Parse odds(quinella) page.
 
-        loader = ItemLoader(OddsUrlItem(), response=response)
-        loader.add_value("odds_url", response.url)
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=6
+        @returns items 1
+        @returns requests 0 0
+        @odds_quinella
+        """
 
-        for a in response.xpath("//div[@id='oddsType']/ul/li/a"):
-            href = a.xpath("@href").get()
+        logger.info(f"#parse_odds_quinella: start: url={response.url}")
 
-            if href is not None and href.startswith("/keiba/Odds.do?") and "betType=1" not in href:
-                loader.add_value("odds_sub_urls", href)
+    def parse_odds_exacta(self, response):
+        """ Parse odds(exacta) page.
 
-        i = loader.load_item()
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=5
+        @returns items 1
+        @returns requests 0 0
+        @odds_exacta
+        """
 
-        logger.debug(f"#parse_odds_win: odds urls={i}")
-        yield i
+        logger.info(f"#parse_odds_exacta: start: url={response.url}")
 
-        # Request odds urls
-        logger.debug("#parse_odds_win: request odds urls")
+    def parse_odds_quinella_place(self, response):
+        """ Parse odds(quinella place) page.
 
-        for href in i["odds_sub_urls"]:
-            yield self._follow_delegate(response, href)
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=7
+        @returns items 1
+        @returns requests 0 0
+        @odds_quinella_place
+        """
+
+        logger.info(f"#parse_odds_quinella_place: start: url={response.url}")
+
+    def parse_odds_trio(self, response):
+        """ Parse odds(trio) page.
+
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=9
+        @returns items 1
+        @returns requests 0 0
+        @odds_trio
+        """
+
+        logger.info(f"#parse_odds_trio: start: url={response.url}")
+
+    def parse_odds_trifecta(self, response):
+        """ Parse odds(trifecta) page.
+
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=8
+        @returns items 1
+        @returns requests 0 0
+        @odds_trifecta
+        """
+
+        logger.info(f"#parse_odds_trifecta: start: url={response.url}")
 
     def _follow_delegate(self, response, path, cb_kwargs=None):
         logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
@@ -429,29 +471,29 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug("#_follow_delegate: follow trainer page")
             return response.follow(path, callback=self.parse_trainer, cb_kwargs=cb_kwargs)
 
-        elif path.startswith("/keiba/Odds.do?") and "betType=6" in path:
-            # TODO: 馬連をパースする
-            logger.warn("#_follow_delegate: follow odds quinella page")
-
-        elif path.startswith("/keiba/Odds.do?") and "betType=5" in path:
-            # TODO: 馬単をパースする
-            logger.warn("#_follow_delegate: follow odds exacta page")
-
-        elif path.startswith("/keiba/Odds.do?") and "betType=7" in path:
-            # TODO: ワイドをパースする
-            logger.warn("#_follow_delegate: follow odds quinella place page")
-
-        elif path.startswith("/keiba/Odds.do?") and "betType=9" in path:
-            # TODO: 三連複をパースする
-            logger.warn("#_follow_delegate: follow odds trio page")
-
-        elif path.startswith("/keiba/Odds.do?") and "betType=8" in path:
-            # TODO: 三連単をパースする
-            logger.warn("#_follow_delegate: follow odds trifecta page")
-
-        elif path.startswith("/keiba/Odds.do?"):
+        elif path.startswith("/keiba/Odds.do?") and "betType=1" in path:
             logger.debug("#_follow_delegate: follow odds win/place page")
             return response.follow(path, callback=self.parse_odds_win_place, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=6" in path:
+            logger.debug("#_follow_delegate: follow odds quinella page")
+            return response.follow(path, callback=self.parse_odds_quinella, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=5" in path:
+            logger.debug("#_follow_delegate: follow odds exacta page")
+            return response.follow(path, callback=self.parse_odds_exacta, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=7" in path:
+            logger.debug("#_follow_delegate: follow odds quinella place page")
+            return response.follow(path, callback=self.parse_odds_quinella_place, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=9" in path:
+            logger.debug("#_follow_delegate: follow odds trio page")
+            return response.follow(path, callback=self.parse_odds_trio, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=8" in path:
+            logger.debug("#_follow_delegate: follow odds trifecta page")
+            return response.follow(path, callback=self.parse_odds_trifecta, cb_kwargs=cb_kwargs)
 
         else:
             logger.warning("#_follow_delegate: unknown path pattern")
