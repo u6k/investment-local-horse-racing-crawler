@@ -188,6 +188,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=7")
         yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=9")
         yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=8")
+        # FIXME: 三連単は馬番号ごとにURLを生成する
 
     def parse_race_result(self, response):
         """ Parse race result page.
@@ -533,13 +534,53 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def parse_odds_trio(self, response):
         """ Parse odds(trio) page.
 
-        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=9
-        @returns items 0 0
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=06&raceDy=20201018&opTrackCd=11&raceNb=7&betType=9
+        @returns items 1
         @returns requests 0 0
         @odds_trio
         """
 
         logger.info(f"#parse_odds_trio: start: url={response.url}")
+
+        # Parse odds trio
+        for table in response.xpath("//table[@summary='odds']/tbody"):
+            horse_numbers = []
+
+            for tr in table.xpath("tr"):
+                if len(horse_numbers) == 0:
+                    for td in tr.xpath("*"):
+                        logger.debug(f"#parse_odds_trio: horse_number_1_2={td.xpath('text()').get()}")
+                        horse_numbers.append(td.xpath('text()').get())
+                else:
+                    horse_number_3 = None
+                    column_number = 0
+
+                    for td in tr.xpath("*"):
+                        if horse_number_3 is None and td.xpath("name()").get() == "th" and "colspan" not in td.attrib:
+                            logger.debug(f"#parse_odds_trio: horse_number_3={td.xpath('text()').get()}")
+                            horse_number_3 = td.xpath('text()').get()
+                        elif horse_number_3 is not None and td.xpath("name()").get() == "td":
+                            loader = ItemLoader(item=OddsTrioItem(), selector=td)
+                            loader.add_value("odds_url", response.url)
+                            loader.add_value("horse_number_1_2", horse_numbers[column_number])
+                            loader.add_value("horse_number_3", horse_number_3)
+                            loader.add_xpath("odds", "span/text()")
+                            i = loader.load_item()
+
+                            logger.debug(f"#parse_odds_trio: odds trio={i}")
+                            yield i
+
+                            horse_number_3 = None
+                            column_number += 1
+                        elif horse_number_3 is None and td.xpath("name()").get() == "td" and td.attrib["colspan"] == "2":
+                            logger.debug("#parse_odds_trio: empty column")
+                            column_number += 1
+                        elif horse_number_3 is None and td.xpath("name()").get() == "th" and td.attrib["colspan"] == "2":
+                            logger.debug(f"#parse_odds_trio: horse_number_1_2={td.xpath('text()').get()}")
+                            horse_numbers[column_number] = td.xpath('text()').get()
+                            column_number += 1
+                        else:
+                            logger.warn(f"#parse_odds_trio: unknown data: td={td}")
 
     def parse_odds_trifecta(self, response):
         """ Parse odds(trifecta) page.
