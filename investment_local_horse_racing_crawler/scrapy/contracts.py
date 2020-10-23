@@ -586,9 +586,13 @@ class OddsQuinellaPlaceContract(Contract):
             if not horse_number_2_re:
                 raise ContractFail("horse_number_2")
 
-            odds_re = re.match(r"^\d+\.\d+ *- *\d+\.\d+$", item["odds"][0])
-            if not odds_re:
-                raise ContractFail("odds")
+            odds_lower_re = re.match(r"^\d+\.\d+$", item["odds_lower"][0])
+            if not odds_lower_re:
+                raise ContractFail("odds_lower")
+
+            odds_upper_re = re.match(r"^\d+\.\d+$", item["odds_upper"][0])
+            if not odds_upper_re:
+                raise ContractFail("odds_upper")
 
         # Check request
         requests = [o for o in output if isinstance(o, Request)]

@@ -482,13 +482,53 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def parse_odds_quinella_place(self, response):
         """ Parse odds(quinella place) page.
 
-        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=7
-        @returns items 0 0
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=8&betType=7
+        @returns items 1
         @returns requests 0 0
         @odds_quinella_place
         """
 
         logger.info(f"#parse_odds_quinella_place: start: url={response.url}")
+
+        # Parse odds quinella
+        horse_numbers = []
+
+        for tr in response.xpath("//table[@summary='odds']/tr"):
+            if len(horse_numbers) == 0:
+                for td in tr.xpath("*"):
+                    logger.debug(f"#parse_odds_quinella_place: horse_number_1={td.xpath('text()').get()}")
+                    horse_numbers.append(td.xpath('text()').get())
+            else:
+                horse_number_2 = None
+                column_number = 0
+
+                for td in tr.xpath("*"):
+                    if horse_number_2 is None and td.xpath("name()").get() == "th" and "colspan" not in td.attrib:
+                        logger.debug(f"#parse_odds_quinella_place: horse_number_2={td.xpath('text()').get()}")
+                        horse_number_2 = td.xpath('text()').get()
+                    elif horse_number_2 is not None and td.xpath("name()").get() == "td":
+                        loader = ItemLoader(item=OddsQuinellaPlaceItem(), selector=td)
+                        loader.add_value("odds_url", response.url)
+                        loader.add_value("horse_number_1", horse_numbers[column_number])
+                        loader.add_value("horse_number_2", horse_number_2)
+                        loader.add_xpath("odds_lower", "span[1]/text()")
+                        loader.add_xpath("odds_upper", "span[2]/text()")
+                        i = loader.load_item()
+
+                        logger.debug(f"#parse_odds_quinella_place: odds quinella place={i}")
+                        yield i
+
+                        horse_number_2 = None
+                        column_number += 1
+                    elif horse_number_2 is None and td.xpath("name()").get() == "td" and td.attrib["colspan"] == "2":
+                        logger.debug("#parse_odds_quinella_place: empty column")
+                        column_number += 1
+                    elif horse_number_2 is None and td.xpath("name()").get() == "th" and td.attrib["colspan"] == "2":
+                        logger.debug(f"#parse_odds_quinella_place: horse_number={td.xpath('text()').get()}")
+                        horse_numbers[column_number] = td.xpath('text()').get()
+                        column_number += 1
+                    else:
+                        logger.warn(f"#parse_odds_quinella_place: unknown data: td={td}")
 
     def parse_odds_trio(self, response):
         """ Parse odds(trio) page.

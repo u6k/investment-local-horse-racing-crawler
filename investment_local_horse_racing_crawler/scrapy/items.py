@@ -146,7 +146,8 @@ class OddsQuinellaPlaceItem(Item):
     odds_url = Field()
     horse_number_1 = Field()
     horse_number_2 = Field()
-    odds = Field()
+    odds_lower = Field()
+    odds_upper = Field()
 
 
 # オッズ(三連複)ページ
