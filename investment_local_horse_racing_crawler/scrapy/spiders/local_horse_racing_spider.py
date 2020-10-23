@@ -585,13 +585,27 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def parse_odds_trifecta(self, response):
         """ Parse odds(trifecta) page.
 
-        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=8
-        @returns items 0 0
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=06&raceDy=20201018&opTrackCd=11&raceNb=7&betType=8&horseNb=1
+        @returns items 1
         @returns requests 0 0
         @odds_trifecta
         """
 
         logger.info(f"#parse_odds_trifecta: start: url={response.url}")
+
+        # Parse odds trifecta
+        for tr in response.xpath("//table[@summary='odds']/tr"):
+            if len(tr.xpath("th")) == 2:
+                logger.debug("#parse_odds_trifecta: skip header")
+            else:
+                loader = ItemLoader(item=OddsTrifectaItem(), selector=tr)
+                loader.add_value("odds_url", response.url)
+                loader.add_xpath("horse_number", "th/text()")
+                loader.add_xpath("odds", "td/span/text()")
+                i = loader.load_item()
+
+                logger.debug(f"#parse_odds_trifecta: odds trifecta={i}")
+                yield i
 
     def _follow_delegate(self, response, path, cb_kwargs=None):
         logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
