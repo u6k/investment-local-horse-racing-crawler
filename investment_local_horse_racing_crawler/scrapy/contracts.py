@@ -195,7 +195,7 @@ class RaceDenmaContract(Contract):
         requests = [o for o in output if isinstance(o, Request)]
 
         count = sum(r.url.startswith("https://www.oddspark.com/keiba/Odds.do?") for r in requests)
-        if count != 6:
+        if count <= 1:
             raise ContractFail("Odds page not found")
 
         count = sum(r.url.startswith("https://www.oddspark.com/keiba/RaceResult.do?") for r in requests)
@@ -203,15 +203,15 @@ class RaceDenmaContract(Contract):
             raise ContractFail("Race result page not found")
 
         count = sum(r.url.startswith("https://www.oddspark.com/keiba/HorseDetail.do?lineageNb=") for r in requests)
-        if count == 0:
+        if count <= 1:
             raise ContractFail("Horse page not found")
 
         count = sum(r.url.startswith("https://www.oddspark.com/keiba/JockeyDetail.do?jkyNb=") for r in requests)
-        if count == 0:
+        if count <= 1:
             raise ContractFail("Jockey page not found")
 
         count = sum(r.url.startswith("https://www.oddspark.com/keiba/TrainerDetail.do?trainerNb=") for r in requests)
-        if count == 0:
+        if count <= 1:
             raise ContractFail("Trainer page not found")
 
 

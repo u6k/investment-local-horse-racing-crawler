@@ -125,6 +125,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
         # Parse race denma
         logger.debug("#parse_race_denma: parse race denma")
 
+        horse_count = 0
+
         for tr in response.xpath("//table[contains(@class,'ent1')]/tr"):
             if len(tr.xpath("td")) == 0:
                 continue
@@ -147,6 +149,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
                 logger.debug(f"#parse_race_denma: race denma={i}")
                 yield i
+
+                horse_count += 1
             elif len(tr.xpath("td")) == 13:
                 loader = ItemLoader(item=RaceDenmaItem(), selector=tr)
                 loader.add_value("race_denma_url", response.url)
@@ -163,6 +167,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
                 logger.debug(f"#parse_race_denma: race denma={i}")
                 yield i
+
+                horse_count += 1
             else:
                 logger.warn("#parse_race_denma: unknown record")
 
@@ -180,15 +186,15 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
         query_parameter = response.url.split("?")[1]
 
-        yield self._follow_delegate(response, "/keiba/RaceResult.do?" + query_parameter)
+        yield self._follow_delegate(response, f"/keiba/RaceResult.do?{query_parameter}")
 
-        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=1")
-        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=6")
-        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=5")
-        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=7")
-        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=9")
-        yield self._follow_delegate(response, "/keiba/Odds.do?" + query_parameter + "&betType=8")
-        # FIXME: 三連単は馬番号ごとにURLを生成する
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=1")
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=6")
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=5")
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=7")
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=9")
+        for horseNb in range(1, horse_count + 1):
+            yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=8&horseNb={horseNb}")
 
     def parse_race_result(self, response):
         """ Parse race result page.
