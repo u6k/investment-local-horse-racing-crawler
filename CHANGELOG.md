@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unrelease]
+### Added
+- [#8778: 単勝・複勝以外のオッズもパースする](https://redmine.u6k.me/issues/8778)
+
 ### Changed
 - [#8794: WebAPIではなくジョブとしてクロールを実行するようにする](https://redmine.u6k.me/issues/8794)
 - [#8790: スクレイピング 処理で抽出した文字列をそのままDBに格納する](https://redmine.u6k.me/issues/8790)
