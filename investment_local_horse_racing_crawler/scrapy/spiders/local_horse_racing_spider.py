@@ -1,7 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsUrlItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsQuinellaItem, OddsExactaItem, OddsQuinellaPlaceItem, OddsTrioItem, OddsTrifectaItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -125,6 +125,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
         # Parse race denma
         logger.debug("#parse_race_denma: parse race denma")
 
+        horse_count = 0
+
         for tr in response.xpath("//table[contains(@class,'ent1')]/tr"):
             if len(tr.xpath("td")) == 0:
                 continue
@@ -147,6 +149,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
                 logger.debug(f"#parse_race_denma: race denma={i}")
                 yield i
+
+                horse_count += 1
             elif len(tr.xpath("td")) == 13:
                 loader = ItemLoader(item=RaceDenmaItem(), selector=tr)
                 loader.add_value("race_denma_url", response.url)
@@ -163,6 +167,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
                 logger.debug(f"#parse_race_denma: race denma={i}")
                 yield i
+
+                horse_count += 1
             else:
                 logger.warn("#parse_race_denma: unknown record")
 
@@ -173,12 +179,22 @@ class LocalHorseRacingSpider(scrapy.Spider):
             if href is None:
                 continue
 
-            if href.startswith("/keiba/Odds.do?") \
-                    or href.startswith("/keiba/RaceResult.do?") \
-                    or href.startswith("/keiba/HorseDetail.do?") \
+            if href.startswith("/keiba/HorseDetail.do?") \
                     or href.startswith("/keiba/JockeyDetail.do?") \
                     or href.startswith("/keiba/TrainerDetail.do?"):
                 yield self._follow_delegate(response, href)
+
+        query_parameter = response.url.split("?")[1]
+
+        yield self._follow_delegate(response, f"/keiba/RaceResult.do?{query_parameter}")
+
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=1")
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=6")
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=5")
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=7")
+        yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=9")
+        for horseNb in range(1, horse_count + 1):
+            yield self._follow_delegate(response, f"/keiba/Odds.do?{query_parameter}&betType=8&horseNb={horseNb}")
 
     def parse_race_result(self, response):
         """ Parse race result page.
@@ -337,7 +353,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def parse_odds_win_place(self, response):
         """ Parse odds(win/place) page.
 
-        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=1
         @returns items 1
         @returns requests 0 0
         @odds_win_place
@@ -346,8 +362,6 @@ class LocalHorseRacingSpider(scrapy.Spider):
         logger.info(f"#parse_odds_win_place: start: url={response.url}")
 
         # Parse odds win/place
-        logger.debug("#parse_odds_win: parse odds win/place")
-
         for tr in response.xpath("//table[contains(@class,'tb71')]/tr"):
             if len(tr.xpath("td")) == 0:
                 continue
@@ -375,28 +389,229 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug(f"#parse_odds_win: odds win/place={i}")
             yield i
 
-        # Parse odds urls
-        logger.debug("#parse_odds_win: parse odds urls")
+    def parse_odds_quinella(self, response):
+        """ Parse odds(quinella) page.
 
-        loader = ItemLoader(OddsUrlItem(), response=response)
-        loader.add_value("odds_url", response.url)
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=1&betType=6
+        #@url https://www.oddspark.com/keiba/Odds.do?sponsorCd=06&opTrackCd=11&raceDy=20201018&raceNb=7&viewType=0&betType=6
+        @returns items 1
+        @returns requests 0 0
+        @odds_quinella
+        """
 
-        for a in response.xpath("//div[@id='oddsType']/ul/li/a"):
-            href = a.xpath("@href").get()
+        logger.info(f"#parse_odds_quinella: start: url={response.url}")
 
-            if href is not None and href.startswith("/keiba/Odds.do?") and "betType=1" not in href:
-                loader.add_value("odds_sub_urls", href)
+        # Parse odds quinella
+        horse_numbers = []
 
-        i = loader.load_item()
+        for tr in response.xpath("//table[@summary='odds']/tr"):
+            if len(horse_numbers) == 0:
+                for td in tr.xpath("*"):
+                    logger.debug(f"#parse_odds_quinella: horse_number_1={td.xpath('text()').get()}")
+                    horse_numbers.append(td.xpath('text()').get())
+            else:
+                horse_number_2 = None
+                column_number = 0
 
-        logger.debug(f"#parse_odds_win: odds urls={i}")
-        yield i
+                for td in tr.xpath("*"):
+                    if horse_number_2 is None and td.xpath("name()").get() == "th" and "colspan" not in td.attrib:
+                        logger.debug(f"#parse_odds_quinella: horse_number_2={td.xpath('text()').get()}")
+                        horse_number_2 = td.xpath('text()').get()
+                    elif horse_number_2 is not None and td.xpath("name()").get() == "td":
+                        loader = ItemLoader(item=OddsQuinellaItem(), selector=td)
+                        loader.add_value("odds_url", response.url)
+                        loader.add_value("horse_number_1", horse_numbers[column_number])
+                        loader.add_value("horse_number_2", horse_number_2)
+                        loader.add_xpath("odds", "span/text()")
+                        i = loader.load_item()
 
-        # Request odds urls
-        logger.debug("#parse_odds_win: request odds urls")
+                        logger.debug(f"#parse_odds_quinella: odds quinella={i}")
+                        yield i
 
-        for href in i["odds_sub_urls"]:
-            yield self._follow_delegate(response, href)
+                        horse_number_2 = None
+                        column_number += 1
+                    elif horse_number_2 is None and td.xpath("name()").get() == "td" and td.attrib["colspan"] == "2":
+                        logger.debug("#parse_odds_quinella: empty column")
+                        column_number += 1
+                    elif horse_number_2 is None and td.xpath("name()").get() == "th" and td.attrib["colspan"] == "2":
+                        logger.debug(f"#parse_odds_quinella: horse_number={td.xpath('text()').get()}")
+                        horse_numbers[column_number] = td.xpath('text()').get()
+                        column_number += 1
+                    else:
+                        logger.warn(f"#parse_odds_quinella: unknown data: td={td}")
+
+    def parse_odds_exacta(self, response):
+        """ Parse odds(exacta) page.
+
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=8&betType=5
+        @returns items 1
+        @returns requests 0 0
+        @odds_exacta
+        """
+
+        logger.info(f"#parse_odds_exacta: start: url={response.url}")
+
+        # Parse odds exacta
+        for table in response.xpath("//table[@summary='odds']"):
+            horse_numbers = []
+
+            for tr in table.xpath("tr"):
+                if len(horse_numbers) == 0:
+                    for td in tr.xpath("*"):
+                        logger.debug(f"#parse_odds_exacta: horse_number_1={td.xpath('text()').get()}")
+                        horse_numbers.append(td.xpath('text()').get())
+                else:
+                    horse_number_2 = None
+                    column_number = 0
+
+                    for td in tr.xpath("*"):
+                        if horse_number_2 is None and "th2" in td.attrib["class"]:
+                            logger.debug(f"#parse_odds_exacta: horse_number_2={td.xpath('text()').get()}")
+                            horse_number_2 = td.xpath('text()').get()
+                        elif horse_number_2 is not None and "blank" in td.attrib["class"]:
+                            logger.debug("#parse_odds_exacta: blank odds")
+                            horse_number_2 = None
+                            column_number += 1
+                        elif horse_number_2 is not None:
+                            loader = ItemLoader(item=OddsExactaItem(), selector=td)
+                            loader.add_value("odds_url", response.url)
+                            loader.add_value("horse_number_1", horse_numbers[column_number])
+                            loader.add_value("horse_number_2", horse_number_2)
+                            loader.add_xpath("odds", "span/text()")
+                            i = loader.load_item()
+
+                            logger.debug(f"#parse_odds_exacta: odds exacta={i}")
+                            yield i
+
+                            horse_number_2 = None
+                            column_number += 1
+
+    def parse_odds_quinella_place(self, response):
+        """ Parse odds(quinella place) page.
+
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&raceDy=20200301&opTrackCd=03&raceNb=8&betType=7
+        @returns items 1
+        @returns requests 0 0
+        @odds_quinella_place
+        """
+
+        logger.info(f"#parse_odds_quinella_place: start: url={response.url}")
+
+        # Parse odds quinella
+        horse_numbers = []
+
+        for tr in response.xpath("//table[@summary='odds']/tr"):
+            if len(horse_numbers) == 0:
+                for td in tr.xpath("*"):
+                    logger.debug(f"#parse_odds_quinella_place: horse_number_1={td.xpath('text()').get()}")
+                    horse_numbers.append(td.xpath('text()').get())
+            else:
+                horse_number_2 = None
+                column_number = 0
+
+                for td in tr.xpath("*"):
+                    if horse_number_2 is None and td.xpath("name()").get() == "th" and "colspan" not in td.attrib:
+                        logger.debug(f"#parse_odds_quinella_place: horse_number_2={td.xpath('text()').get()}")
+                        horse_number_2 = td.xpath('text()').get()
+                    elif horse_number_2 is not None and td.xpath("name()").get() == "td":
+                        loader = ItemLoader(item=OddsQuinellaPlaceItem(), selector=td)
+                        loader.add_value("odds_url", response.url)
+                        loader.add_value("horse_number_1", horse_numbers[column_number])
+                        loader.add_value("horse_number_2", horse_number_2)
+                        loader.add_xpath("odds_lower", "span[1]/text()")
+                        loader.add_xpath("odds_upper", "span[2]/text()")
+                        i = loader.load_item()
+
+                        logger.debug(f"#parse_odds_quinella_place: odds quinella place={i}")
+                        yield i
+
+                        horse_number_2 = None
+                        column_number += 1
+                    elif horse_number_2 is None and td.xpath("name()").get() == "td" and td.attrib["colspan"] == "2":
+                        logger.debug("#parse_odds_quinella_place: empty column")
+                        column_number += 1
+                    elif horse_number_2 is None and td.xpath("name()").get() == "th" and td.attrib["colspan"] == "2":
+                        logger.debug(f"#parse_odds_quinella_place: horse_number={td.xpath('text()').get()}")
+                        horse_numbers[column_number] = td.xpath('text()').get()
+                        column_number += 1
+                    else:
+                        logger.warn(f"#parse_odds_quinella_place: unknown data: td={td}")
+
+    def parse_odds_trio(self, response):
+        """ Parse odds(trio) page.
+
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=06&raceDy=20201018&opTrackCd=11&raceNb=7&betType=9
+        @returns items 1
+        @returns requests 0 0
+        @odds_trio
+        """
+
+        logger.info(f"#parse_odds_trio: start: url={response.url}")
+
+        # Parse odds trio
+        for table in response.xpath("//table[@summary='odds']/tbody"):
+            horse_numbers = []
+
+            for tr in table.xpath("tr"):
+                if len(horse_numbers) == 0:
+                    for td in tr.xpath("*"):
+                        logger.debug(f"#parse_odds_trio: horse_number_1_2={td.xpath('text()').get()}")
+                        horse_numbers.append(td.xpath('text()').get())
+                else:
+                    horse_number_3 = None
+                    column_number = 0
+
+                    for td in tr.xpath("*"):
+                        if horse_number_3 is None and td.xpath("name()").get() == "th" and "colspan" not in td.attrib:
+                            logger.debug(f"#parse_odds_trio: horse_number_3={td.xpath('text()').get()}")
+                            horse_number_3 = td.xpath('text()').get()
+                        elif horse_number_3 is not None and td.xpath("name()").get() == "td":
+                            loader = ItemLoader(item=OddsTrioItem(), selector=td)
+                            loader.add_value("odds_url", response.url)
+                            loader.add_value("horse_number_1_2", horse_numbers[column_number])
+                            loader.add_value("horse_number_3", horse_number_3)
+                            loader.add_xpath("odds", "span/text()")
+                            i = loader.load_item()
+
+                            logger.debug(f"#parse_odds_trio: odds trio={i}")
+                            yield i
+
+                            horse_number_3 = None
+                            column_number += 1
+                        elif horse_number_3 is None and td.xpath("name()").get() == "td" and td.attrib["colspan"] == "2":
+                            logger.debug("#parse_odds_trio: empty column")
+                            column_number += 1
+                        elif horse_number_3 is None and td.xpath("name()").get() == "th" and td.attrib["colspan"] == "2":
+                            logger.debug(f"#parse_odds_trio: horse_number_1_2={td.xpath('text()').get()}")
+                            horse_numbers[column_number] = td.xpath('text()').get()
+                            column_number += 1
+                        else:
+                            logger.warn(f"#parse_odds_trio: unknown data: td={td}")
+
+    def parse_odds_trifecta(self, response):
+        """ Parse odds(trifecta) page.
+
+        @url https://www.oddspark.com/keiba/Odds.do?sponsorCd=06&raceDy=20201018&opTrackCd=11&raceNb=7&betType=8&horseNb=1
+        @returns items 1
+        @returns requests 0 0
+        @odds_trifecta
+        """
+
+        logger.info(f"#parse_odds_trifecta: start: url={response.url}")
+
+        # Parse odds trifecta
+        for tr in response.xpath("//table[@summary='odds']/tr"):
+            if len(tr.xpath("th")) == 2:
+                logger.debug("#parse_odds_trifecta: skip header")
+            else:
+                loader = ItemLoader(item=OddsTrifectaItem(), selector=tr)
+                loader.add_value("odds_url", response.url)
+                loader.add_xpath("horse_number", "th/text()")
+                loader.add_xpath("odds", "td/span/text()")
+                i = loader.load_item()
+
+                logger.debug(f"#parse_odds_trifecta: odds trifecta={i}")
+                yield i
 
     def _follow_delegate(self, response, path, cb_kwargs=None):
         logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
@@ -429,29 +644,29 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug("#_follow_delegate: follow trainer page")
             return response.follow(path, callback=self.parse_trainer, cb_kwargs=cb_kwargs)
 
-        elif path.startswith("/keiba/Odds.do?") and "betType=6" in path:
-            # TODO: 馬連をパースする
-            logger.warn("#_follow_delegate: follow odds quinella page")
-
-        elif path.startswith("/keiba/Odds.do?") and "betType=5" in path:
-            # TODO: 馬単をパースする
-            logger.warn("#_follow_delegate: follow odds exacta page")
-
-        elif path.startswith("/keiba/Odds.do?") and "betType=7" in path:
-            # TODO: ワイドをパースする
-            logger.warn("#_follow_delegate: follow odds quinella place page")
-
-        elif path.startswith("/keiba/Odds.do?") and "betType=9" in path:
-            # TODO: 三連複をパースする
-            logger.warn("#_follow_delegate: follow odds trio page")
-
-        elif path.startswith("/keiba/Odds.do?") and "betType=8" in path:
-            # TODO: 三連単をパースする
-            logger.warn("#_follow_delegate: follow odds trifecta page")
-
-        elif path.startswith("/keiba/Odds.do?"):
+        elif path.startswith("/keiba/Odds.do?") and "betType=1" in path:
             logger.debug("#_follow_delegate: follow odds win/place page")
             return response.follow(path, callback=self.parse_odds_win_place, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=6" in path:
+            logger.debug("#_follow_delegate: follow odds quinella page")
+            return response.follow(path, callback=self.parse_odds_quinella, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=5" in path:
+            logger.debug("#_follow_delegate: follow odds exacta page")
+            return response.follow(path, callback=self.parse_odds_exacta, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=7" in path:
+            logger.debug("#_follow_delegate: follow odds quinella place page")
+            return response.follow(path, callback=self.parse_odds_quinella_place, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=9" in path:
+            logger.debug("#_follow_delegate: follow odds trio page")
+            return response.follow(path, callback=self.parse_odds_trio, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/Odds.do?") and "betType=8" in path:
+            logger.debug("#_follow_delegate: follow odds trifecta page")
+            return response.follow(path, callback=self.parse_odds_trifecta, cb_kwargs=cb_kwargs)
 
         else:
             logger.warning("#_follow_delegate: unknown path pattern")

@@ -150,10 +150,48 @@ def upgrade():
     )
 
     op.create_table(
-        "odds_url",
+        "odds_quinella",
         sa.Column("id", sa.String(255), primary_key=True),
         sa.Column("odds_url", sa.String(255), nullable=False),
-        sa.Column("odds_sub_url", sa.String(255), nullable=False),
+        sa.Column("horse_number_1", sa.String(255), nullable=False),
+        sa.Column("horse_number_2", sa.String(255), nullable=False),
+        sa.Column("odds", sa.String(255), nullable=True),
+    )
+
+    op.create_table(
+        "odds_exacta",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("odds_url", sa.String(255), nullable=False),
+        sa.Column("horse_number_1", sa.String(255), nullable=False),
+        sa.Column("horse_number_2", sa.String(255), nullable=False),
+        sa.Column("odds", sa.String(255), nullable=True),
+    )
+
+    op.create_table(
+        "odds_quinella_place",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("odds_url", sa.String(255), nullable=False),
+        sa.Column("horse_number_1", sa.String(255), nullable=False),
+        sa.Column("horse_number_2", sa.String(255), nullable=False),
+        sa.Column("odds_lower", sa.String(255), nullable=True),
+        sa.Column("odds_upper", sa.String(255), nullable=True),
+    )
+
+    op.create_table(
+        "odds_trio",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("odds_url", sa.String(255), nullable=False),
+        sa.Column("horse_number_1_2", sa.String(255), nullable=False),
+        sa.Column("horse_number_3", sa.String(255), nullable=False),
+        sa.Column("odds", sa.String(255), nullable=True),
+    )
+
+    op.create_table(
+        "odds_trifecta",
+        sa.Column("id", sa.String(255), primary_key=True),
+        sa.Column("odds_url", sa.String(255), nullable=False),
+        sa.Column("horse_number", sa.String(255), nullable=False),
+        sa.Column("odds", sa.String(255), nullable=True),
     )
 
 
