@@ -12,7 +12,5 @@ COPY Pipfile.lock .
 RUN pipenv install
 
 VOLUME /var/myapp
-ENV FLASK_APP investment_local_horse_racing_crawler/flask.py
-EXPOSE 5000
 
-CMD ["pipenv", "run", "flask"]
+CMD ["pipenv", "run", "help"]
