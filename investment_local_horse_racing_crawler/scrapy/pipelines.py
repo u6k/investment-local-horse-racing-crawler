@@ -6,7 +6,7 @@ from psycopg2.extras import DictCursor
 from scrapy.exceptions import DropItem
 import hashlib
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem
+from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsQuinellaItem, OddsExactaItem, OddsQuinellaPlaceItem, OddsTrioItem, OddsTrifectaItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
 
 
@@ -86,15 +86,23 @@ class PostgreSQLPipeline(object):
                 self.process_trainer_item(item, spider)
             elif isinstance(item, OddsWinPlaceItem):
                 self.process_odds_win_place_item(item, spider)
+            elif isinstance(item, OddsQuinellaItem):
+                self.process_odds_quinella_item(item, spider)
+            elif isinstance(item, OddsExactaItem):
+                self.process_odds_exacta_item(item, spider)
+            elif isinstance(item, OddsQuinellaPlaceItem):
+                self.process_odds_quinella_place_item(item, spider)
+            elif isinstance(item, OddsTrioItem):
+                self.process_odds_trio_item(item, spider)
+            elif isinstance(item, OddsTrifectaItem):
+                self.process_odds_trifecta_item(item, spider)
             else:
                 raise DropItem("Unknown item type")
 
             return item
-        except DropItem as e:
-            raise e
-        except Exception:
-            logger.exception("Cause exception")
-            raise DropItem("Cause exception")
+        except Exception as e:
+            logger.exception("except Exception")
+            raise DropItem("except Exception") from e
 
     def process_calendar_item(self, item, spider):
         logger.info(f"#process_calendar_item: start: item={item}")
@@ -526,33 +534,176 @@ class PostgreSQLPipeline(object):
 
         self.db_conn.commit()
 
-    def process_odds_url_item(self, item, spider):
-        logger.info(f"#process_odds_url_item: start: item={item}")
+    def process_odds_quinella_item(self, item, spider):
+        logger.info(f"#process_odds_quinella_item: start: item={item}")
 
         # Delete db
         odds_url = item["odds_url"][0]
+        horse_number_1 = item["horse_number_1"][0]
+        horse_number_2 = item["horse_number_2"][0]
+        id = hashlib.sha256((odds_url + horse_number_1 + horse_number_2).encode()).hexdigest()
 
-        logger.debug(f"#process_odds_url_item: delete: odds_url={odds_url}")
+        logger.debug(f"#process_odds_quinella_item: delete: id={id}, odds_url={odds_url}, horse_number_1={horse_number_1}, horse_number_2={horse_number_2}")
 
-        self.db_cursor.execute("delete from odds_url where odds_url=%s",
-                               (odds_url,))
+        self.db_cursor.execute("delete from odds_quinella where id=%s",
+                               (id,))
 
         # Insert db
-        for odds_sub_url in item["odds_sub_urls"]:
-            id = hashlib.sha256((odds_url + odds_sub_url).encode()).hexdigest()
+        logger.debug(f"#process_odds_quinella_item: insert: id={id}, odds_url={odds_url}, horse_number_1={horse_number_1}, horse_number_2={horse_number_2}")
 
-            logger.debug(f"#process_odds_url_item: insert: id={id}, odds_url={odds_url}, odds_sub_url={odds_sub_url}")
-
-            self.db_cursor.execute("""insert into odds_url (
-                    id,
-                    odds_url,
-                    odds_sub_url
-                ) values (
-                    %s, %s, %s
-                )""", (
+        self.db_cursor.execute("""insert into odds_quinella (
                 id,
                 odds_url,
-                odds_sub_url
-            ))
+                horse_number_1,
+                horse_number_2,
+                odds
+            ) values (
+                %s, %s, %s, %s, %s
+            )""", (
+            id,
+            odds_url,
+            horse_number_1,
+            horse_number_2,
+            item["odds"][0] if "odds" in item else None,
+        ))
+
+        self.db_conn.commit()
+
+    def process_odds_exacta_item(self, item, spider):
+        logger.info(f"#process_odds_exacta_item: start: item={item}")
+
+        # Delete db
+        odds_url = item["odds_url"][0]
+        horse_number_1 = item["horse_number_1"][0]
+        horse_number_2 = item["horse_number_2"][0]
+        id = hashlib.sha256((odds_url + horse_number_1 + horse_number_2).encode()).hexdigest()
+
+        logger.debug(f"#process_odds_exacta_item: delete: id={id}, odds_url={odds_url}, horse_number_1={horse_number_1}, horse_number_2={horse_number_2}")
+
+        self.db_cursor.execute("delete from odds_exacta where id=%s",
+                               (id,))
+
+        # Insert db
+        logger.debug(f"#process_odds_exacta_item: insert: id={id}, odds_url={odds_url}, horse_number_1={horse_number_1}, horse_number_2={horse_number_2}")
+
+        self.db_cursor.execute("""insert into odds_exacta (
+                id,
+                odds_url,
+                horse_number_1,
+                horse_number_2,
+                odds
+            ) values (
+                %s, %s, %s, %s, %s
+            )""", (
+            id,
+            odds_url,
+            horse_number_1,
+            horse_number_2,
+            item["odds"][0] if "odds" in item else None,
+        ))
+
+        self.db_conn.commit()
+
+    def process_odds_quinella_place_item(self, item, spider):
+        logger.info(f"#process_odds_quinella_place_item: start: item={item}")
+
+        # Delete db
+        odds_url = item["odds_url"][0]
+        horse_number_1 = item["horse_number_1"][0]
+        horse_number_2 = item["horse_number_2"][0]
+        id = hashlib.sha256((odds_url + horse_number_1 + horse_number_2).encode()).hexdigest()
+
+        logger.debug(f"#process_odds_quinella_place_item: delete: id={id}, odds_url={odds_url}, horse_number_1={horse_number_1}, horse_number_2={horse_number_2}")
+
+        self.db_cursor.execute("delete from odds_quinella_place where id=%s",
+                               (id,))
+
+        # Insert db
+        logger.debug(f"#process_odds_quinella_place_item: insert: id={id}, odds_url={odds_url}, horse_number_1={horse_number_1}, horse_number_2={horse_number_2}")
+
+        self.db_cursor.execute("""insert into odds_quinella_place (
+                id,
+                odds_url,
+                horse_number_1,
+                horse_number_2,
+                odds_lower,
+                odds_upper
+            ) values (
+                %s, %s, %s, %s, %s, %s
+            )""", (
+            id,
+            odds_url,
+            horse_number_1,
+            horse_number_2,
+            item["odds_lower"][0] if "odds_lower" in item else None,
+            item["odds_upper"][0] if "odds_upper" in item else None,
+        ))
+
+        self.db_conn.commit()
+
+    def process_odds_trio_item(self, item, spider):
+        logger.info(f"#process_odds_trio_item: start: item={item}")
+
+        # Delete db
+        odds_url = item["odds_url"][0]
+        horse_number_1_2 = item["horse_number_1_2"][0]
+        horse_number_3 = item["horse_number_3"][0]
+        id = hashlib.sha256((odds_url + horse_number_1_2 + horse_number_3).encode()).hexdigest()
+
+        logger.debug(f"#process_odds_trio_item: delete: id={id}, odds_url={odds_url}, horse_number_1_2={horse_number_1_2}, horse_number_3={horse_number_3}")
+
+        self.db_cursor.execute("delete from odds_trio where id=%s",
+                               (id,))
+
+        # Insert db
+        logger.debug(f"#process_odds_trio_item: insert: id={id}, odds_url={odds_url}, horse_number_1_2={horse_number_1_2}, horse_number_3={horse_number_3}")
+
+        self.db_cursor.execute("""insert into odds_trio (
+                id,
+                odds_url,
+                horse_number_1_2,
+                horse_number_3,
+                odds
+            ) values (
+                %s, %s, %s, %s, %s
+            )""", (
+            id,
+            odds_url,
+            horse_number_1_2,
+            horse_number_3,
+            item["odds"][0] if "odds" in item else None,
+        ))
+
+        self.db_conn.commit()
+
+    def process_odds_trifecta_item(self, item, spider):
+        logger.info(f"#process_odds_trifecta_item: start: item={item}")
+
+        # Delete db
+        odds_url = item["odds_url"][0]
+        horse_number = item["horse_number"][0]
+        id = hashlib.sha256((odds_url + horse_number).encode()).hexdigest()
+
+        logger.debug(f"#process_odds_trifecta_item: delete: id={id}, odds_url={odds_url}, horse_number={horse_number}")
+
+        self.db_cursor.execute("delete from odds_trifecta where id=%s",
+                               (id,))
+
+        # Insert db
+        logger.debug(f"#process_odds_trifecta_item: insert: id={id}, odds_url={odds_url}, horse_number={horse_number}")
+
+        self.db_cursor.execute("""insert into odds_trifecta (
+                id,
+                odds_url,
+                horse_number,
+                odds
+            ) values (
+                %s, %s, %s, %s
+            )""", (
+            id,
+            odds_url,
+            horse_number,
+            item["odds"][0] if "odds" in item else None,
+        ))
 
         self.db_conn.commit()
