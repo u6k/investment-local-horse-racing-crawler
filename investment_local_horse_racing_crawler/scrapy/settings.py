@@ -2,10 +2,11 @@ import os
 
 
 BOT_NAME = 'investment_local_horse_racing_crawler'
-USER_AGENT = "local_horse_racing_crawler/1.0 (+https://github.com/u6k/investment-local-horse-racing-crawler)"
+USER_AGENT = os.environ.get("USER_AGENT", "local_horse_racing_crawler/1.0 (+https://github.com/u6k/investment-local-horse-racing-crawler)")
 
 SPIDER_MODULES = ['investment_local_horse_racing_crawler.scrapy.spiders']
 NEWSPIDER_MODULE = 'investment_local_horse_racing_crawler.scrapy.spiders'
+CRAWL_HTTP_PROXY = os.environ.get("CRAWL_HTTP_PROXY")
 
 
 ROBOTSTXT_OBEY = True
