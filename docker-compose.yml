@@ -18,8 +18,7 @@ services:
       - "DB_USERNAME=${DB_USERNAME}"
       - "DB_PASSWORD=${DB_PASSWORD}"
       - "DB_DATABASE=${DB_DATABASE}"
-      - "API_SCHEDULE_VOTE_CLOSE_URL=${API_SCHEDULE_VOTE_CLOSE_URL}"
-      - "API_RUNDECK_AUTH_TOKEN=${API_RUNDECK_AUTH_TOKEN}"
+      #- "USER_AGENT=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100"
     depends_on:
       - "s3"
       - "db"
