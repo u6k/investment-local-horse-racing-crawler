@@ -6,6 +6,7 @@ USER_AGENT = os.environ.get("USER_AGENT", "local_horse_racing_crawler/1.0 (+http
 
 SPIDER_MODULES = ['investment_local_horse_racing_crawler.scrapy.spiders']
 NEWSPIDER_MODULE = 'investment_local_horse_racing_crawler.scrapy.spiders'
+CRAWL_HTTP_PROXY = os.environ.get("CRAWL_HTTP_PROXY")
 
 
 ROBOTSTXT_OBEY = True

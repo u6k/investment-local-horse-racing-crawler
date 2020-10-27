@@ -616,57 +616,63 @@ class LocalHorseRacingSpider(scrapy.Spider):
     def _follow_delegate(self, response, path, cb_kwargs=None):
         logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
 
+        if self.settings.get("CRAWL_HTTP_PROXY"):
+            meta = {"proxy": self.settings.get("CRAWL_HTTP_PROXY")}
+        else:
+            meta = {}
+        logger.debug(f"#_follow_delegate: meta={meta}")
+
         if path.startswith("/keiba/KaisaiCalendar.do"):
             logger.debug("#_follow_delegate: follow calendar page")
-            return response.follow(path, callback=self.parse_calendar, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_calendar, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/OneDayRaceList.do?"):
             logger.debug("#_follow_delegate: follow one day race list page")
-            return response.follow(path, callback=self.parse_one_day_race_list, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_one_day_race_list, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceList.do?"):
             logger.debug("#_follow_delegate: follow race denma page")
-            return response.follow(path, callback=self.parse_race_denma, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_race_denma, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceResult.do?"):
             logger.debug("#_follow_delegate: follow race result page")
-            return response.follow(path, callback=self.parse_race_result, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_race_result, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/HorseDetail.do?"):
             logger.debug("#_follow_delegate: follow horse page")
-            return response.follow(path, callback=self.parse_horse, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_horse, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/JockeyDetail.do?"):
             logger.debug("#_follow_delegate: follow jockey page")
-            return response.follow(path, callback=self.parse_jockey, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_jockey, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/TrainerDetail.do?"):
             logger.debug("#_follow_delegate: follow trainer page")
-            return response.follow(path, callback=self.parse_trainer, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_trainer, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=1" in path:
             logger.debug("#_follow_delegate: follow odds win/place page")
-            return response.follow(path, callback=self.parse_odds_win_place, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_odds_win_place, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=6" in path:
             logger.debug("#_follow_delegate: follow odds quinella page")
-            return response.follow(path, callback=self.parse_odds_quinella, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_odds_quinella, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=5" in path:
             logger.debug("#_follow_delegate: follow odds exacta page")
-            return response.follow(path, callback=self.parse_odds_exacta, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_odds_exacta, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=7" in path:
             logger.debug("#_follow_delegate: follow odds quinella place page")
-            return response.follow(path, callback=self.parse_odds_quinella_place, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_odds_quinella_place, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=9" in path:
             logger.debug("#_follow_delegate: follow odds trio page")
-            return response.follow(path, callback=self.parse_odds_trio, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_odds_trio, meta=meta, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=8" in path:
             logger.debug("#_follow_delegate: follow odds trifecta page")
-            return response.follow(path, callback=self.parse_odds_trifecta, cb_kwargs=cb_kwargs)
+            return response.follow(path, callback=self.parse_odds_trifecta, meta=meta, cb_kwargs=cb_kwargs)
 
         else:
             logger.warning("#_follow_delegate: unknown path pattern")
