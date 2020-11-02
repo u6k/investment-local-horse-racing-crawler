@@ -1,5 +1,6 @@
 import scrapy
 from scrapy.loader import ItemLoader
+from distutils.util import strtobool
 
 from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsQuinellaItem, OddsExactaItem, OddsQuinellaPlaceItem, OddsTrioItem, OddsTrifectaItem
 from investment_local_horse_racing_crawler.app_logging import get_logger
@@ -17,8 +18,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
             super(LocalHorseRacingSpider, self).__init__(*args, **kwargs)
 
             self.start_urls = [start_url]
-            self.recache_race = recache_race
-            self.recache_horse = recache_horse
+            self.recache_race = recache_race if type(recache_race) is bool else strtobool(recache_race)
+            self.recache_horse = recache_horse if type(recache_horse) is bool else strtobool(recache_horse)
         except Exception:
             logger.exception("#__init__: fail")
 
