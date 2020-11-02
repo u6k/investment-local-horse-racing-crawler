@@ -1,1 +1,1 @@
-VERSION = '1.8.0-develop'
+VERSION = '1.7.1'
