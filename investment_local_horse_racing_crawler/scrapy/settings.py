@@ -16,7 +16,8 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 1
 CONCURRENT_REQUESTS_PER_IP = 0
 
 DOWNLOAD_DELAY = 3
-DOWNLOAD_TIMEOUT = 10
+DOWNLOAD_TIMEOUT = 60
+RETRY_TIMES = 10
 
 ITEM_PIPELINES = {
     'investment_local_horse_racing_crawler.scrapy.pipelines.PostgreSQLPipeline': 300,
