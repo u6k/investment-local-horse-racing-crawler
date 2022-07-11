@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - [#9261: GitHubリポジトリのmasterブランチをmainブランチに変更する](https://redmine.u6k.me/issues/9261)
+- [#9594: ライブラリを最新化する](https://redmine.u6k.me/issues/9594)
 
 ### Changed
 - [#9262: CIをGitHub Actionsに、コンテナレジストリをGitHub Container Registryに移行する](https://redmine.u6k.me/issues/9262)
