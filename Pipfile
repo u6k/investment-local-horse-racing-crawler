@@ -10,7 +10,7 @@ nose = "*"
 scrapy = "*"
 boto3 = "*"
 alembic = "*"
-psycopg2 = "*"
+psycopg2-binary = "*"
 requests = "*"
 
 [requires]
