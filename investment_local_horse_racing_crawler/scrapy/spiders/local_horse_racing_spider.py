@@ -64,6 +64,27 @@ class LocalHorseRacingSpider(scrapy.Spider):
             logger.debug(f"#parse_calendar: found one day race list page: url={race_list_url}")
             yield self._follow_delegate(response, race_list_url)
 
+    def parse_kaisai_race_list(self, response):
+        """Parse kaisai race list page.
+
+        @url https://www.oddspark.com/keiba/KaisaiRaceList.do?raceDy=20220710
+        @returns items 0 0
+        @returns requests 5 5
+        @kaisai_race_list
+        """
+
+        logger.info(f"#parse_kaisai_race_list: start: url={response.url}")
+
+        # Parse link
+        for a in response.xpath("//a"):
+            href = a.xpath("@href").get()
+
+            if href is None:
+                continue
+
+            if href.startswith("/keiba/OneDayRaceList.do?"):
+                yield self._follow_delegate(response, href)
+
     def parse_one_day_race_list(self, response):
         """ Parse one day race list page.
 

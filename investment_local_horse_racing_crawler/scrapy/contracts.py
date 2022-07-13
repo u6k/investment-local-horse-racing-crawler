@@ -46,6 +46,18 @@ class CalendarContract(Contract):
                 raise ContractFail("request is invalid")
 
 
+class KaisaiRaceListContract(Contract):
+    name = "kaisai_race_list"
+
+    def post_process(self, output):
+        # Check requests
+        requests = [o for o in output if isinstance(o, Request)]
+
+        for request in requests:
+            if not request.url.startswith("https://www.oddspark.com/keiba/OneDayRaceList.do?"):
+                raise ContractFail("request is invalid")
+
+
 class OneDayRaceListContract(Contract):
     name = "one_day_race_list"
 
