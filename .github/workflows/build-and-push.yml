@@ -6,7 +6,7 @@ on:
 env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
   IMAGE_NAME: investment-local-horse-racing-crawler
-  IMAGE_VERSION: 1.8.1
+  IMAGE_VERSION: 1.9.0-develop
 
 jobs:
   build:
