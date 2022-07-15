@@ -636,7 +636,8 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 yield i
 
     def errback_handle(self, failure):
-        logger.error(f"#errorback_handle: url={failure.request.url}, type={failure.type}")
+        logger.error(f"#errorback_handle: url={failure.request.url}")
+        logger.error(f"#errorback_handle: failure={failure}")
 
     def _follow_delegate(self, response, path, cb_kwargs=None):
         logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
@@ -650,6 +651,10 @@ class LocalHorseRacingSpider(scrapy.Spider):
         if path.startswith("/keiba/KaisaiCalendar.do"):
             logger.debug("#_follow_delegate: follow calendar page")
             return response.follow(path, callback=self.parse_calendar, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
+
+        elif path.startswith("/keiba/KaisaiRaceList.do?"):
+            logger.debug("#_follow_delegate: follow kaisai race list page")
+            return response.follow(path, callback=self.parse_kaisai_race_list, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/OneDayRaceList.do?"):
             logger.debug("#_follow_delegate: follow one day race list page")
