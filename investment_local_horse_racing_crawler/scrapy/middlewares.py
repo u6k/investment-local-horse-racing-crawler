@@ -166,7 +166,7 @@ class S3CacheStorage(object):
             else:
                 raise err
 
-        if spider.recache_race and (("KaisaiCalendar.do" in request.url) or ("RaceRefund.do" in request.url) or ("RaceList.do" in request.url) or ("Odds.do" in request.url) or ("RaceResult.do" in request.url)):
+        if spider.recache_race and (("KaisaiCalendar.do" in request.url) or ("KaisaiRaceList.do" in request.url) or ("RaceRefund.do" in request.url) or ("RaceList.do" in request.url) or ("Odds.do" in request.url) or ("RaceResult.do" in request.url)):
             logger.debug("#retrieve_response: re-cache race")
             return
 
