@@ -28,6 +28,7 @@ HTTPCACHE_STORAGE = 'investment_local_horse_racing_crawler.scrapy.middlewares.S3
 
 SPIDER_CONTRACTS = {
     "investment_local_horse_racing_crawler.scrapy.contracts.CalendarContract": 10,
+    "investment_local_horse_racing_crawler.scrapy.contracts.KaisaiRaceListContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.OneDayRaceListContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.RaceDenmaContract": 10,
     "investment_local_horse_racing_crawler.scrapy.contracts.RaceResultContract": 10,
