@@ -89,6 +89,10 @@ docker run u6kapps/investment-local-horse-racing-crawler autopep8 -ivr .
 スクレイピング機能をテストする。
 
 ```bash
+docker run u6kapps/investment-local-horse-racing-crawler scrapy check local_horse_racing -L DEBUG
+```
+
+```bash
 docker run u6kapps/investment-local-horse-racing-crawler pytest
 ```
 
