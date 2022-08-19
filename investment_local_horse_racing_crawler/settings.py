@@ -62,3 +62,20 @@ HTTPCACHE_DIR = 'httpcache'
 HTTPCACHE_IGNORE_HTTP_CODES = []
 HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 HTTPCACHE_GZIP = True
+
+SPIDER_CONTRACTS = {
+    "investment_local_horse_racing_crawler.contracts.CalendarContract": 10,
+    "investment_local_horse_racing_crawler.contracts.KaisaiRaceListContract": 10,
+    "investment_local_horse_racing_crawler.contracts.OneDayRaceListContract": 10,
+    "investment_local_horse_racing_crawler.contracts.RaceDenmaContract": 10,
+    "investment_local_horse_racing_crawler.contracts.RaceResultContract": 10,
+    "investment_local_horse_racing_crawler.contracts.HorseContract": 10,
+    "investment_local_horse_racing_crawler.contracts.JockeyContract": 10,
+    "investment_local_horse_racing_crawler.contracts.TrainerContract": 10,
+    "investment_local_horse_racing_crawler.contracts.OddsWinPlaceContract": 10,
+    "investment_local_horse_racing_crawler.contracts.OddsQuinellaContract": 10,
+    "investment_local_horse_racing_crawler.contracts.OddsExactaContract": 10,
+    "investment_local_horse_racing_crawler.contracts.OddsQuinellaPlaceContract": 10,
+    "investment_local_horse_racing_crawler.contracts.OddsTrioContract": 10,
+    "investment_local_horse_racing_crawler.contracts.OddsTrifectaContract": 10,
+}
