@@ -1,7 +1,6 @@
-import warnings
 import logging
 import logging.config
-
+import warnings
 
 logging.config.dictConfig({
     "version": 1,

@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
+from scrapy import Field, Item
 
 
-from scrapy import Item, Field
-
-
-# カレンダー・ページのリンク先
 class CalendarItem(Item):
+    """カレンダー・ページのリンク先"""
+    item_type = Field()
     calendar_url = Field()
     race_list_urls = Field()
 
 
-# レース情報(ミニ)
 class RaceInfoMiniItem(Item):
+    """レース情報(ミニ)"""
+    item_type = Field()
     race_list_url = Field()
     race_name = Field()
     race_denma_url = Field()
@@ -19,8 +18,9 @@ class RaceInfoMiniItem(Item):
     start_time = Field()
 
 
-# 出馬ページのレース情報
 class RaceInfoItem(Item):
+    """出馬ページのレース情報"""
+    item_type = Field()
     race_denma_url = Field()
     race_round = Field()
     race_name = Field()
@@ -34,8 +34,9 @@ class RaceInfoItem(Item):
     prize_money = Field()
 
 
-# 出馬ページのリスト
 class RaceDenmaItem(Item):
+    """出馬ページのリスト"""
+    item_type = Field()
     race_denma_url = Field()
     bracket_number = Field()
     horse_number = Field()
@@ -48,8 +49,9 @@ class RaceDenmaItem(Item):
     horse_weight_diff = Field()
 
 
-# 結果ページのリスト
 class RaceResultItem(Item):
+    """結果ページのリスト"""
+    item_type = Field()
     race_result_url = Field()
     result = Field()
     bracket_number = Field()
@@ -61,15 +63,17 @@ class RaceResultItem(Item):
     corner_passing_order = Field()
 
 
-# 結果ページのコーナー通過順
 class RaceCornerPassingOrderItem(Item):
+    """結果ページのコーナー通過順"""
+    item_type = Field()
     race_result_url = Field()
     corner_number = Field()
     passing_order = Field()
 
 
-# 結果ページの払い戻し金
 class RaceRefundItem(Item):
+    """結果ページの払い戻し金"""
+    item_type = Field()
     race_result_url = Field()
     betting_type = Field()
     horse_number = Field()
@@ -77,8 +81,9 @@ class RaceRefundItem(Item):
     favorite = Field()
 
 
-# 競走馬ページ
 class HorseItem(Item):
+    """競走馬ページ"""
+    item_type = Field()
     horse_url = Field()
     horse_name = Field()
     gender_age = Field()
@@ -96,8 +101,9 @@ class HorseItem(Item):
     grand_parent_horse_name_4 = Field()
 
 
-# 騎手ページ
 class JockeyItem(Item):
+    """騎手ページ"""
+    item_type = Field()
     jockey_url = Field()
     jockey_name = Field()
     birthday = Field()
@@ -107,8 +113,9 @@ class JockeyItem(Item):
     first_licensing_year = Field()
 
 
-# 調教師ページ
 class TrainerItem(Item):
+    """調教師ページ"""
+    item_type = Field()
     trainer_url = Field()
     trainer_name = Field()
     birthday = Field()
@@ -116,8 +123,9 @@ class TrainerItem(Item):
     belong_to = Field()
 
 
-# オッズ(単勝・複勝)ページ
 class OddsWinPlaceItem(Item):
+    """オッズ(単勝・複勝)ページ"""
+    item_type = Field()
     odds_url = Field()
     horse_number = Field()
     horse_url = Field()
@@ -125,24 +133,27 @@ class OddsWinPlaceItem(Item):
     odds_place = Field()
 
 
-# オッズ(馬連)ページ
 class OddsQuinellaItem(Item):
+    """オッズ(馬連)ページ"""
+    item_type = Field()
     odds_url = Field()
     horse_number_1 = Field()
     horse_number_2 = Field()
     odds = Field()
 
 
-# オッズ(馬単)ページ
 class OddsExactaItem(Item):
+    """オッズ(馬単)ページ"""
+    item_type = Field()
     odds_url = Field()
     horse_number_1 = Field()
     horse_number_2 = Field()
     odds = Field()
 
 
-# オッズ(ワイド)ページ
 class OddsQuinellaPlaceItem(Item):
+    """オッズ(ワイド)ページ"""
+    item_type = Field()
     odds_url = Field()
     horse_number_1 = Field()
     horse_number_2 = Field()
@@ -150,16 +161,18 @@ class OddsQuinellaPlaceItem(Item):
     odds_upper = Field()
 
 
-# オッズ(三連複)ページ
 class OddsTrioItem(Item):
+    """オッズ(三連複)ページ"""
+    item_type = Field()
     odds_url = Field()
     horse_number_1_2 = Field()
     horse_number_3 = Field()
     odds = Field()
 
 
-# オッズ(三連単)ページ
 class OddsTrifectaItem(Item):
+    """オッズ(三連単)ページ"""
+    item_type = Field()
     odds_url = Field()
     horse_number = Field()
     odds = Field()

@@ -1,10 +1,10 @@
-import scrapy
-from scrapy.loader import ItemLoader
 from distutils.util import strtobool
 
-from investment_local_horse_racing_crawler.scrapy.items import CalendarItem, RaceInfoMiniItem, RaceInfoItem, RaceDenmaItem, RaceResultItem, RaceCornerPassingOrderItem, RaceRefundItem, HorseItem, JockeyItem, TrainerItem, OddsWinPlaceItem, OddsQuinellaItem, OddsExactaItem, OddsQuinellaPlaceItem, OddsTrioItem, OddsTrifectaItem
-from investment_local_horse_racing_crawler.app_logging import get_logger
+import scrapy
+from scrapy.loader import ItemLoader
 
+from investment_local_horse_racing_crawler.app_logging import get_logger
+from investment_local_horse_racing_crawler.items import CalendarItem, HorseItem, JockeyItem, OddsExactaItem, OddsQuinellaItem, OddsQuinellaPlaceItem, OddsTrifectaItem, OddsTrioItem, OddsWinPlaceItem, RaceCornerPassingOrderItem, RaceDenmaItem, RaceInfoItem, RaceInfoMiniItem, RaceRefundItem, RaceResultItem, TrainerItem
 
 logger = get_logger(__name__)
 
@@ -51,6 +51,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
         # Build item
         loader = ItemLoader(item=CalendarItem(), response=response)
+        loader.add_value("item_type", "CalendarItem")
         loader.add_value("calendar_url", response.url)
         for href in response.xpath("//table[contains(@class,'tbSched')]/tr/td/div/a/@href"):
             loader.add_value("race_list_urls", href.get().replace("RaceRefund", "OneDayRaceList"))
@@ -99,6 +100,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         for div in response.xpath("//div[@class='pB5']"):
             # Build item
             loader = ItemLoader(item=RaceInfoMiniItem(), selector=div)
+            loader.add_value("item_type", "RaceInfoMiniItem")
             loader.add_value("race_list_url", response.url)
             loader.add_xpath("race_name", "normalize-space(strong/a/text())")
             loader.add_xpath("race_denma_url", "strong/a/@href")
@@ -128,6 +130,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         logger.debug("#parse_race_denma: parse race info")
 
         loader = ItemLoader(item=RaceInfoItem(), response=response)
+        loader.add_value("item_type", "RaceInfoItem")
         loader.add_value("race_denma_url", response.url)
         loader.add_xpath("race_round", "//div[@id='RCdata1']/span/text()")
         loader.add_xpath("race_name", "normalize-space(//div[@id='RCdata2']/h3/text())")
@@ -157,6 +160,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 bracket_number = tr.xpath("normalize-space(td[1]/text())").get()
 
                 loader = ItemLoader(item=RaceDenmaItem(), selector=tr)
+                loader.add_value("item_type", "RaceDenmaItem")
                 loader.add_value("race_denma_url", response.url)
                 loader.add_value("bracket_number", bracket_number)
                 loader.add_xpath("horse_number", "normalize-space(td[3]/text())")
@@ -175,6 +179,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 horse_count += 1
             elif len(tr.xpath("td")) == 13:
                 loader = ItemLoader(item=RaceDenmaItem(), selector=tr)
+                loader.add_value("item_type", "RaceDenmaItem")
                 loader.add_value("race_denma_url", response.url)
                 loader.add_value("bracket_number", bracket_number)
                 loader.add_xpath("horse_number", "normalize-space(td[1]/text())")
@@ -237,6 +242,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 continue
 
             loader = ItemLoader(item=RaceResultItem(), selector=tr)
+            loader.add_value("item_type", "RaceResultItem")
             loader.add_value("race_result_url", response.url)
             loader.add_xpath("result", "td[1]/text()")
             loader.add_xpath("bracket_number", "td[2]/text()")
@@ -259,6 +265,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
         for tr in response.xpath("//table[@summary='コーナー通過順']/tr"):
             loader = ItemLoader(item=RaceCornerPassingOrderItem(), selector=tr)
+            loader.add_value("item_type", "RaceCornerPassingOrderItem")
             loader.add_value("race_result_url", response.url)
             loader.add_xpath("corner_number", "normalize-space(th/text())")
             loader.add_xpath("passing_order", "normalize-space(td)")
@@ -275,6 +282,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 betting_type = tr.xpath("th/text()").get()
 
             loader = ItemLoader(item=RaceRefundItem(), selector=tr)
+            loader.add_value("item_type", "RaceRefundItem")
             loader.add_value("race_result_url", response.url)
             loader.add_value("betting_type", betting_type)
             loader.add_xpath("horse_number", "td[1]/text()")
@@ -300,6 +308,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         logger.debug("#parse_horse: parse horse")
 
         loader = ItemLoader(item=HorseItem(), response=response)
+        loader.add_value("item_type", "HorseItem")
         loader.add_value("horse_url", response.url)
         loader.add_xpath("horse_name", "normalize-space(//div[@id='content']/div[2]/span[1]/text())")
         loader.add_xpath("gender_age", "normalize-space(//div[@id='content']/div[2]/span[2]/text())")
@@ -335,6 +344,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         logger.debug("#parse_jockey: parse jockey")
 
         loader = ItemLoader(item=JockeyItem(), response=response)
+        loader.add_value("item_type", "JockeyItem")
         loader.add_value("jockey_url", response.url)
         loader.add_xpath("jockey_name", "normalize-space(//div[@id='content']/div[2]/span[1]/text())")
         loader.add_xpath("birthday", "normalize-space(//table[contains(@class,'tb72')]/tr[1]/td/text())")
@@ -362,6 +372,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         logger.debug("#parse_trainer: parse trainer")
 
         loader = ItemLoader(item=TrainerItem(), response=response)
+        loader.add_value("item_type", "TrainerItem")
         loader.add_value("trainer_url", response.url)
         loader.add_xpath("trainer_name", "normalize-space(//div[contains(@class,'section')]/div/span[1]/text())")
         loader.add_xpath("birthday", "normalize-space(//table[contains(@class,'tb72')]/tr[1]/td/text())")
@@ -389,6 +400,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 continue
 
             loader = ItemLoader(item=OddsWinPlaceItem(), selector=tr)
+            loader.add_value("item_type", "OddsWinPlaceItem")
 
             if len(tr.xpath("td")) == 5:
                 loader.add_value("odds_url", response.url)
@@ -441,6 +453,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                         horse_number_2 = td.xpath('text()').get()
                     elif horse_number_2 is not None and td.xpath("name()").get() == "td":
                         loader = ItemLoader(item=OddsQuinellaItem(), selector=td)
+                        loader.add_value("item_type", "OddsQuinellaItem")
                         loader.add_value("odds_url", response.url)
                         loader.add_value("horse_number_1", horse_numbers[column_number])
                         loader.add_value("horse_number_2", horse_number_2)
@@ -496,6 +509,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                             column_number += 1
                         elif horse_number_2 is not None:
                             loader = ItemLoader(item=OddsExactaItem(), selector=td)
+                            loader.add_value("item_type", "OddsExactaItem")
                             loader.add_value("odds_url", response.url)
                             loader.add_value("horse_number_1", horse_numbers[column_number])
                             loader.add_value("horse_number_2", horse_number_2)
@@ -537,6 +551,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                         horse_number_2 = td.xpath('text()').get()
                     elif horse_number_2 is not None and td.xpath("name()").get() == "td":
                         loader = ItemLoader(item=OddsQuinellaPlaceItem(), selector=td)
+                        loader.add_value("item_type", "OddsQuinellaPlaceItem")
                         loader.add_value("odds_url", response.url)
                         loader.add_value("horse_number_1", horse_numbers[column_number])
                         loader.add_value("horse_number_2", horse_number_2)
@@ -589,6 +604,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                             horse_number_3 = td.xpath('text()').get()
                         elif horse_number_3 is not None and td.xpath("name()").get() == "td":
                             loader = ItemLoader(item=OddsTrioItem(), selector=td)
+                            loader.add_value("item_type", "OddsTrioItem")
                             loader.add_value("odds_url", response.url)
                             loader.add_value("horse_number_1_2", horse_numbers[column_number])
                             loader.add_value("horse_number_3", horse_number_3)
@@ -627,6 +643,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 logger.debug("#parse_odds_trifecta: skip header")
             else:
                 loader = ItemLoader(item=OddsTrifectaItem(), selector=tr)
+                loader.add_value("item_type", "OddsTrifectaItem")
                 loader.add_value("odds_url", response.url)
                 loader.add_xpath("horse_number", "th/text()")
                 loader.add_xpath("odds", "td/span/text()")
