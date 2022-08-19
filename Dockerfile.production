@@ -14,7 +14,9 @@ RUN apt-get update && \
 RUN echo 'forward-socks5 / localhost:9050 .' >/etc/privoxy/config
 
 WORKDIR /var/myapp
-COPY ./ ./
+COPY CHANGELOG.md LICENSE Pipfile Pipfile.lock README.md scrapy.cfg ./
+COPY bin/ bin/
+COPY investment_local_horse_racing_crawler/ investment_local_horse_racing_crawler/
 RUN pipenv sync --system
 
 VOLUME /var/myapp/.scrapy
