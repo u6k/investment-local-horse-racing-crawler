@@ -58,42 +58,55 @@ docker pull u6kapps/investment-local-horse-racing-crawler
 
 ## Usage
 
+### クロール
+
 クロールを開始する。
 
 ```bash
-docker run u6kapps/investment-local-horse-racing-crawler scrapy crawl local_horse_racing
+docker run ghcr.io/u6k/investment-local-horse-racing-crawler \
+    scrapy crawl local_horse_racing
 ```
 
 引数を指定してクロールする場合は、次のように実行する。
 
 ```bash
-docker run u6kapps/investment-local-horse-racing-crawler scrapy crawl local_horse_racing -a start_url=https://xxx.com/xxx -a recache_race=true
+docker run \
+    -v $(pwd)/.scrapy:/var/myapp/.scrapy \
+    ghcr.io/u6k/investment-local-horse-racing-crawler \
+        scrapy crawl local_horse_racing \
+            -a start_url=https://xxx.com/xxx \
+            -a recache_race=true \
+            -O .scrapy/result/result.json
 ```
+
+### 構文チェック、整形
 
 ソースコードを構文チェック(Lint)する。
 
 ```bash
-docker run u6kapps/investment-local-horse-racing-crawler flake8 .
+docker compose run app flake8 .
 ```
 
 ソースコードを整形する。
 
 ```bash
-docker run u6kapps/investment-local-horse-racing-crawler isort .
+docker compose run app isort .
 ```
 
 ```bash
-docker run u6kapps/investment-local-horse-racing-crawler autopep8 -ivr .
+docker compose run app autopep8 -ivr .
 ```
+
+### テスト
 
 スクレイピング機能をテストする。
 
 ```bash
-docker run u6kapps/investment-local-horse-racing-crawler scrapy check local_horse_racing -L DEBUG
+docker compose run app scrapy check local_horse_racing -L DEBUG
 ```
 
 ```bash
-docker run u6kapps/investment-local-horse-racing-crawler pytest
+docker compose run app pytest
 ```
 
 ## Other
