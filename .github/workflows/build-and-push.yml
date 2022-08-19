@@ -19,16 +19,11 @@ jobs:
         with:
           install: true
       - name: Setup dotenv
-        run: |
-          cp .env.original .env
+        run: cp .env.original .env
       - name: Lint
-        run: docker-compose run app pipenv run lint
+        run: docker-compose run app flake8 .
       - name: Check
-        run: docker-compose run app pipenv run check
-      - name: Migrate
-        run: docker-compose run app pipenv run migrate
-      - name: Test
-        run: docker-compose run app pipenv run test
+        run: docker-compose run app scrapy check local_horse_racing -L DEBUG
       - name: Login to GitHub Container Repository
         uses: docker/login-action@v1
         with:

@@ -6,22 +6,13 @@
 [![WebSite](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=u6k.Redmine)](https://redmine.u6k.me/projects/investment-local-horse-racing-crawler)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-> 競馬投資に使用するデータ(地方競馬データ)を収集する
-
-__Table of Contents__
-
-- [Install](#Install)
-- [Usage](#Usage)
-- [Other](#Other)
-- [Maintainer](#Maintainer)
-- [Contributing](#Contributing)
-- [License](#License)
+> 地方競馬予測に使用するデータを収集する
 
 ## Install
 
 Dockerを使用します。
 
-```
+```bash
 $ docker version
 Client: Docker Engine - Community
  Version:           19.03.8
@@ -54,7 +45,7 @@ Server: Docker Engine - Community
 
 `docker pull`します。
 
-```
+```bash
 docker pull u6kapps/investment-local-horse-racing-crawler
 ```
 
@@ -67,28 +58,55 @@ docker pull u6kapps/investment-local-horse-racing-crawler
 
 ## Usage
 
-DBにテーブルを作成する。
-
-```
-docker run --rm u6kapps/investment-local-horse-racing-crawler pipenv run migrate
-```
+### クロール
 
 クロールを開始する。
 
-```
-docker run --rm u6kapps/investment-local-horse-racing-crawler pipenv run crawl local_horse_racing
+```bash
+docker run ghcr.io/u6k/investment-local-horse-racing-crawler \
+    scrapy crawl local_horse_racing
 ```
 
 引数を指定してクロールする場合は、次のように実行する。
 
-```
-docker run --rm u6kapps/investment-local-horse-racing-crawler pipenv run crawl -a start_url=https://xxx.com/xxx -a recache_race=true -a recache_horse=false local_horse_racing
+```bash
+docker run \
+    -v $(pwd)/.scrapy:/var/myapp/.scrapy \
+    ghcr.io/u6k/investment-local-horse-racing-crawler \
+        scrapy crawl local_horse_racing \
+            -a start_url=https://xxx.com/xxx \
+            -a recache_race=true \
+            -O .scrapy/result/result.json
 ```
 
-シェルを起動する。
+### 構文チェック、整形
 
+ソースコードを構文チェック(Lint)する。
+
+```bash
+docker compose run app flake8 .
 ```
-docker run --rm -it u6kapps/investment-local-horse-racing-crawler bash
+
+ソースコードを整形する。
+
+```bash
+docker compose run app isort .
+```
+
+```bash
+docker compose run app autopep8 -ivr .
+```
+
+### テスト
+
+スクレイピング機能をテストする。
+
+```bash
+docker compose run app scrapy check local_horse_racing -L DEBUG
+```
+
+```bash
+docker compose run app pytest
 ```
 
 ## Other
@@ -98,9 +116,9 @@ docker run --rm -it u6kapps/investment-local-horse-racing-crawler bash
 ## Maintainer
 
 - u6k
-    - [Twitter](https://twitter.com/u6k_yu1)
-    - [GitHub](https://github.com/u6k)
-    - [Blog](https://blog.u6k.me/)
+  - [Twitter](https://twitter.com/u6k_yu1)
+  - [GitHub](https://github.com/u6k)
+  - [Blog](https://blog.u6k.me/)
 
 ## Contributing
 

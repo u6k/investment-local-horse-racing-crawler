@@ -1,26 +1,16 @@
 [[source]]
-name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
+name = "pypi"
 
 [packages]
+scrapy = "*"
+
+[dev-packages]
 flake8 = "*"
 autopep8 = "*"
-nose = "*"
-scrapy = "*"
-boto3 = "*"
-alembic = "*"
-psycopg2-binary = "*"
-requests = "*"
+isort = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.8"
-
-[scripts]
-lint = "flake8 ."
-fix = "autopep8 -ivr ."
-test = "nosetests -v"
-check = "scrapy check local_horse_racing -L DEBUG"
-migrate = "alembic upgrade head"
-crawl = "scrapy crawl"
-help = "scrapy -h"
