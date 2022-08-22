@@ -1,5 +1,6 @@
 import scrapy
 
+
 class KakuninSpider(scrapy.Spider):
     name = "kakunin"
 

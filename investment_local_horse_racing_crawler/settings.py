@@ -1,5 +1,3 @@
-import os
-
 BOT_NAME = 'investment_local_horse_racing_crawler'
 
 SPIDER_MODULES = ['investment_local_horse_racing_crawler.spiders']
