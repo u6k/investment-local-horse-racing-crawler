@@ -1,6 +1,7 @@
 # 地方競馬データ・クローラー _(investment-local-horse-racing-crawler)_
 
-[![Build Status](https://travis-ci.org/u6k/investment-local-horse-racing-crawler.svg?branch=master)](https://travis-ci.org/u6k/investment-local-horse-racing-crawler)
+[![.github/workflows/build.yml](https://github.com/u6k/investment-local-horse-racing-crawler/actions/workflows/build.yml/badge.svg)](https://github.com/u6k/investment-local-horse-racing-crawler/actions/workflows/build.yml)
+[![.github/workflows/build-and-push.yml](https://github.com/u6k/investment-local-horse-racing-crawler/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/u6k/investment-local-horse-racing-crawler/actions/workflows/build-and-push.yml)
 [![license](https://img.shields.io/github/license/u6k/investment-local-horse-racing-crawler.svg)](https://github.com/u6k/investment-local-horse-racing-crawler/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/u6k/investment-local-horse-racing-crawler.svg)](https://github.com/u6k/investment-local-horse-racing-crawler/releases)
 [![WebSite](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=u6k.Redmine)](https://redmine.u6k.me/projects/investment-local-horse-racing-crawler)
@@ -46,15 +47,8 @@ Server: Docker Engine - Community
 `docker pull`します。
 
 ```bash
-docker pull u6kapps/investment-local-horse-racing-crawler
+docker pull ghcr.io/u6k/investment-local-horse-racing-crawler
 ```
-
-前提
-
-- PostgreSQL
-- S3 (またはS3互換ストレージ)
-
-コンポーネント構成、環境変数などは[docker-compose.yml](https://github.com/u6k/investment-local-horse-racing-crawler/blob/master/docker-compose.yml)を参照してください。
 
 ## Usage
 
