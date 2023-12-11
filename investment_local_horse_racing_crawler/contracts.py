@@ -4,10 +4,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from investment_local_horse_racing_crawler.app_logging import get_logger
 from investment_local_horse_racing_crawler.items import CalendarItem, HorseItem, JockeyItem, OddsExactaItem, OddsQuinellaItem, OddsQuinellaPlaceItem, OddsTrifectaItem, OddsTrioItem, OddsWinPlaceItem, RaceCornerPassingOrderItem, RaceDenmaItem, RaceInfoItem, RaceInfoMiniItem, RaceRefundItem, RaceResultItem, TrainerItem
-
-logger = get_logger(__name__)
 
 
 class CalendarContract(Contract):

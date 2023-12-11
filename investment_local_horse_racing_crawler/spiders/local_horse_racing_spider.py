@@ -3,17 +3,14 @@ from distutils.util import strtobool
 import scrapy
 from scrapy.loader import ItemLoader
 
-from investment_local_horse_racing_crawler.app_logging import get_logger
 from investment_local_horse_racing_crawler.items import CalendarItem, HorseItem, JockeyItem, OddsExactaItem, OddsQuinellaItem, OddsQuinellaPlaceItem, OddsTrifectaItem, OddsTrioItem, OddsWinPlaceItem, RaceCornerPassingOrderItem, RaceDenmaItem, RaceInfoItem, RaceInfoMiniItem, RaceRefundItem, RaceResultItem, TrainerItem
-
-logger = get_logger(__name__)
 
 
 class LocalHorseRacingSpider(scrapy.Spider):
-    name = "local_horse_racing"
+    name = "local_horse_racing_spider"
 
     def __init__(self, start_url="https://www.oddspark.com/keiba/KaisaiCalendar.do", recache_race=False, recache_horse=False, *args, **kwargs):
-        logger.info(f"#__init__: start: start_url={start_url}, recache_race={recache_race}, recache_horse={recache_horse}")
+        self.logger.info(f"#__init__: start: start_url={start_url}, recache_race={recache_race}, recache_horse={recache_horse}")
         try:
             super(LocalHorseRacingSpider, self).__init__(*args, **kwargs)
 
@@ -21,7 +18,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
             self.recache_race = recache_race if type(recache_race) is bool else strtobool(recache_race)
             self.recache_horse = recache_horse if type(recache_horse) is bool else strtobool(recache_horse)
         except Exception:
-            logger.exception("#__init__: fail")
+            self.logger.exception("#__init__: fail")
 
     def parse(self, response):
         """ Parse start page.
@@ -31,9 +28,9 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @returns requests 1 1
         """
 
-        logger.info(f"#parse: start: url={response.url}")
-        logger.info(f"#parse: recache_race={self.recache_race}")
-        logger.info(f"#parse: recache_horse={self.recache_horse}")
+        self.logger.info(f"#parse: start: url={response.url}")
+        self.logger.info(f"#parse: recache_race={self.recache_race}")
+        self.logger.info(f"#parse: recache_horse={self.recache_horse}")
 
         path = response.url[24:]
         yield self._follow_delegate(response, path)
@@ -43,11 +40,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
         @url https://www.oddspark.com/keiba/KaisaiCalendar.do?target=202004
         @returns items 1 1
-        @returns requests 77 77
+        @returns requests 71 71
         @calendar
         """
 
-        logger.info(f"#parse_calendar: start: url={response.url}")
+        self.logger.info(f"#parse_calendar: start: url={response.url}")
 
         # Build item
         loader = ItemLoader(item=CalendarItem(), response=response)
@@ -57,12 +54,12 @@ class LocalHorseRacingSpider(scrapy.Spider):
             loader.add_value("race_list_urls", href.get().replace("RaceRefund", "OneDayRaceList"))
         i = loader.load_item()
 
-        logger.debug(f"#parse_calendar: build calendar item={i}")
+        self.logger.debug(f"#parse_calendar: build calendar item={i}")
         yield i
 
         # Request
         for race_list_url in i["race_list_urls"]:
-            logger.debug(f"#parse_calendar: found one day race list page: url={race_list_url}")
+            self.logger.debug(f"#parse_calendar: found one day race list page: url={race_list_url}")
             yield self._follow_delegate(response, race_list_url)
 
     def parse_kaisai_race_list(self, response):
@@ -74,7 +71,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @kaisai_race_list
         """
 
-        logger.info(f"#parse_kaisai_race_list: start: url={response.url}")
+        self.logger.info(f"#parse_kaisai_race_list: start: url={response.url}")
 
         # Parse link
         for a in response.xpath("//a"):
@@ -95,7 +92,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @one_day_race_list
         """
 
-        logger.info(f"#parse_one_day_race_list: start: url={response.url}")
+        self.logger.info(f"#parse_one_day_race_list: start: url={response.url}")
 
         for div in response.xpath("//div[@class='pB5']"):
             # Build item
@@ -108,11 +105,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
             loader.add_xpath("start_time", "normalize-space(strong[2]/text())")
             i = loader.load_item()
 
-            logger.debug(f"#parse_one_day_race_list: build race summary mini item={i}")
+            self.logger.debug(f"#parse_one_day_race_list: build race summary mini item={i}")
             yield i
 
             # Request
-            logger.debug(f"#parse_one_day_race_list: found race denma page: url={i['race_denma_url'][0]}")
+            self.logger.debug(f"#parse_one_day_race_list: found race denma page: url={i['race_denma_url'][0]}")
             yield self._follow_delegate(response, i["race_denma_url"][0])
 
     def parse_race_denma(self, response):
@@ -124,10 +121,10 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @race_denma
         """
 
-        logger.info(f"#parse_race_denma: start: url={response.url}")
+        self.logger.info(f"#parse_race_denma: start: url={response.url}")
 
         # Parse race info
-        logger.debug("#parse_race_denma: parse race info")
+        self.logger.debug("#parse_race_denma: parse race info")
 
         loader = ItemLoader(item=RaceInfoItem(), response=response)
         loader.add_value("item_type", "RaceInfoItem")
@@ -144,11 +141,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
         loader.add_xpath("prize_money", "normalize-space(//div[@id='RCdata2']/p/text())")
         i = loader.load_item()
 
-        logger.info(f"#parse_race_denma: race info={i}")
+        self.logger.info(f"#parse_race_denma: race info={i}")
         yield i
 
         # Parse race denma
-        logger.debug("#parse_race_denma: parse race denma")
+        self.logger.debug("#parse_race_denma: parse race denma")
 
         horse_count = 0
 
@@ -173,7 +170,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 loader.add_xpath("horse_weight_diff", "normalize-space(td[8]/text()[2])")
                 i = loader.load_item()
 
-                logger.debug(f"#parse_race_denma: race denma={i}")
+                self.logger.debug(f"#parse_race_denma: race denma={i}")
                 yield i
 
                 horse_count += 1
@@ -192,12 +189,12 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 loader.add_xpath("horse_weight_diff", "normalize-space(td[6]/text()[2])")
                 i = loader.load_item()
 
-                logger.debug(f"#parse_race_denma: race denma={i}")
+                self.logger.debug(f"#parse_race_denma: race denma={i}")
                 yield i
 
                 horse_count += 1
             else:
-                logger.warn("#parse_race_denma: unknown record")
+                self.logger.warn("#parse_race_denma: unknown record")
 
         # Parse link
         for a in response.xpath("//a"):
@@ -232,10 +229,10 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @race_result
         """
 
-        logger.info(f"#parse_race_result: start: url={response.url}")
+        self.logger.info(f"#parse_race_result: start: url={response.url}")
 
         # Parse race result
-        logger.debug("#parse_race_result: parse race result")
+        self.logger.debug("#parse_race_result: parse race result")
 
         for tr in response.xpath("//table[@summary='レース結果']/tr"):
             if len(tr.xpath("td")) == 0:
@@ -257,11 +254,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
             i = loader.load_item()
 
-            logger.debug(f"#parse_race_result: race result={i}")
+            self.logger.debug(f"#parse_race_result: race result={i}")
             yield i
 
         # Parse race corner passing order
-        logger.debug("#parse_race_result: parse race corner passing order")
+        self.logger.debug("#parse_race_result: parse race corner passing order")
 
         for tr in response.xpath("//table[@summary='コーナー通過順']/tr"):
             loader = ItemLoader(item=RaceCornerPassingOrderItem(), selector=tr)
@@ -271,11 +268,11 @@ class LocalHorseRacingSpider(scrapy.Spider):
             loader.add_xpath("passing_order", "normalize-space(td)")
             i = loader.load_item()
 
-            logger.debug(f"#parse_race_result: race corner passing order item={i}")
+            self.logger.debug(f"#parse_race_result: race corner passing order item={i}")
             yield i
 
         # Parse race refund
-        logger.debug("#parse_race_result: parse race refund")
+        self.logger.debug("#parse_race_result: parse race refund")
 
         for tr in response.xpath("//table[@summary='払戻金情報']/tr"):
             if len(tr.xpath("th")) > 0:
@@ -290,7 +287,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
             loader.add_xpath("favorite", "td[3]/text()")
             i = loader.load_item()
 
-            logger.debug(f"#parse_race_result: race refund item={i}")
+            self.logger.debug(f"#parse_race_result: race refund item={i}")
             yield i
 
     def parse_horse(self, response):
@@ -302,10 +299,10 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @horse
         """
 
-        logger.info(f"#parse_horse: start: url={response.url}")
+        self.logger.info(f"#parse_horse: start: url={response.url}")
 
         # Parse horse
-        logger.debug("#parse_horse: parse horse")
+        self.logger.debug("#parse_horse: parse horse")
 
         loader = ItemLoader(item=HorseItem(), response=response)
         loader.add_value("item_type", "HorseItem")
@@ -326,7 +323,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         loader.add_xpath("grand_parent_horse_name_4", "normalize-space(//table[contains(@class,'tb71')]/tr[5]/td[1]/text())")
         i = loader.load_item()
 
-        logger.info(f"#parse_horse: horse={i}")
+        self.logger.info(f"#parse_horse: horse={i}")
         yield i
 
     def parse_jockey(self, response):
@@ -338,10 +335,10 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @jockey
         """
 
-        logger.info(f"#parse_jockey: start: url={response.url}")
+        self.logger.info(f"#parse_jockey: start: url={response.url}")
 
         # Parse jockey
-        logger.debug("#parse_jockey: parse jockey")
+        self.logger.debug("#parse_jockey: parse jockey")
 
         loader = ItemLoader(item=JockeyItem(), response=response)
         loader.add_value("item_type", "JockeyItem")
@@ -354,7 +351,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         loader.add_xpath("first_licensing_year", "normalize-space(//table[contains(@class,'tb72')]/tr[5]/td/text())")
         i = loader.load_item()
 
-        logger.info(f"#parse_jockey: jockey={i}")
+        self.logger.info(f"#parse_jockey: jockey={i}")
         yield i
 
     def parse_trainer(self, response):
@@ -366,10 +363,10 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @trainer
         """
 
-        logger.info(f"#parse_trainer: start: url={response.url}")
+        self.logger.info(f"#parse_trainer: start: url={response.url}")
 
         # Parse trainer
-        logger.debug("#parse_trainer: parse trainer")
+        self.logger.debug("#parse_trainer: parse trainer")
 
         loader = ItemLoader(item=TrainerItem(), response=response)
         loader.add_value("item_type", "TrainerItem")
@@ -380,7 +377,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         loader.add_xpath("belong_to", "normalize-space(//table[contains(@class,'tb72')]/tr[3]/td/text())")
         i = loader.load_item()
 
-        logger.info(f"#parse_trainer: trainer={i}")
+        self.logger.info(f"#parse_trainer: trainer={i}")
         yield i
 
     def parse_odds_win_place(self, response):
@@ -392,7 +389,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @odds_win_place
         """
 
-        logger.info(f"#parse_odds_win_place: start: url={response.url}")
+        self.logger.info(f"#parse_odds_win_place: start: url={response.url}")
 
         # Parse odds win/place
         for tr in response.xpath("//table[contains(@class,'tb71')]/tr"):
@@ -415,12 +412,12 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 loader.add_xpath("odds_win", "normalize-space(td[3]/span/text())")
                 loader.add_xpath("odds_place", "normalize-space(td[4])")
             else:
-                logger.warn("Unknown record")
+                self.logger.warn("Unknown record")
                 continue
 
             i = loader.load_item()
 
-            logger.debug(f"#parse_odds_win: odds win/place={i}")
+            self.logger.debug(f"#parse_odds_win: odds win/place={i}")
             yield i
 
     def parse_odds_quinella(self, response):
@@ -433,7 +430,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @odds_quinella
         """
 
-        logger.info(f"#parse_odds_quinella: start: url={response.url}")
+        self.logger.info(f"#parse_odds_quinella: start: url={response.url}")
 
         # Parse odds quinella
         horse_numbers = []
@@ -441,7 +438,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         for tr in response.xpath("//table[@summary='odds']/tr"):
             if len(horse_numbers) == 0:
                 for td in tr.xpath("*"):
-                    logger.debug(f"#parse_odds_quinella: horse_number_1={td.xpath('text()').get()}")
+                    self.logger.debug(f"#parse_odds_quinella: horse_number_1={td.xpath('text()').get()}")
                     horse_numbers.append(td.xpath('text()').get())
             else:
                 horse_number_2 = None
@@ -449,7 +446,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
                 for td in tr.xpath("*"):
                     if horse_number_2 is None and td.xpath("name()").get() == "th" and "colspan" not in td.attrib:
-                        logger.debug(f"#parse_odds_quinella: horse_number_2={td.xpath('text()').get()}")
+                        self.logger.debug(f"#parse_odds_quinella: horse_number_2={td.xpath('text()').get()}")
                         horse_number_2 = td.xpath('text()').get()
                     elif horse_number_2 is not None and td.xpath("name()").get() == "td":
                         loader = ItemLoader(item=OddsQuinellaItem(), selector=td)
@@ -460,20 +457,20 @@ class LocalHorseRacingSpider(scrapy.Spider):
                         loader.add_xpath("odds", "span/text()")
                         i = loader.load_item()
 
-                        logger.debug(f"#parse_odds_quinella: odds quinella={i}")
+                        self.logger.debug(f"#parse_odds_quinella: odds quinella={i}")
                         yield i
 
                         horse_number_2 = None
                         column_number += 1
                     elif horse_number_2 is None and td.xpath("name()").get() == "td" and td.attrib["colspan"] == "2":
-                        logger.debug("#parse_odds_quinella: empty column")
+                        self.logger.debug("#parse_odds_quinella: empty column")
                         column_number += 1
                     elif horse_number_2 is None and td.xpath("name()").get() == "th" and td.attrib["colspan"] == "2":
-                        logger.debug(f"#parse_odds_quinella: horse_number={td.xpath('text()').get()}")
+                        self.logger.debug(f"#parse_odds_quinella: horse_number={td.xpath('text()').get()}")
                         horse_numbers[column_number] = td.xpath('text()').get()
                         column_number += 1
                     else:
-                        logger.warn(f"#parse_odds_quinella: unknown data: td={td}")
+                        self.logger.warn(f"#parse_odds_quinella: unknown data: td={td}")
 
     def parse_odds_exacta(self, response):
         """ Parse odds(exacta) page.
@@ -484,7 +481,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @odds_exacta
         """
 
-        logger.info(f"#parse_odds_exacta: start: url={response.url}")
+        self.logger.info(f"#parse_odds_exacta: start: url={response.url}")
 
         # Parse odds exacta
         for table in response.xpath("//table[@summary='odds']"):
@@ -493,7 +490,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
             for tr in table.xpath("tr"):
                 if len(horse_numbers) == 0:
                     for td in tr.xpath("*"):
-                        logger.debug(f"#parse_odds_exacta: horse_number_1={td.xpath('text()').get()}")
+                        self.logger.debug(f"#parse_odds_exacta: horse_number_1={td.xpath('text()').get()}")
                         horse_numbers.append(td.xpath('text()').get())
                 else:
                     horse_number_2 = None
@@ -501,10 +498,10 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
                     for td in tr.xpath("*"):
                         if horse_number_2 is None and "th2" in td.attrib["class"]:
-                            logger.debug(f"#parse_odds_exacta: horse_number_2={td.xpath('text()').get()}")
+                            self.logger.debug(f"#parse_odds_exacta: horse_number_2={td.xpath('text()').get()}")
                             horse_number_2 = td.xpath('text()').get()
                         elif horse_number_2 is not None and "blank" in td.attrib["class"]:
-                            logger.debug("#parse_odds_exacta: blank odds")
+                            self.logger.debug("#parse_odds_exacta: blank odds")
                             horse_number_2 = None
                             column_number += 1
                         elif horse_number_2 is not None:
@@ -516,7 +513,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
                             loader.add_xpath("odds", "span/text()")
                             i = loader.load_item()
 
-                            logger.debug(f"#parse_odds_exacta: odds exacta={i}")
+                            self.logger.debug(f"#parse_odds_exacta: odds exacta={i}")
                             yield i
 
                             horse_number_2 = None
@@ -531,7 +528,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @odds_quinella_place
         """
 
-        logger.info(f"#parse_odds_quinella_place: start: url={response.url}")
+        self.logger.info(f"#parse_odds_quinella_place: start: url={response.url}")
 
         # Parse odds quinella
         horse_numbers = []
@@ -539,7 +536,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         for tr in response.xpath("//table[@summary='odds']/tr"):
             if len(horse_numbers) == 0:
                 for td in tr.xpath("*"):
-                    logger.debug(f"#parse_odds_quinella_place: horse_number_1={td.xpath('text()').get()}")
+                    self.logger.debug(f"#parse_odds_quinella_place: horse_number_1={td.xpath('text()').get()}")
                     horse_numbers.append(td.xpath('text()').get())
             else:
                 horse_number_2 = None
@@ -547,7 +544,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
                 for td in tr.xpath("*"):
                     if horse_number_2 is None and td.xpath("name()").get() == "th" and "colspan" not in td.attrib:
-                        logger.debug(f"#parse_odds_quinella_place: horse_number_2={td.xpath('text()').get()}")
+                        self.logger.debug(f"#parse_odds_quinella_place: horse_number_2={td.xpath('text()').get()}")
                         horse_number_2 = td.xpath('text()').get()
                     elif horse_number_2 is not None and td.xpath("name()").get() == "td":
                         loader = ItemLoader(item=OddsQuinellaPlaceItem(), selector=td)
@@ -559,20 +556,20 @@ class LocalHorseRacingSpider(scrapy.Spider):
                         loader.add_xpath("odds_upper", "span[2]/text()")
                         i = loader.load_item()
 
-                        logger.debug(f"#parse_odds_quinella_place: odds quinella place={i}")
+                        self.logger.debug(f"#parse_odds_quinella_place: odds quinella place={i}")
                         yield i
 
                         horse_number_2 = None
                         column_number += 1
                     elif horse_number_2 is None and td.xpath("name()").get() == "td" and td.attrib["colspan"] == "2":
-                        logger.debug("#parse_odds_quinella_place: empty column")
+                        self.logger.debug("#parse_odds_quinella_place: empty column")
                         column_number += 1
                     elif horse_number_2 is None and td.xpath("name()").get() == "th" and td.attrib["colspan"] == "2":
-                        logger.debug(f"#parse_odds_quinella_place: horse_number={td.xpath('text()').get()}")
+                        self.logger.debug(f"#parse_odds_quinella_place: horse_number={td.xpath('text()').get()}")
                         horse_numbers[column_number] = td.xpath('text()').get()
                         column_number += 1
                     else:
-                        logger.warn(f"#parse_odds_quinella_place: unknown data: td={td}")
+                        self.logger.warn(f"#parse_odds_quinella_place: unknown data: td={td}")
 
     def parse_odds_trio(self, response):
         """ Parse odds(trio) page.
@@ -583,7 +580,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @odds_trio
         """
 
-        logger.info(f"#parse_odds_trio: start: url={response.url}")
+        self.logger.info(f"#parse_odds_trio: start: url={response.url}")
 
         # Parse odds trio
         for table in response.xpath("//table[@summary='odds']/tbody"):
@@ -592,7 +589,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
             for tr in table.xpath("tr"):
                 if len(horse_numbers) == 0:
                     for td in tr.xpath("*"):
-                        logger.debug(f"#parse_odds_trio: horse_number_1_2={td.xpath('text()').get()}")
+                        self.logger.debug(f"#parse_odds_trio: horse_number_1_2={td.xpath('text()').get()}")
                         horse_numbers.append(td.xpath('text()').get())
                 else:
                     horse_number_3 = None
@@ -600,7 +597,7 @@ class LocalHorseRacingSpider(scrapy.Spider):
 
                     for td in tr.xpath("*"):
                         if horse_number_3 is None and td.xpath("name()").get() == "th" and "colspan" not in td.attrib:
-                            logger.debug(f"#parse_odds_trio: horse_number_3={td.xpath('text()').get()}")
+                            self.logger.debug(f"#parse_odds_trio: horse_number_3={td.xpath('text()').get()}")
                             horse_number_3 = td.xpath('text()').get()
                         elif horse_number_3 is not None and td.xpath("name()").get() == "td":
                             loader = ItemLoader(item=OddsTrioItem(), selector=td)
@@ -611,20 +608,20 @@ class LocalHorseRacingSpider(scrapy.Spider):
                             loader.add_xpath("odds", "span/text()")
                             i = loader.load_item()
 
-                            logger.debug(f"#parse_odds_trio: odds trio={i}")
+                            self.logger.debug(f"#parse_odds_trio: odds trio={i}")
                             yield i
 
                             horse_number_3 = None
                             column_number += 1
                         elif horse_number_3 is None and td.xpath("name()").get() == "td" and td.attrib["colspan"] == "2":
-                            logger.debug("#parse_odds_trio: empty column")
+                            self.logger.debug("#parse_odds_trio: empty column")
                             column_number += 1
                         elif horse_number_3 is None and td.xpath("name()").get() == "th" and td.attrib["colspan"] == "2":
-                            logger.debug(f"#parse_odds_trio: horse_number_1_2={td.xpath('text()').get()}")
+                            self.logger.debug(f"#parse_odds_trio: horse_number_1_2={td.xpath('text()').get()}")
                             horse_numbers[column_number] = td.xpath('text()').get()
                             column_number += 1
                         else:
-                            logger.warn(f"#parse_odds_trio: unknown data: td={td}")
+                            self.logger.warn(f"#parse_odds_trio: unknown data: td={td}")
 
     def parse_odds_trifecta(self, response):
         """ Parse odds(trifecta) page.
@@ -635,12 +632,12 @@ class LocalHorseRacingSpider(scrapy.Spider):
         @odds_trifecta
         """
 
-        logger.info(f"#parse_odds_trifecta: start: url={response.url}")
+        self.logger.info(f"#parse_odds_trifecta: start: url={response.url}")
 
         # Parse odds trifecta
         for tr in response.xpath("//table[@summary='odds']/tr"):
             if len(tr.xpath("th")) == 2:
-                logger.debug("#parse_odds_trifecta: skip header")
+                self.logger.debug("#parse_odds_trifecta: skip header")
             else:
                 loader = ItemLoader(item=OddsTrifectaItem(), selector=tr)
                 loader.add_value("item_type", "OddsTrifectaItem")
@@ -649,77 +646,77 @@ class LocalHorseRacingSpider(scrapy.Spider):
                 loader.add_xpath("odds", "td/span/text()")
                 i = loader.load_item()
 
-                logger.debug(f"#parse_odds_trifecta: odds trifecta={i}")
+                self.logger.debug(f"#parse_odds_trifecta: odds trifecta={i}")
                 yield i
 
     def errback_handle(self, failure):
-        logger.error(f"#errorback_handle: url={failure.request.url}")
-        logger.error(f"#errorback_handle: failure={failure}")
+        self.logger.error(f"#errorback_handle: url={failure.request.url}")
+        self.logger.error(f"#errorback_handle: failure={failure}")
 
     def _follow_delegate(self, response, path, cb_kwargs=None):
-        logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
+        self.logger.info(f"#_follow_delegate: start: path={path}, cb_kwargs={cb_kwargs}")
 
         if self.settings.get("CRAWL_HTTP_PROXY"):
             meta = {"proxy": self.settings.get("CRAWL_HTTP_PROXY")}
         else:
             meta = {}
-        logger.debug(f"#_follow_delegate: meta={meta}")
+        self.logger.debug(f"#_follow_delegate: meta={meta}")
 
         if path.startswith("/keiba/KaisaiCalendar.do"):
-            logger.debug("#_follow_delegate: follow calendar page")
+            self.logger.debug("#_follow_delegate: follow calendar page")
             return response.follow(path, callback=self.parse_calendar, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/KaisaiRaceList.do?"):
-            logger.debug("#_follow_delegate: follow kaisai race list page")
+            self.logger.debug("#_follow_delegate: follow kaisai race list page")
             return response.follow(path, callback=self.parse_kaisai_race_list, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/OneDayRaceList.do?"):
-            logger.debug("#_follow_delegate: follow one day race list page")
+            self.logger.debug("#_follow_delegate: follow one day race list page")
             return response.follow(path, callback=self.parse_one_day_race_list, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceList.do?"):
-            logger.debug("#_follow_delegate: follow race denma page")
+            self.logger.debug("#_follow_delegate: follow race denma page")
             return response.follow(path, callback=self.parse_race_denma, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/RaceResult.do?"):
-            logger.debug("#_follow_delegate: follow race result page")
+            self.logger.debug("#_follow_delegate: follow race result page")
             return response.follow(path, callback=self.parse_race_result, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/HorseDetail.do?"):
-            logger.debug("#_follow_delegate: follow horse page")
+            self.logger.debug("#_follow_delegate: follow horse page")
             return response.follow(path, callback=self.parse_horse, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/JockeyDetail.do?"):
-            logger.debug("#_follow_delegate: follow jockey page")
+            self.logger.debug("#_follow_delegate: follow jockey page")
             return response.follow(path, callback=self.parse_jockey, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/TrainerDetail.do?"):
-            logger.debug("#_follow_delegate: follow trainer page")
+            self.logger.debug("#_follow_delegate: follow trainer page")
             return response.follow(path, callback=self.parse_trainer, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=1" in path:
-            logger.debug("#_follow_delegate: follow odds win/place page")
+            self.logger.debug("#_follow_delegate: follow odds win/place page")
             return response.follow(path, callback=self.parse_odds_win_place, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=6" in path:
-            logger.debug("#_follow_delegate: follow odds quinella page")
+            self.logger.debug("#_follow_delegate: follow odds quinella page")
             return response.follow(path, callback=self.parse_odds_quinella, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=5" in path:
-            logger.debug("#_follow_delegate: follow odds exacta page")
+            self.logger.debug("#_follow_delegate: follow odds exacta page")
             return response.follow(path, callback=self.parse_odds_exacta, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=7" in path:
-            logger.debug("#_follow_delegate: follow odds quinella place page")
+            self.logger.debug("#_follow_delegate: follow odds quinella place page")
             return response.follow(path, callback=self.parse_odds_quinella_place, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=9" in path:
-            logger.debug("#_follow_delegate: follow odds trio page")
+            self.logger.debug("#_follow_delegate: follow odds trio page")
             return response.follow(path, callback=self.parse_odds_trio, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         elif path.startswith("/keiba/Odds.do?") and "betType=8" in path:
-            logger.debug("#_follow_delegate: follow odds trifecta page")
+            self.logger.debug("#_follow_delegate: follow odds trifecta page")
             return response.follow(path, callback=self.parse_odds_trifecta, meta=meta, errback=self.errback_handle, cb_kwargs=cb_kwargs)
 
         else:
-            logger.warning("#_follow_delegate: unknown path pattern")
+            self.logger.warning("#_follow_delegate: unknown path pattern")
