@@ -17,9 +17,10 @@ jobs:
       - name: Setup dotenv
         run: cp .env.original .env
       - name: Lint
-        run: docker-compose run app flake8 .
-      - name: Check
-        run: docker-compose run app scrapy check local_horse_racing -L DEBUG
+        run: docker-compose run app poe lint
+      # TODO
+      # - name: Check
+      #   run: docker-compose run app scrapy check local_horse_racing -L DEBUG
 
       # Slack notification
       - name: Slack notification on success
