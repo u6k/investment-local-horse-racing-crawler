@@ -38,7 +38,7 @@ profile = "black"
 line_length = 1000
 
 [tool.poe.tasks]
-lint = "pflake8 ./investment_local_horse_racing_crawler/ ./tests/"
-fix = [{cmd="autopep8 -ivr ./investment_local_horse_racing_crawler/ ./tests/"}, {cmd="isort ./investment_local_horse_racing_crawler/ ./tests/"}]
+lint = "pflake8 ./local_horse_racing_crawler/ ./tests/"
+fix = [{cmd="autopep8 -ivr ./local_horse_racing_crawler/ ./tests/"}, {cmd="isort ./local_horse_racing_crawler/ ./tests/"}]
 test = {cmd="bin/scrapy_proxy.sh check local_horse_racing_spider -L DEBUG"}
 crawl = {cmd="bin/scrapy_proxy.sh crawl local_horse_racing_spider"}
