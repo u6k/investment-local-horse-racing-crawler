@@ -1,30 +1,16 @@
-# from scrapy import Field, Item
+from scrapy import Field, Item
 
 
-# class RaceInfoMiniItem(Item):
-#     """レース情報(ミニ)"""
-#     item_type = Field()
-#     race_list_url = Field()
-#     race_name = Field()
-#     race_denma_url = Field()
-#     course_length = Field()
-#     start_time = Field()
-
-
-# class RaceInfoItem(Item):
-#     """出馬ページのレース情報"""
-#     item_type = Field()
-#     race_denma_url = Field()
-#     race_round = Field()
-#     race_name = Field()
-#     start_date = Field()
-#     place_name = Field()
-#     course_type_length = Field()
-#     start_time = Field()
-#     weather_url = Field()
-#     course_condition = Field()
-#     moisture = Field()
-#     prize_money = Field()
+class RaceInfoItem(Item):
+    """出馬ページのレース情報
+    """
+    url = Field()
+    race_id = Field()
+    race_round = Field()
+    race_name = Field()
+    race_data1 = Field()
+    race_data2 = Field()
+    race_data3 = Field()
 
 
 # class RaceDenmaItem(Item):

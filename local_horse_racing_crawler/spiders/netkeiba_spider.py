@@ -1,9 +1,9 @@
 from urllib.parse import parse_qs, urlparse
 
 import scrapy
-# from scrapy.loader import ItemLoader
+from scrapy.loader import ItemLoader
 
-# from local_horse_racing_crawler.items import HorseItem, JockeyItem, OddsItem, ParentHorseItem, RaceCornerPassingItem, RaceInfoItem, RaceLapTimeItem, RacePayoffItem, RaceResultItem, TrainerItem, TrainingItem
+from local_horse_racing_crawler.items import RaceInfoItem
 
 
 class NetkeibaSpider(scrapy.Spider):
@@ -152,11 +152,30 @@ class NetkeibaSpider(scrapy.Spider):
         """Parse race_program page.
 
         @url https://nar.netkeiba.com/race/shutuba.html?race_id=202344111410
-        @returns items 0 0
+        @returns items 1 1
         @returns requests 0 0
         @race_program_contract
         """
         self.logger.info(f"#parse_race_program: start: response={response.url}")
+
+        race_program_url = urlparse(response.url)
+        race_program_qs = parse_qs(race_program_url.query)
+
+        # Parse race info
+        self.logger.debug("#parse_race_program: parse race info")
+
+        loader = ItemLoader(item=RaceInfoItem(), response=response)
+        loader.add_value("url", response.url + "#race_info")
+        loader.add_value("race_id", race_program_qs["race_id"])
+        loader.add_xpath("race_round", "normalize-space(//span[@class='RaceNum'])")
+        loader.add_xpath("race_name", "normalize-space(//div[@class='RaceName'])")
+        loader.add_xpath("race_data1", "normalize-space(//div[@class='RaceData01'])")
+        loader.add_xpath("race_data2", "normalize-space(//div[@class='RaceData02'])")
+        loader.add_xpath("race_data3", "//title/text()")
+        i = loader.load_item()
+
+        self.logger.debug(f"#parse_race_program: race_info={i}")
+        yield i
 
     # TODO
     # def parse_race_result(self, response):

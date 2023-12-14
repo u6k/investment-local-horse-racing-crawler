@@ -2,7 +2,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-# from local_horse_racing_crawler.items import CalendarItem, HorseItem, JockeyItem, OddsExactaItem, OddsQuinellaItem, OddsQuinellaPlaceItem, OddsTrifectaItem, OddsTrioItem, OddsWinPlaceItem, RaceCornerPassingOrderItem, RaceDenmaItem, RaceInfoItem, RaceInfoMiniItem, RaceRefundItem, RaceResultItem, TrainerItem
+from local_horse_racing_crawler.items import RaceInfoItem
 
 
 class CalendarContract(Contract):
@@ -37,7 +37,19 @@ class RaceProgramContract(Contract):
     name = "race_program_contract"
 
     def post_process(self, output):
-        pass
+        # Check items
+        items = [o for o in output if isinstance(o, RaceInfoItem)]
+
+        assert len(items) == 1
+
+        i = items[0]
+        assert i["url"] == ["https://nar.netkeiba.com/race/shutuba.html?race_id=202344111410#race_info"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["race_round"] == ["10R"]
+        assert i["race_name"] == ["八潮パークタウン40周年特別競走(B2)"]
+        assert i["race_data1"] == ["19:30発走 / ダ1200m (右) / 天候:晴 / 馬場:良 \xa0"]
+        assert i["race_data2"] == ["13回 大井 2日目 サラ系一般 B2 \xa0\xa0\xa0\xa0\xa0 16頭 本賞金:270.0、108.0、67.5、40.5、27.0万円"]
+        assert i["race_data3"] == ["八潮パークタウン40 出馬表 | 2023年11月14日 大井10R 地方競馬レース情報 - netkeiba.com"]
 
 
 # TODO
