@@ -2,7 +2,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem
+from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem
 
 
 class CalendarContract(Contract):
@@ -498,89 +498,180 @@ class RaceResultContract(Contract):
     name = "race_result_contract"
 
     def post_process(self, output):
-        pass
-#         # Check item - RaceResultItem
-#         items = [o for o in output if isinstance(o, RaceResultItem)]
+        #
+        # Check items
+        #
 
-#         if len(items) == 0:
-#             raise ContractFail("RaceResultItem is empty")
+        # レース結果
+        items = [o for o in output if isinstance(o, RaceResultItem)]
 
-#         for item in items:
-#             if not item["race_result_url"][0].startswith("https://www.oddspark.com/keiba/RaceResult.do?"):
-#                 raise ContractFail("race_result_url is invalid")
+        assert len(items) == 16
 
-#             if not item["result"][0]:
-#                 raise ContractFail("result is invalid")
+        i = items[0]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_result"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["result"] == ["1"]
+        assert i["bracket_number"] == ["6"]
+        assert i["horse_number"] == ["12"]
+        assert i["horse_url"] == ["https://db.netkeiba.com/horse/2018101222/"]
+        assert i["arrival_time"] == ["1:13.9"]
+        assert i["arrival_margin"] == [""]
+        assert i["final_600_meters_time"] == ["37.8"]
 
-#             if not item["bracket_number"][0]:
-#                 raise ContractFail("bracket_number is invalid")
+        i = items[1]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_result"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["result"] == ["2"]
+        assert i["bracket_number"] == ["7"]
+        assert i["horse_number"] == ["14"]
+        assert i["horse_url"] == ["https://db.netkeiba.com/horse/2018102660/"]
+        assert i["arrival_time"] == ["1:14.3"]
+        assert i["arrival_margin"] == ["2"]
+        assert i["final_600_meters_time"] == ["37.9"]
 
-#             if not item["horse_number"][0]:
-#                 raise ContractFail("horse_number is invalid")
+        i = items[2]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_result"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["result"] == ["3"]
+        assert i["bracket_number"] == ["6"]
+        assert i["horse_number"] == ["11"]
+        assert i["horse_url"] == ["https://db.netkeiba.com/horse/2019106574/"]
+        assert i["arrival_time"] == ["1:14.3"]
+        assert i["arrival_margin"] == ["アタマ"]
+        assert i["final_600_meters_time"] == ["38.3"]
 
-#             horse_url_re = re.match(r"^/keiba/HorseDetail\.do\?lineageNb=\d+$", item["horse_url"][0])
-#             if not horse_url_re:
-#                 raise ContractFail("horse_url is invalid")
+        i = items[14]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_result"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["result"] == ["15"]
+        assert i["bracket_number"] == ["8"]
+        assert i["horse_number"] == ["15"]
+        assert i["horse_url"] == ["https://db.netkeiba.com/horse/2018103916/"]
+        assert i["arrival_time"] == ["1:16.5"]
+        assert i["arrival_margin"] == ["3"]
+        assert i["final_600_meters_time"] == ["39.5"]
 
-#             arrival_time_re = re.match(r"^(\d+:)\d+\.\d+$", item["arrival_time"][0])
-#             if not arrival_time_re:
-#                 raise ContractFail("arrival_time is invalid")
+        i = items[15]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_result"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["result"] == ["16"]
+        assert i["bracket_number"] == ["5"]
+        assert i["horse_number"] == ["10"]
+        assert i["horse_url"] == ["https://db.netkeiba.com/horse/2019102218/"]
+        assert i["arrival_time"] == ["1:17.6"]
+        assert i["arrival_margin"] == ["5"]
+        assert i["final_600_meters_time"] == ["41.6"]
 
-#             if "arrival_margin" in item:
-#                 if not item["arrival_margin"][0]:
-#                     raise ContractFail("arrival_margin is invalid")
+        # 払戻しデータ
+        items = [o for o in output if isinstance(o, RacePayoffItem)]
 
-#             final_600_meters_time_re = re.match(r"^[\d\.]+$", item["final_600_meters_time"][0])
-#             if not final_600_meters_time_re:
-#                 raise ContractFail("final_600_meters_time is invalid")
+        assert len(items) == 9
 
-#             corner_passing_order_re = re.match(r"^\d+\-\d+\-\d+\-\d+$", item["corner_passing_order"][0])
-#             if not corner_passing_order_re:
-#                 raise ContractFail("corner_passing_order is invalid")
+        i = items[0]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_payoff"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["bet_type"] == ["単勝"]
+        assert i["horse_number"] == ["12"]
+        assert i["payoff_money"] == ["150円"]
+        assert i["favorite_order"] == ["1人気"]
 
-#         # Check item - RaceCornerPassingOrderItem
-#         items = [o for o in output if isinstance(o, RaceCornerPassingOrderItem)]
+        i = items[1]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_payoff"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["bet_type"] == ["複勝"]
+        assert i["horse_number"] == ["12 14 11"]
+        assert i["payoff_money"] == ["100円170円150円"]
+        assert i["favorite_order"] == ["1人気3人気2人気"]
 
-#         if len(items) != 4:
-#             raise ContractFail("len(RaceCornerPassingOrderItem) != 4")
+        i = items[2]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_payoff"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["bet_type"] == ["枠連"]
+        assert i["horse_number"] == ["6 7"]
+        assert i["payoff_money"] == ["580円"]
+        assert i["favorite_order"] == ["2人気"]
 
-#         for item in items:
-#             if not item["race_result_url"][0].startswith("https://www.oddspark.com/keiba/RaceResult.do?"):
-#                 raise ContractFail("race_result_url is invalid")
+        i = items[3]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_payoff"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["bet_type"] == ["馬連"]
+        assert i["horse_number"] == ["12 14"]
+        assert i["payoff_money"] == ["740円"]
+        assert i["favorite_order"] == ["2人気"]
 
-#             corner_number_re = re.match(r"^.コーナー$", item["corner_number"][0])
-#             if not corner_number_re:
-#                 raise ContractFail("corner_number is invalid")
+        i = items[4]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_payoff"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["bet_type"] == ["ワイド"]
+        assert i["horse_number"] == ["12 14 11 12 11 14"]
+        assert i["payoff_money"] == ["320円240円790円"]
+        assert i["favorite_order"] == ["2人気1人気9人気"]
 
-#             if not item["passing_order"][0]:
-#                 raise ContractFail("passing_order is invalid")
+        i = items[5]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_payoff"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["bet_type"] == ["枠単"]
+        assert i["horse_number"] == ["6 7"]
+        assert i["payoff_money"] == ["670円"]
+        assert i["favorite_order"] == ["3人気"]
 
-#         # Check item - RaceRefundItem
-#         items = [o for o in output if isinstance(o, RaceRefundItem)]
+        i = items[6]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_payoff"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["bet_type"] == ["馬単"]
+        assert i["horse_number"] == ["12 14"]
+        assert i["payoff_money"] == ["890円"]
+        assert i["favorite_order"] == ["2人気"]
 
-#         if len(items) == 0:
-#             raise ContractFail("RaceRefundItem is empty")
+        i = items[7]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_payoff"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["bet_type"] == ["3連複"]
+        assert i["horse_number"] == ["11 12 14"]
+        assert i["payoff_money"] == ["1,170円"]
+        assert i["favorite_order"] == ["1人気"]
 
-#         for item in items:
-#             if not item["race_result_url"][0].startswith("https://www.oddspark.com/keiba/RaceResult.do?"):
-#                 raise ContractFail("race_result_url is invalid")
+        i = items[8]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_payoff"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["bet_type"] == ["3連単"]
+        assert i["horse_number"] == ["12 14 11"]
+        assert i["payoff_money"] == ["3,240円"]
+        assert i["favorite_order"] == ["3人気"]
 
-#             if not item["betting_type"][0]:
-#                 raise ContractFail("betting_type is invalid")
+        # コーナー通過順位データ
+        items = [o for o in output if isinstance(o, RaceCornerPassingOrderItem)]
 
-#             if not item["horse_number"][0]:
-#                 raise ContractFail("horse_number is invalid")
+        assert len(items) == 2
 
-#             refund_money_re = re.match(r"^[\d\,]+円$", item["refund_money"][0])
-#             if not refund_money_re:
-#                 raise ContractFail("refund_money is invalid")
+        i = items[0]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_corner_passing_order"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["corner_name"] == ["3コーナー"]
+        assert i["passing_order"] == ["(10,11),12,13,14,1,16,15,9,6,3,2,8,5,7,4"]
 
-#             favorite_re = re.match(r"^\d+番人気$", item["favorite"][0])
-#             if not favorite_re:
-#                 raise ContractFail("favorite is invalid")
+        i = items[1]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_corner_passing_order"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["corner_name"] == ["4コーナー"]
+        assert i["passing_order"] == ["11,12,10,(1,14,13),16,9,3,6,15,2,8,5,7,4"]
 
-#         # Check requests
-#         requests = [o for o in output if isinstance(o, Request)]
+        # ラップタイムデータ
+        items = [o for o in output if isinstance(o, RaceLaptimeItem)]
 
-#         if len(requests) != 0:
-#             raise ContractFail("requests is not empty")
+        assert len(items) == 3
+
+        i = items[0]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_laptime"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["data"] == ['200m', '400m', '600m', '800m', '1000m', '1200m']
+
+        i = items[1]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_laptime"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["data"] == ['12.7', '24.0', '36.0', '48.6', '1:00.7', '1:13.9']
+
+        i = items[2]
+        assert i["url"] == ["https://nar.netkeiba.com/race/result.html?race_id=202344111410#race_laptime"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["data"] == ['12.7', '11.3', '12.0', '12.6', '12.1', '13.2']

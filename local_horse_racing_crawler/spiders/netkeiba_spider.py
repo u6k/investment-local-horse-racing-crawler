@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 import scrapy
 from scrapy.loader import ItemLoader
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem
+from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem
 
 
 class NetkeibaSpider(scrapy.Spider):
@@ -339,8 +339,86 @@ class NetkeibaSpider(scrapy.Spider):
         """Parse race_result page.
 
         @url https://nar.netkeiba.com/race/result.html?race_id=202344111410
-        @returns items 0 0
+        @returns items 30 30
         @returns requests 0 0
         @race_result_contract
         """
-        self.logger.info(f"#parse_race_result start: response={response.url}")
+        self.logger.info(f"#parse_race_result: start: response={response.url}")
+
+        race_result_url = urlparse(response.url)
+        race_result_qs = parse_qs(race_result_url.query)
+
+        #
+        self.logger.debug("#parse_race_result: parse race result")
+        #
+
+        for tr in response.xpath("//table[contains(@class, 'ResultRefund')]//tr"):
+            if len(tr.xpath("td")) == 0:
+                # ヘッダーの場合はスキップ
+                continue
+
+            loader = ItemLoader(item=RaceResultItem(), selector=tr)
+            loader.add_value("url", response.url + "#race_result")
+            loader.add_value("race_id", race_result_qs["race_id"])
+            loader.add_xpath("result", "normalize-space(string(td[1]))")
+            loader.add_xpath("bracket_number", "normalize-space(string(td[2]))")
+            loader.add_xpath("horse_number", "normalize-space(string(td[3]))")
+            loader.add_xpath("horse_url", "td[4]//a/@href")
+            loader.add_xpath("arrival_time", "normalize-space(string(td[8]))")
+            loader.add_xpath("arrival_margin", "normalize-space(string(td[9]))")
+            loader.add_xpath("final_600_meters_time", "normalize-space(string(td[12]))")
+            i = loader.load_item()
+
+            self.logger.debug(f"#parse_race_result: race_result={i}")
+            yield i
+
+        #
+        self.logger.debug("#parse_race_result: parse race payoff")
+        #
+
+        for tr in response.xpath("//table[@class='Payout_Detail_Table']//tr"):
+            loader = ItemLoader(item=RacePayoffItem(), selector=tr)
+            loader.add_value("url", response.url + "#race_payoff")
+            loader.add_value("race_id", race_result_qs["race_id"])
+            loader.add_xpath("bet_type", "normalize-space(string(th))")
+            loader.add_xpath("horse_number", "normalize-space(string(td[1]))")
+            loader.add_xpath("payoff_money", "normalize-space(string(td[2]))")
+            loader.add_xpath("favorite_order", "normalize-space(string(td[3]))")
+            i = loader.load_item()
+
+            self.logger.debug(f"#parse_race_result: race_payoff={i}")
+            yield i
+
+        #
+        self.logger.debug("#parse_race_result: parse race corner passing order")
+        #
+
+        for tr in response.xpath("//table[contains(@class, 'Corner_Num')]//tr"):
+            loader = ItemLoader(item=RaceCornerPassingOrderItem(), selector=tr)
+            loader.add_value("url", response.url + "#race_corner_passing_order")
+            loader.add_value("race_id", race_result_qs["race_id"])
+            loader.add_xpath("corner_name", "normalize-space(string(th))")
+            loader.add_xpath("passing_order", "normalize-space(string(td))")
+            i = loader.load_item()
+
+            self.logger.debug(f"#parse_race_result: race_corner_passing_order={i}")
+            yield i
+
+        #
+        self.logger.debug("#parse_race_result: parse race laptime")
+        #
+
+        for tr in response.xpath("//table[contains(@class, 'Race_HaronTime')]//tr"):
+            loader = ItemLoader(item=RaceLaptimeItem(), selector=tr)
+            loader.add_value("url", response.url + "#race_laptime")
+            loader.add_value("race_id", race_result_qs["race_id"])
+
+            if len(tr.xpath("th")) > 0:
+                loader.add_xpath("data", "th/text()")
+            else:
+                loader.add_xpath("data", "td/text()")
+
+            i = loader.load_item()
+
+            self.logger.debug(f"#parse_race_result: race_laptime={i}")
+            yield i

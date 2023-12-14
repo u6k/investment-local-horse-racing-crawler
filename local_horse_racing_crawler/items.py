@@ -14,7 +14,7 @@ class RaceInfoItem(Item):
 
 
 class RaceBracketItem(Item):
-    """枠情報
+    """枠データ
     """
     url = Field()
     race_id = Field()
@@ -25,38 +25,6 @@ class RaceBracketItem(Item):
     jockey_weight = Field()
     trainer_url = Field()
     horse_weight_diff = Field()
-
-
-# class RaceResultItem(Item):
-#     """結果ページのリスト"""
-#     item_type = Field()
-#     race_result_url = Field()
-#     result = Field()
-#     bracket_number = Field()
-#     horse_number = Field()
-#     horse_url = Field()
-#     arrival_time = Field()
-#     arrival_margin = Field()
-#     final_600_meters_time = Field()
-#     corner_passing_order = Field()
-
-
-# class RaceCornerPassingOrderItem(Item):
-#     """結果ページのコーナー通過順"""
-#     item_type = Field()
-#     race_result_url = Field()
-#     corner_number = Field()
-#     passing_order = Field()
-
-
-# class RaceRefundItem(Item):
-#     """結果ページの払い戻し金"""
-#     item_type = Field()
-#     race_result_url = Field()
-#     betting_type = Field()
-#     horse_number = Field()
-#     refund_money = Field()
-#     favorite = Field()
 
 
 # class HorseItem(Item):
@@ -154,3 +122,45 @@ class RaceBracketItem(Item):
 #     odds_url = Field()
 #     horse_number = Field()
 #     odds = Field()
+
+
+class RaceResultItem(Item):
+    """レース結果
+    """
+    url = Field()
+    race_id = Field()
+    result = Field()
+    bracket_number = Field()
+    horse_number = Field()
+    horse_url = Field()
+    arrival_time = Field()
+    arrival_margin = Field()
+    final_600_meters_time = Field()
+
+
+class RacePayoffItem(Item):
+    """払戻し
+    """
+    url = Field()
+    race_id = Field()
+    bet_type = Field()
+    horse_number = Field()
+    payoff_money = Field()
+    favorite_order = Field()
+
+
+class RaceCornerPassingOrderItem(Item):
+    """コーナー通過順位
+    """
+    url = Field()
+    race_id = Field()
+    corner_name = Field()
+    passing_order = Field()
+
+
+class RaceLaptimeItem(Item):
+    """ラップタイム
+    """
+    url = Field()
+    race_id = Field()
+    data = Field()
