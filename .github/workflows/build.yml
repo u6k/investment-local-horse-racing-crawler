@@ -19,7 +19,7 @@ jobs:
       - name: Lint
         run: docker-compose run app poe lint
       - name: Check
-        run: docker-compose run app scrapy check netkeiba_spider -L DEBUG
+        run: docker-compose run app poe test
 
       # Slack notification
       - name: Slack notification on success
