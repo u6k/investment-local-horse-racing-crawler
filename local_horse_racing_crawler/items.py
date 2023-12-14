@@ -2,7 +2,7 @@ from scrapy import Field, Item
 
 
 class RaceInfoItem(Item):
-    """出馬ページのレース情報
+    """レース情報
     """
     url = Field()
     race_id = Field()
@@ -13,19 +13,18 @@ class RaceInfoItem(Item):
     race_data3 = Field()
 
 
-# class RaceDenmaItem(Item):
-#     """出馬ページのリスト"""
-#     item_type = Field()
-#     race_denma_url = Field()
-#     bracket_number = Field()
-#     horse_number = Field()
-#     horse_url = Field()
-#     jockey_url = Field()
-#     jockey_weight = Field()
-#     trainer_url = Field()
-#     odds_win_favorite = Field()
-#     horse_weight = Field()
-#     horse_weight_diff = Field()
+class RaceBracketItem(Item):
+    """枠情報
+    """
+    url = Field()
+    race_id = Field()
+    bracket_number = Field()
+    horse_number = Field()
+    horse_url = Field()
+    jockey_url = Field()
+    jockey_weight = Field()
+    trainer_url = Field()
+    horse_weight_diff = Field()
 
 
 # class RaceResultItem(Item):
