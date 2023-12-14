@@ -27,24 +27,19 @@ class RaceBracketItem(Item):
     horse_weight_diff = Field()
 
 
-# class HorseItem(Item):
-#     """競走馬ページ"""
-#     item_type = Field()
-#     horse_url = Field()
-#     horse_name = Field()
-#     gender_age = Field()
-#     birthday = Field()
-#     coat_color = Field()
-#     trainer_url = Field()
-#     owner = Field()
-#     breeder = Field()
-#     breeding_farm = Field()
-#     parent_horse_name_1 = Field()
-#     parent_horse_name_2 = Field()
-#     grand_parent_horse_name_1 = Field()
-#     grand_parent_horse_name_2 = Field()
-#     grand_parent_horse_name_3 = Field()
-#     grand_parent_horse_name_4 = Field()
+class HorseItem(Item):
+    """競走馬
+    """
+    url = Field()
+    horse_id = Field()
+    horse_name = Field()
+    gender_coat_color = Field()
+    birthday = Field()
+    owner_url = Field()
+    owner_name = Field()
+    breeder_url = Field()
+    breeder_name = Field()
+    breeding_farm = Field()
 
 
 # class JockeyItem(Item):

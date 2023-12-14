@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 import scrapy
 from scrapy.loader import ItemLoader
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem
+from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem
 
 
 class NetkeibaSpider(scrapy.Spider):
@@ -49,6 +49,10 @@ class NetkeibaSpider(scrapy.Spider):
         elif url.startswith("https://db.netkeiba.com/horse/"):
             self.logger.debug("#_follow: follow horse page")
             return scrapy.Request(url, callback=self.parse_horse, meta=meta)
+
+        elif url.startswith("https://db.netkeiba.com/horse/ped/"):
+            self.logger.debug("#_follow: follow parent_horse page")
+            return scrapy.Request(url, callback=self.parse_parent_horse, meta=meta)
 
         elif url.startswith("https://db.netkeiba.com/jockey/"):
             self.logger.debug("#_follow: follow jockey page")
@@ -249,11 +253,67 @@ class NetkeibaSpider(scrapy.Spider):
         """Parse horse page.
 
         @url https://db.netkeiba.com/horse/2017103463
-        @returns items 0 0
-        @returns requests 0 0
+        @returns items 1 1
+        @returns requests 1 1
         @horse_contract
         """
         self.logger.info(f"#parse_horse: start: response={response.url}")
+
+        parts = [p for p in response.url.split("/") if len(p) > 0]
+        horse_id = parts[-1]
+
+        #
+        self.logger.debug("#parse_horse: parse horse")
+        #
+
+        loader = ItemLoader(item=HorseItem(), response=response)
+        loader.add_value("url", response.url)
+        loader.add_value("horse_id", horse_id)
+        loader.add_xpath("horse_name", "normalize-space(//div[@class='horse_title']/h1/text())")
+        loader.add_xpath("gender_coat_color", "normalize-space(//div[@class='horse_title']/p/text())")
+
+        for tr in response.xpath("//table[contains(@class, 'db_prof_table')]//tr"):
+            if tr.xpath("th/text()").get() == "生年月日":
+                loader.add_value("birthday", tr.xpath("td/text()").get())
+
+            elif tr.xpath("th/text()").get() == "馬主":
+                follow_path = tr.xpath("td/a/@href").get()
+                follow_url = urlparse(response.urljoin(follow_path)).geturl()
+
+                loader.add_value("owner_url", follow_url)
+                loader.add_value("owner_name", tr.xpath("td/a/text()").get())
+
+            elif tr.xpath("th/text()").get() == "生産者":
+                follow_path = tr.xpath("td/a/@href").get()
+                follow_url = urlparse(response.urljoin(follow_path)).geturl()
+
+                loader.add_value("breeder_url", follow_url)
+                loader.add_value("breeder_name", tr.xpath("td/a/text()").get())
+
+            elif tr.xpath("th/text()").get() == "産地":
+                loader.add_value("breeding_farm", tr.xpath("td/text()").get())
+
+        i = loader.load_item()
+
+        self.logger.debug(f"#parse_horse: horse={i}")
+        yield i
+
+        #
+        self.logger.debug("#parse_horse: parse link")
+        #
+
+        follow_url = f"https://db.netkeiba.com/horse/ped/{horse_id}/"
+        yield self._follow(follow_url)
+
+    def parse_parent_horse(self, response):
+        """Parse parent_horse page.
+
+        @url https://db.netkeiba.com/horse/ped/2017103463/
+        @returns items 0 0
+        @returns requests 0 0
+        @parent_horse_contract
+        """
+        self.logger.info(f"#parse_parent_horse: start: response={response.url}")
 
     def parse_jockey(self, response):
         """Parse jockey page.

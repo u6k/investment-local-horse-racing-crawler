@@ -69,6 +69,7 @@ SPIDER_CONTRACTS = {
     "local_horse_racing_crawler.contracts.RaceListContract": 10,
     "local_horse_racing_crawler.contracts.RaceProgramContract": 10,
     "local_horse_racing_crawler.contracts.HorseContract": 10,
+    "local_horse_racing_crawler.contracts.ParentHorseContract": 10,
     "local_horse_racing_crawler.contracts.JockeyContract": 10,
     "local_horse_racing_crawler.contracts.TrainerContract": 10,
     "local_horse_racing_crawler.contracts.OddsWinPlaceContract": 10,

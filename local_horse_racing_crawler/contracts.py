@@ -2,7 +2,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem
+from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem
 
 
 class CalendarContract(Contract):
@@ -130,70 +130,35 @@ class HorseContract(Contract):
     name = "horse_contract"
 
     def post_process(self, output):
+        # Check item
+        items = [o for o in output if isinstance(o, HorseItem)]
+
+        assert len(items) == 1
+
+        i = items[0]
+        assert i["url"] == ["https://db.netkeiba.com/horse/2017103463"]
+        assert i["horse_id"] == ["2017103463"]
+        assert i["horse_name"] == ["ドーロカグラ"]
+        assert i["gender_coat_color"] == ["\u3000牡\u3000黒鹿毛"]
+        assert i["birthday"] == ["2017年5月9日"]
+        assert i["owner_url"] == ["https://db.netkeiba.com/owner/x076d0/"]
+        assert i["owner_name"] == ["曽根正"]
+        assert i["breeder_url"] == ["https://db.netkeiba.com/breeder/704079/"]
+        assert i["breeder_name"] == ["グランド牧場"]
+        assert i["breeding_farm"] == ["新ひだか町"]
+
+        # Check requests
+        requests = [o for o in output if isinstance(o, Request)]
+
+        parent_requests = [r for r in requests if r.url.startswith("https://db.netkeiba.com/horse/ped/")]
+        assert len(parent_requests) == 1
+
+
+class ParentHorseContract(Contract):
+    name = "parent_horse_contract"
+
+    def post_process(self, output):
         pass
-#         # Check item
-#         items = [o for o in output if isinstance(o, HorseItem)]
-
-#         if len(items) != 1:
-#             raise ContractFail("len(HorseItem)")
-
-#         item = items[0]
-
-#         horse_url_re = re.match(r"^https://www\.oddspark\.com/keiba/HorseDetail\.do\?lineageNb=\d+$", item["horse_url"][0])
-#         if not horse_url_re:
-#             raise ContractFail("horse_url")
-
-#         if not item["horse_name"][0]:
-#             raise ContractFail("horse_name")
-
-#         gender_age_re = re.match(r"^\w+｜\d+ 歳$", item["gender_age"][0])
-#         if not gender_age_re:
-#             raise ContractFail("gender_age")
-
-#         birthday_re = re.match(r"^\d{4}年\d{1,2}月\d{1,2}日$", item["birthday"][0])
-#         if not birthday_re:
-#             raise ContractFail("birthday")
-
-#         coat_color_re = re.match(r"^\w+毛$", item["coat_color"][0])
-#         if not coat_color_re:
-#             raise ContractFail("coat_color")
-
-#         trainer_url_re = re.match(r"^/keiba/TrainerDetail\.do\?trainerNb=\d+$", item["trainer_url"][0])
-#         if not trainer_url_re:
-#             raise ContractFail("trainer_url")
-
-#         if not item["owner"][0]:
-#             raise ContractFail("owner")
-
-#         if not item["breeder"][0]:
-#             raise ContractFail("breeder")
-
-#         if not item["breeding_farm"][0]:
-#             raise ContractFail("breeding_farm")
-
-#         if not item["parent_horse_name_1"][0]:
-#             raise ContractFail("parent_horse_name_1")
-
-#         if not item["parent_horse_name_2"][0]:
-#             raise ContractFail("parent_horse_name_2")
-
-#         if not item["grand_parent_horse_name_1"][0]:
-#             raise ContractFail("grand_parent_horse_name_1")
-
-#         if not item["grand_parent_horse_name_2"][0]:
-#             raise ContractFail("grand_parent_horse_name_2")
-
-#         if not item["grand_parent_horse_name_3"][0]:
-#             raise ContractFail("grand_parent_horse_name_3")
-
-#         if not item["grand_parent_horse_name_4"][0]:
-#             raise ContractFail("grand_parent_horse_name_4")
-
-#         # Check request
-#         requests = [o for o in output if isinstance(o, Request)]
-
-#         if len(requests) != 0:
-#             raise ContractFail("len(requests)")
 
 
 class JockeyContract(Contract):
