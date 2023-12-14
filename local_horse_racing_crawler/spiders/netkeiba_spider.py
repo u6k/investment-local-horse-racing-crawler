@@ -38,9 +38,13 @@ class NetkeibaSpider(scrapy.Spider):
             self.logger.debug("#_follow: follow calendar page")
             return scrapy.Request(url, callback=self.parse_calendar, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/top/race_list_sub.html?"):
+        elif url.startswith("https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date="):
             self.logger.debug("#_follow: follow race_list page")
             return scrapy.Request(url, callback=self.parse_race_list, meta=meta)
+
+        elif url.startswith("https://nar.netkeiba.com/race/shutuba.html?race_id="):
+            self.logger.debug("#_follow: follow race_program page")
+            return scrapy.Request(url, callback=self.parse_race_program, meta=meta)
 
         # TODO
         # elif url.startswith("https://race.netkeiba.com/race/result.html?race_id="):
@@ -120,29 +124,39 @@ class NetkeibaSpider(scrapy.Spider):
             if url.hostname == "nar.netkeiba.com" and url.path == "/top/race_list.html" and "kaisai_date" in qs and "kaisai_id" in qs:
                 self.logger.debug(f"#parse_calendar: a={url.geturl()}")
 
-                follow_url = f"https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date={qs['kaisai_date']}&kaisai_id={qs['kaisai_id']}"
+                follow_url = f"https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date={qs['kaisai_date']}"
                 yield self._follow(follow_url)
 
     def parse_race_list(self, response):
         """Parse race_list page.
 
-        @url https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date=20231116&kaisai_id=2023481116
+        @url https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date=20231114
         @returns items 0 0
-        @returns requests 0 0
+        @returns requests 58 58
         @race_list_contract
         """
         self.logger.info(f"#parse_race_list: start: response={response.url}")
 
-    #     # Parse link
-    #     for a in response.xpath("//a"):
-    #         race_result_url = urlparse(response.urljoin(a.xpath("@href").get()))
-    #         race_result_url_qs = parse_qs(race_result_url.query)
+        # Parse link
+        for a in response.xpath("//li[contains(@class, 'RaceList_DataItem')]//a"):
+            url = urlparse(response.urljoin(a.xpath("@href").get()))
+            qs = parse_qs(url.query)
 
-    #         if race_result_url.hostname == "race.netkeiba.com" and race_result_url.path == "/race/result.html" and "race_id" in race_result_url_qs:
-    #             self.logger.debug(f"#parse_race_list: a={race_result_url.geturl()}")
+            if url.hostname == "nar.netkeiba.com" and (url.path == "/race/result.html" or url.path == "/race/shutuba.html") and "race_id" in qs:
+                self.logger.debug(f"#parse_race_list: a={url.geturl()}")
 
-    #             race_result_url = f"https://race.netkeiba.com/race/result.html?race_id={race_result_url_qs['race_id'][0]}"
-    #             yield self._follow(race_result_url)
+                follow_url = f"https://nar.netkeiba.com/race/shutuba.html?race_id={qs['race_id']}"
+                yield self._follow(follow_url)
+
+    def parse_race_program(self, response):
+        """Parse race_program page.
+
+        @url https://nar.netkeiba.com/race/shutuba.html?race_id=202344111410
+        @returns items 0 0
+        @returns requests 0 0
+        @race_program_contract
+        """
+        self.logger.info(f"#parse_race_program: start: response={response.url}")
 
     # TODO
     # def parse_race_result(self, response):

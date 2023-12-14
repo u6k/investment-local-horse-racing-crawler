@@ -67,6 +67,7 @@ HTTPCACHE_GZIP = True
 SPIDER_CONTRACTS = {
     "local_horse_racing_crawler.contracts.CalendarContract": 10,
     "local_horse_racing_crawler.contracts.RaceListContract": 10,
+    "local_horse_racing_crawler.contracts.RaceProgramContract": 10,
     # TODO
     # "local_horse_racing_crawler.contracts.OneDayRaceListContract": 10,
     # "local_horse_racing_crawler.contracts.RaceDenmaContract": 10,

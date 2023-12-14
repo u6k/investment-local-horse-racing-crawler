@@ -13,7 +13,7 @@ class CalendarContract(Contract):
         requests = [o for o in output if isinstance(o, Request)]
 
         for r in requests:
-            if r.url.startswith("https://nar.netkeiba.com/top/race_list_sub.html?"):
+            if r.url.startswith("https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date="):
                 continue
 
             raise ContractFail("unknown url")
@@ -21,6 +21,20 @@ class CalendarContract(Contract):
 
 class RaceListContract(Contract):
     name = "race_list_contract"
+
+    def post_process(self, output):
+        # Check requests
+        requests = [o for o in output if isinstance(o, Request)]
+
+        for r in requests:
+            if r.url.startswith("https://nar.netkeiba.com/race/shutuba.html?race_id="):
+                continue
+
+            raise ContractFail("unknown url")
+
+
+class RaceProgramContract(Contract):
+    name = "race_program_contract"
 
     def post_process(self, output):
         pass
