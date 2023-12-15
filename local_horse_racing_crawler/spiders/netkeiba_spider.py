@@ -140,7 +140,7 @@ class NetkeibaSpider(scrapy.Spider):
 
         @url https://nar.netkeiba.com/race/shutuba.html?race_id=202344111410
         @returns items 17 17
-        @returns requests 55 55
+        @returns requests 85 85
         @race_program_contract
         """
         self.logger.info(f"#parse_race_program: start: response={response.url}")
@@ -169,6 +169,8 @@ class NetkeibaSpider(scrapy.Spider):
         self.logger.debug("#parse_race_program: parse race bracket")
         #
 
+        horse_count = 0
+
         for tr in response.xpath("//table[contains(@class, 'ShutubaTable')]//tr[@class='HorseList']"):
             loader = ItemLoader(item=RaceBracketItem(), selector=tr)
             loader.add_value("url", response.url + "#race_bracket")
@@ -184,6 +186,8 @@ class NetkeibaSpider(scrapy.Spider):
 
             self.logger.debug(f"#parse_race_program: race_bracket={i}")
             yield i
+
+            horse_count += 1
 
         #
         self.logger.debug("#parse_race_program: parse horse/jockey/trainer link")
@@ -233,13 +237,15 @@ class NetkeibaSpider(scrapy.Spider):
         self.logger.debug(f"#parse_race_program: odds_quinella_place link={follow_url}")
         yield self._follow(follow_url)
 
-        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b8&race_id={race_program_qs['race_id']}"
-        self.logger.debug(f"#parse_race_program: odds_trifecta link={follow_url}")
-        yield self._follow(follow_url)
+        for i in range(horse_count):
+            follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b8&race_id={race_program_qs['race_id']}&jiku={i+1}"
+            self.logger.debug(f"#parse_race_program: odds_trifecta link={follow_url}")
+            yield self._follow(follow_url)
 
-        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b7&race_id={race_program_qs['race_id']}"
-        self.logger.debug(f"#parse_race_program: odds_trio link={follow_url}")
-        yield self._follow(follow_url)
+        for i in range(horse_count):
+            follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b7&race_id={race_program_qs['race_id']}&jiku={i+1}"
+            self.logger.debug(f"#parse_race_program: odds_trio link={follow_url}")
+            yield self._follow(follow_url)
 
         #
         self.logger.debug("#parse_race_program: parse race result link")
@@ -597,12 +603,36 @@ class NetkeibaSpider(scrapy.Spider):
     def parse_odds_trifecta(self, response):
         """Parse odds_trifecta page.
 
-        @url https://nar.netkeiba.com/odds/odds_get_form.html?type=b8&race_id=202344111410
-        @returns items 0 0
+        @url https://nar.netkeiba.com/odds/odds_get_form.html?type=b8&race_id=202344111410&jiku=2
+        @returns items 210 210
         @returns requests 0 0
         @odds_trifecta_contract
         """
         self.logger.info(f"#parse_odds_trifecta start: response={response.url}")
+
+        odds_url = urlparse(response.url)
+        odds_qs = parse_qs(odds_url.query)
+
+        horse_number_1 = odds_qs["jiku"]
+
+        for table in response.xpath("//table[@class='Odds_Table']"):
+            horse_number_2 = None
+
+            for tr in table.xpath("tr"):
+                if len(tr.xpath("th")) > 0:
+                    horse_number_2 = tr.xpath("th/text()").get()
+                else:
+                    loader = ItemLoader(item=OddsItem(), selector=tr)
+                    loader.add_value("url", response.url)
+                    loader.add_value("race_id", odds_qs["race_id"])
+                    loader.add_value("horse_number_1", horse_number_1)
+                    loader.add_value("horse_number_2", horse_number_2)
+                    loader.add_xpath("horse_number_3", "normalize-space(string(td[1]))")
+                    loader.add_xpath("odds", "normalize-space(string(td[2]))")
+                    i = loader.load_item()
+
+                    self.logger.debug(f"#parse_odds_trifecta: odds_trifecta={i}")
+                    yield i
 
     def parse_odds_trio(self, response):
         """Parse odds_trio page.
