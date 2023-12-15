@@ -129,59 +129,15 @@ class TrainerItem(Item):
     debut_year = Field()
 
 
-# class OddsWinPlaceItem(Item):
-#     """オッズ(単勝・複勝)ページ"""
-#     item_type = Field()
-#     odds_url = Field()
-#     horse_number = Field()
-#     horse_url = Field()
-#     odds_win = Field()
-#     odds_place = Field()
-
-
-# class OddsQuinellaItem(Item):
-#     """オッズ(馬連)ページ"""
-#     item_type = Field()
-#     odds_url = Field()
-#     horse_number_1 = Field()
-#     horse_number_2 = Field()
-#     odds = Field()
-
-
-# class OddsExactaItem(Item):
-#     """オッズ(馬単)ページ"""
-#     item_type = Field()
-#     odds_url = Field()
-#     horse_number_1 = Field()
-#     horse_number_2 = Field()
-#     odds = Field()
-
-
-# class OddsQuinellaPlaceItem(Item):
-#     """オッズ(ワイド)ページ"""
-#     item_type = Field()
-#     odds_url = Field()
-#     horse_number_1 = Field()
-#     horse_number_2 = Field()
-#     odds_lower = Field()
-#     odds_upper = Field()
-
-
-# class OddsTrioItem(Item):
-#     """オッズ(三連複)ページ"""
-#     item_type = Field()
-#     odds_url = Field()
-#     horse_number_1_2 = Field()
-#     horse_number_3 = Field()
-#     odds = Field()
-
-
-# class OddsTrifectaItem(Item):
-#     """オッズ(三連単)ページ"""
-#     item_type = Field()
-#     odds_url = Field()
-#     horse_number = Field()
-#     odds = Field()
+class OddsItem(Item):
+    """オッズ
+    """
+    url = Field()
+    race_id = Field()
+    horse_number_1 = Field()
+    horse_number_2 = Field()
+    horse_number_3 = Field()
+    odds = Field()
 
 
 class RaceResultItem(Item):

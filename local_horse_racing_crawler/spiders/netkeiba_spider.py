@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 import scrapy
 from scrapy.loader import ItemLoader
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem, JockeyItem, TrainerItem
+from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem, JockeyItem, TrainerItem, OddsItem
 
 
 class NetkeibaSpider(scrapy.Spider):
@@ -447,11 +447,56 @@ class NetkeibaSpider(scrapy.Spider):
         """Parse odds_win_place page.
 
         @url https://nar.netkeiba.com/odds/odds_get_form.html?type=b1&race_id=202344111410
-        @returns items 0 0
+        @returns items 32 32
         @returns requests 0 0
         @odds_win_place_contract
         """
         self.logger.info(f"#parse_odds_win_place: start: response={response.url}")
+
+        odds_url = urlparse(response.url)
+        odds_qs = parse_qs(odds_url.query)
+
+        #
+        self.logger.debug("#parse_odds_win_place: parse odds win")
+        #
+
+        for tr in response.xpath("//div[@id='odds_tan_block']/table/tr"):
+            if len(tr.xpath("td")) == 0:
+                # ヘッダーの場合はスキップ
+                continue
+
+            loader = ItemLoader(item=OddsItem(), selector=tr)
+            loader.add_value("url", response.url + "#win")
+            loader.add_value("race_id", odds_qs["race_id"])
+            loader.add_xpath("horse_number_1", "td[2]/text()")
+            loader.add_value("horse_number_2", "")
+            loader.add_value("horse_number_3", "")
+            loader.add_xpath("odds", "normalize-space(string(td[6]))")
+            i = loader.load_item()
+
+            self.logger.debug(f"#parse_odds_win_place: odds_win={i}")
+            yield i
+
+        #
+        self.logger.debug("#parse_odds_win_place: parse odds place")
+        #
+
+        for tr in response.xpath("//div[@id='odds_fuku_block']/table/tr"):
+            if len(tr.xpath("td")) == 0:
+                # ヘッダーの場合はスキップ
+                continue
+
+            loader = ItemLoader(item=OddsItem(), selector=tr)
+            loader.add_value("url", response.url + "#place")
+            loader.add_value("race_id", odds_qs["race_id"])
+            loader.add_xpath("horse_number_1", "td[2]/text()")
+            loader.add_value("horse_number_2", "")
+            loader.add_value("horse_number_3", "")
+            loader.add_xpath("odds", "normalize-space(string(td[6]))")
+            i = loader.load_item()
+
+            self.logger.debug(f"#parse_odds_win_place: odds_win={i}")
+            yield i
 
     def parse_odds_exacta(self, response):
         """Parse odds_exacta page.
