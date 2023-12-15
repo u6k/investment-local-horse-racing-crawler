@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 import scrapy
 from scrapy.loader import ItemLoader
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem
+from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem, JockeyItem
 
 
 class NetkeibaSpider(scrapy.Spider):
@@ -393,11 +393,28 @@ class NetkeibaSpider(scrapy.Spider):
         """Parse jockey page.
 
         @url https://db.netkeiba.com/jockey/05590
-        @returns items 0 0
+        @returns items 1 1
         @returns requests 0 0
         @jockey_contract
         """
         self.logger.info(f"#parse_jockey: start: response={response.url}")
+
+        parts = [p for p in response.url.split("/") if len(p) > 0]
+        jockey_id = parts[-1]
+
+        loader = ItemLoader(item=JockeyItem(), response=response)
+        loader.add_value("url", response.url)
+        loader.add_value("jockey_id", jockey_id)
+        loader.add_xpath("jockey_name", "normalize-space(string(//div[@class='Name']/h1))")
+
+        for tr in response.xpath("//table[@id='DetailTable']/tbody/tr"):
+            if tr.xpath("th/text()").get() == "デビュー年":
+                loader.add_value("debut_year", tr.xpath("normalize-space(td/text())").get())
+
+        i = loader.load_item()
+
+        self.logger.debug(f"#parse_jockey: jockey={i}")
+        yield i
 
     def parse_trainer(self, response):
         """Parse trainer page.

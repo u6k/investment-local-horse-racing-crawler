@@ -2,7 +2,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem
+from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem, JockeyItem
 
 
 class CalendarContract(Contract):
@@ -234,46 +234,16 @@ class JockeyContract(Contract):
     name = "jockey_contract"
 
     def post_process(self, output):
-        pass
-#         # Check item
-#         items = [o for o in output if isinstance(o, JockeyItem)]
+        # Check item
+        items = [o for o in output if isinstance(o, JockeyItem)]
 
-#         if len(items) != 1:
-#             raise ContractFail("len(JockeyItem)")
+        assert len(items) == 1
 
-#         item = items[0]
-
-#         jockey_url_re = re.match(r"^https://www\.oddspark\.com/keiba/JockeyDetail\.do\?jkyNb=\d+$", item["jockey_url"][0])
-#         if not jockey_url_re:
-#             raise ContractFail("jockey_url")
-
-#         if not item["jockey_name"][0]:
-#             raise ContractFail("jockey_name")
-
-#         birthday_re = re.match(r"^\d{4}年\d{1,2}月\d{1,2}日$", item["birthday"][0])
-#         if not birthday_re:
-#             raise ContractFail("birthday")
-
-#         gender_re = re.match(r"^男|女$", item["gender"][0])
-#         if not gender_re:
-#             raise ContractFail("gender")
-
-#         if not item["belong_to"][0]:
-#             raise ContractFail("belong_to")
-
-#         trainer_url_re = re.match(r"^/keiba/TrainerDetail\.do\?trainerNb=\d+$", item["trainer_url"][0])
-#         if not trainer_url_re:
-#             raise ContractFail("trainer_url")
-
-#         first_licensing_year_re = re.match(r"^\d+年$", item["first_licensing_year"][0])
-#         if not first_licensing_year_re:
-#             raise ContractFail("first_licensing_year")
-
-#         # Check request
-#         requests = [o for o in output if isinstance(o, Request)]
-
-#         if len(requests) != 0:
-#             raise ContractFail("requests is not empty")
+        i = items[0]
+        assert i["url"] == ["https://db.netkeiba.com/jockey/05590"]
+        assert i["jockey_id"] == ["05590"]
+        assert i["jockey_name"] == ["藤本現暉\xa0 (フジモトゲンキ)"]
+        assert i["debut_year"] == ["2015年(9年目)"]
 
 
 class TrainerContract(Contract):

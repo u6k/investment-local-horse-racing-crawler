@@ -111,16 +111,13 @@ class ParentHorseItem(Item):
     parent_horse_url_f_f_f_f_f = Field()
 
 
-# class JockeyItem(Item):
-#     """騎手ページ"""
-#     item_type = Field()
-#     jockey_url = Field()
-#     jockey_name = Field()
-#     birthday = Field()
-#     gender = Field()
-#     belong_to = Field()
-#     trainer_url = Field()
-#     first_licensing_year = Field()
+class JockeyItem(Item):
+    """騎手
+    """
+    url = Field()
+    jockey_id = Field()
+    jockey_name = Field()
+    debut_year = Field()
 
 
 # class TrainerItem(Item):
