@@ -637,12 +637,36 @@ class NetkeibaSpider(scrapy.Spider):
     def parse_odds_trio(self, response):
         """Parse odds_trio page.
 
-        @url https://nar.netkeiba.com/odds/odds_get_form.html?type=b7&race_id=202344111410
-        @returns items 0 0
+        @url https://nar.netkeiba.com/odds/odds_get_form.html?type=b7&race_id=202344111410&jiku=3
+        @returns items 105 105
         @returns requests 0 0
         @odds_trio_contract
         """
         self.logger.info(f"#parse_odds_trio start: response={response.url}")
+
+        odds_url = urlparse(response.url)
+        odds_qs = parse_qs(odds_url.query)
+
+        horse_number_1 = odds_qs["jiku"]
+
+        for table in response.xpath("//table[@class='Odds_Table']"):
+            horse_number_2 = None
+
+            for tr in table.xpath("tr"):
+                if len(tr.xpath("th")) > 0:
+                    horse_number_2 = tr.xpath("th/text()").get()
+                else:
+                    loader = ItemLoader(item=OddsItem(), selector=tr)
+                    loader.add_value("url", response.url)
+                    loader.add_value("race_id", odds_qs["race_id"])
+                    loader.add_value("horse_number_1", horse_number_1)
+                    loader.add_value("horse_number_2", horse_number_2)
+                    loader.add_xpath("horse_number_3", "normalize-space(string(td[1]))")
+                    loader.add_xpath("odds", "normalize-space(string(td[2]))")
+                    i = loader.load_item()
+
+                    self.logger.debug(f"#parse_odds_trio@: odds_trifecta={i}")
+                    yield i
 
     def parse_race_result(self, response):
         """Parse race_result page.
