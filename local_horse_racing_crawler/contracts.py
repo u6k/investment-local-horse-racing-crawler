@@ -2,7 +2,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem, JockeyItem
+from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem, JockeyItem, TrainerItem
 
 
 class CalendarContract(Contract):
@@ -250,38 +250,16 @@ class TrainerContract(Contract):
     name = "trainer_contract"
 
     def post_process(self, output):
-        pass
-#         # Check item
-#         items = [o for o in output if isinstance(o, TrainerItem)]
+        # Check item
+        items = [o for o in output if isinstance(o, TrainerItem)]
 
-#         if len(items) != 1:
-#             raise ContractFail("len(TrainerItem)")
+        assert len(items) == 1
 
-#         item = items[0]
-
-#         trainer_url_re = re.match(r"https://www\.oddspark\.com/keiba/TrainerDetail\.do\?trainerNb=\d+$", item["trainer_url"][0])
-#         if not trainer_url_re:
-#             raise ContractFail("trainer_url")
-
-#         if not item["trainer_name"][0]:
-#             raise ContractFail("trainer_name")
-
-#         birthday_re = re.match(r"^\d{4}年\d{1,2}月\d{1,2}日$", item["birthday"][0])
-#         if not birthday_re:
-#             raise ContractFail("birthday")
-
-#         gender_re = re.match(r"^男|女$", item["gender"][0])
-#         if not gender_re:
-#             raise ContractFail("gender")
-
-#         if not item["belong_to"][0]:
-#             raise ContractFail("belong_to")
-
-#         # Check request
-#         requests = [o for o in output if isinstance(o, Request)]
-
-#         if len(requests) != 0:
-#             raise ContractFail("requests is not empty")
+        i = items[0]
+        assert i["url"] == ["https://db.netkeiba.com/trainer/05655"]
+        assert i["trainer_id"] == ["05655"]
+        assert i["trainer_name"] == ["蛯名雄太\xa0 (エビナユウタ)"]
+        assert i["debut_year"] == ["2010年(14年目)"]
 
 
 class OddsWinPlaceContract(Contract):

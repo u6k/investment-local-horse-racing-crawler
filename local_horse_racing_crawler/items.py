@@ -120,14 +120,13 @@ class JockeyItem(Item):
     debut_year = Field()
 
 
-# class TrainerItem(Item):
-#     """調教師ページ"""
-#     item_type = Field()
-#     trainer_url = Field()
-#     trainer_name = Field()
-#     birthday = Field()
-#     gender = Field()
-#     belong_to = Field()
+class TrainerItem(Item):
+    """調教師
+    """
+    url = Field()
+    trainer_id = Field()
+    trainer_name = Field()
+    debut_year = Field()
 
 
 # class OddsWinPlaceItem(Item):
