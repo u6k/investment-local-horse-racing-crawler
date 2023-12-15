@@ -495,18 +495,40 @@ class NetkeibaSpider(scrapy.Spider):
             loader.add_xpath("odds", "normalize-space(string(td[6]))")
             i = loader.load_item()
 
-            self.logger.debug(f"#parse_odds_win_place: odds_win={i}")
+            self.logger.debug(f"#parse_odds_win_place: odds_place={i}")
             yield i
 
     def parse_odds_exacta(self, response):
         """Parse odds_exacta page.
 
         @url https://nar.netkeiba.com/odds/odds_get_form.html?type=b6&race_id=202344111410
-        @returns items 0 0
+        @returns items 240 240
         @returns requests 0 0
         @odds_exacta_contract
         """
         self.logger.info(f"#parse_odds_exacta: start: response={response.url}")
+
+        odds_url = urlparse(response.url)
+        odds_qs = parse_qs(odds_url.query)
+
+        for table in response.xpath("//table[@class='Odds_Table']"):
+            horse_number_1 = None
+
+            for tr in table.xpath("tr"):
+                if len(tr.xpath("th")) > 0:
+                    horse_number_1 = tr.xpath("th/text()").get()
+                else:
+                    loader = ItemLoader(item=OddsItem(), selector=tr)
+                    loader.add_value("url", response.url)
+                    loader.add_value("race_id", odds_qs["race_id"])
+                    loader.add_value("horse_number_1", horse_number_1)
+                    loader.add_xpath("horse_number_2", "normalize-space(string(td[1]))")
+                    loader.add_value("horse_number_3", "")
+                    loader.add_xpath("odds", "normalize-space(string(td[2]))")
+                    i = loader.load_item()
+
+                    self.logger.debug(f"#parse_odds_exacta: odds_exacta={i}")
+                    yield i
 
     def parse_odds_quinella(self, response):
         """Parse odds_quinella page.
