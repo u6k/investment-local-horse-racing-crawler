@@ -2,7 +2,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem
+from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem
 
 
 class CalendarContract(Contract):
@@ -158,7 +158,76 @@ class ParentHorseContract(Contract):
     name = "parent_horse_contract"
 
     def post_process(self, output):
-        pass
+        # Check item
+        items = [o for o in output if isinstance(o, ParentHorseItem)]
+
+        assert len(items) == 1
+
+        i = items[0]
+        assert i["url"] == ["https://db.netkeiba.com/horse/ped/2017103463/"]
+        assert i["horse_id"] == ["2017103463"]
+        assert i["parent_horse_url_m"] == ["/horse/2009110009/"]
+        assert i["parent_horse_url_f"] == ["/horse/2011101929/"]
+        assert i["parent_horse_url_m_m"] == ["/horse/000a010a65/"]
+        assert i["parent_horse_url_m_f"] == ["/horse/1997102034/"]
+        assert i["parent_horse_url_f_m"] == ["/horse/2007110008/"]
+        assert i["parent_horse_url_f_f"] == ["/horse/1999100314/"]
+        assert i["parent_horse_url_m_m_m"] == ["/horse/000a001fb5/"]
+        assert i["parent_horse_url_m_m_f"] == ["/horse/000a010a72/"]
+        assert i["parent_horse_url_m_f_m"] == ["/horse/000a000013/"]
+        assert i["parent_horse_url_m_f_f"] == ["/horse/1989107125/"]
+        assert i["parent_horse_url_f_m_m"] == ["/horse/000a010dc8/"]
+        assert i["parent_horse_url_f_m_f"] == ["/horse/1999100306/"]
+        assert i["parent_horse_url_f_f_m"] == ["/horse/1988109110/"]
+        assert i["parent_horse_url_f_f_f"] == ["/horse/000a0061c1/"]
+        assert i["parent_horse_url_m_m_m_m"] == ["/horse/000a00185d/"]
+        assert i["parent_horse_url_m_m_m_f"] == ["/horse/000a00940f/"]
+        assert i["parent_horse_url_m_m_f_m"] == ["/horse/000a001907/"]
+        assert i["parent_horse_url_m_m_f_f"] == ["/horse/000a010a71/"]
+        assert i["parent_horse_url_m_f_m_m"] == ["/horse/000a001607/"]
+        assert i["parent_horse_url_m_f_m_f"] == ["/horse/000a009232/"]
+        assert i["parent_horse_url_m_f_f_m"] == ["/horse/000a0016eb/"]
+        assert i["parent_horse_url_m_f_f_f"] == ["/horse/000a0002c5/"]
+        assert i["parent_horse_url_f_m_m_m"] == ["/horse/000a010a96/"]
+        assert i["parent_horse_url_f_m_m_f"] == ["/horse/000a010e19/"]
+        assert i["parent_horse_url_f_m_f_m"] == ["/horse/1985109002/"]
+        assert i["parent_horse_url_f_m_f_f"] == ["/horse/1984100409/"]
+        assert i["parent_horse_url_f_f_m_m"] == ["/horse/000a0017b0/"]
+        assert i["parent_horse_url_f_f_m_f"] == ["/horse/000a00977a/"]
+        assert i["parent_horse_url_f_f_f_m"] == ["/horse/000a0010fa/"]
+        assert i["parent_horse_url_f_f_f_f"] == ["/horse/000a00890e/"]
+        assert i["parent_horse_url_m_m_m_m_m"] == ["/horse/000a000e04/"]
+        assert i["parent_horse_url_m_m_m_m_f"] == ["/horse/000a008892/"]
+        assert i["parent_horse_url_m_m_m_f_m"] == ["/horse/000a000dd9/"]
+        assert i["parent_horse_url_m_m_m_f_f"] == ["/horse/000a0081b6/"]
+        assert i["parent_horse_url_m_m_f_m_m"] == ["/horse/000a0010a8/"]
+        assert i["parent_horse_url_m_m_f_m_f"] == ["/horse/000a008740/"]
+        assert i["parent_horse_url_m_m_f_f_m"] == ["/horse/000a000ddb/"]
+        assert i["parent_horse_url_m_m_f_f_f"] == ["/horse/000a00ad62/"]
+        assert i["parent_horse_url_m_f_m_m_m"] == ["/horse/000a000e46/"]
+        assert i["parent_horse_url_m_f_m_m_f"] == ["/horse/000a007e0c/"]
+        assert i["parent_horse_url_m_f_m_f_m"] == ["/horse/000a001bd8/"]
+        assert i["parent_horse_url_m_f_m_f_f"] == ["/horse/000a009231/"]
+        assert i["parent_horse_url_m_f_f_m_m"] == ["/horse/000a000dfe/"]
+        assert i["parent_horse_url_m_f_f_m_f"] == ["/horse/000a0083a6/"]
+        assert i["parent_horse_url_m_f_f_f_m"] == ["/horse/000a001343/"]
+        assert i["parent_horse_url_m_f_f_f_f"] == ["/horse/000a0084ec/"]
+        assert i["parent_horse_url_f_m_m_m_m"] == ["/horse/000a000013/"]
+        assert i["parent_horse_url_f_m_m_m_f"] == ["/horse/000a010ab2/"]
+        assert i["parent_horse_url_f_m_m_f_m"] == ["/horse/1986109000/"]
+        assert i["parent_horse_url_f_m_m_f_f"] == ["/horse/000a010e18/"]
+        assert i["parent_horse_url_f_m_f_m_m"] == ["/horse/000a00193a/"]
+        assert i["parent_horse_url_f_m_f_m_f"] == ["/horse/000a008d39/"]
+        assert i["parent_horse_url_f_m_f_f_m"] == ["/horse/000a0003f6/"]
+        assert i["parent_horse_url_f_m_f_f_f"] == ["/horse/1955105352/"]
+        assert i["parent_horse_url_f_f_m_m_m"] == ["/horse/000a001607/"]
+        assert i["parent_horse_url_f_f_m_m_f"] == ["/horse/000a0081ee/"]
+        assert i["parent_horse_url_f_f_m_f_m"] == ["/horse/000a000de7/"]
+        assert i["parent_horse_url_f_f_m_f_f"] == ["/horse/000a009779/"]
+        assert i["parent_horse_url_f_f_f_m_m"] == ["/horse/000a000e94/"]
+        assert i["parent_horse_url_f_f_f_m_f"] == ["/horse/000a007cd4/"]
+        assert i["parent_horse_url_f_f_f_f_m"] == ["/horse/000a000407/"]
+        assert i["parent_horse_url_f_f_f_f_f"] == ["/horse/000a007237/"]
 
 
 class JockeyContract(Contract):
