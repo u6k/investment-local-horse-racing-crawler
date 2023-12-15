@@ -398,35 +398,66 @@ class OddsQuinellaContract(Contract):
     name = "odds_quinella_contract"
 
     def post_process(self, output):
-        pass
-#         # Check item - OddsQuinellaItem
-#         items = [o for o in output if isinstance(o, OddsQuinellaItem)]
+        # Check item
+        items = [o for o in output if isinstance(o, OddsItem)]
 
-#         if len(items) <= 1:
-#             raise ContractFail("len(OddsQuinellaItem)")
+        assert len(items) == 120
 
-#         for item in items:
-#             odds_url_re = re.match(r"^https://www\.oddspark\.com/keiba/Odds\.do\?.*betType=6.*$", item["odds_url"][0])
-#             if not odds_url_re:
-#                 raise ContractFail("odds_url")
+        i = items[0]
+        assert i["url"] == ["https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id=202344111410"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["horse_number_1"] == ["1"]
+        assert i["horse_number_2"] == ["2"]
+        assert i["horse_number_3"] == [""]
+        assert i["odds"] == ["461.2"]
 
-#             horse_number_1_re = re.match(r"^\d+$", item["horse_number_1"][0])
-#             if not horse_number_1_re:
-#                 raise ContractFail("horse_number_1")
+        i = items[1]
+        assert i["url"] == ["https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id=202344111410"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["horse_number_1"] == ["1"]
+        assert i["horse_number_2"] == ["3"]
+        assert i["horse_number_3"] == [""]
+        assert i["odds"] == ["145.3"]
 
-#             horse_number_2_re = re.match(r"^\d+$", item["horse_number_2"][0])
-#             if not horse_number_2_re:
-#                 raise ContractFail("horse_number_2")
+        i = items[14]
+        assert i["url"] == ["https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id=202344111410"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["horse_number_1"] == ["1"]
+        assert i["horse_number_2"] == ["16"]
+        assert i["horse_number_3"] == [""]
+        assert i["odds"] == ["437.0"]
 
-#             odds_re = re.match(r"^\d+\.\d+$", item["odds"][0])
-#             if not odds_re:
-#                 raise ContractFail("odds")
+        i = items[15]
+        assert i["url"] == ["https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id=202344111410"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["horse_number_1"] == ["2"]
+        assert i["horse_number_2"] == ["3"]
+        assert i["horse_number_3"] == [""]
+        assert i["odds"] == ["348.8"]
 
-#         # Check request
-#         requests = [o for o in output if isinstance(o, Request)]
+        i = items[104]
+        assert i["url"] == ["https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id=202344111410"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["horse_number_1"] == ["10"]
+        assert i["horse_number_2"] == ["16"]
+        assert i["horse_number_3"] == [""]
+        assert i["odds"] == ["4046.1"]
 
-#         if len(requests) != 0:
-#             raise ContractFail("len(Request)")
+        i = items[105]
+        assert i["url"] == ["https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id=202344111410"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["horse_number_1"] == ["11"]
+        assert i["horse_number_2"] == ["12"]
+        assert i["horse_number_3"] == [""]
+        assert i["odds"] == ["4.4"]
+
+        i = items[119]
+        assert i["url"] == ["https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id=202344111410"]
+        assert i["race_id"] == ["202344111410"]
+        assert i["horse_number_1"] == ["15"]
+        assert i["horse_number_2"] == ["16"]
+        assert i["horse_number_3"] == [""]
+        assert i["odds"] == ["1430.4"]
 
 
 class OddsQuinellaPlaceContract(Contract):
