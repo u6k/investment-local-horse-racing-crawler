@@ -1,5 +1,6 @@
+import re
+
 from scrapy.contracts import Contract
-from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
 from local_horse_racing_crawler.items import HorseItem, JockeyItem, OddsItem, ParentHorseItem, RaceBracketItem, RaceCornerPassingOrderItem, RaceInfoItem, RaceLaptimeItem, RacePayoffItem, RaceResultItem, TrainerItem
@@ -12,11 +13,10 @@ class CalendarContract(Contract):
         # Check requests
         requests = [o for o in output if isinstance(o, Request)]
 
-        for r in requests:
-            if r.url.startswith("https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date="):
-                continue
+        race_list_url_re = re.compile(r"^https:\/\/nar\.netkeiba\.com\/top\/race_list_sub\.html\?kaisai_date=[0-9]{8}$")
+        race_list_requests = [r for r in requests if race_list_url_re.fullmatch(r.url) is not None]
 
-            raise ContractFail("unknown url")
+        assert len(race_list_requests) == 112
 
 
 class RaceListContract(Contract):
@@ -26,11 +26,10 @@ class RaceListContract(Contract):
         # Check requests
         requests = [o for o in output if isinstance(o, Request)]
 
-        for r in requests:
-            if r.url.startswith("https://nar.netkeiba.com/race/shutuba.html?race_id="):
-                continue
+        race_shutuba_url_re = re.compile(r"^https:\/\/nar\.netkeiba\.com\/race\/shutuba\.html\?race_id=[0-9]+$")
+        race_shutuba_requests = [r for r in requests if race_shutuba_url_re.fullmatch(r.url) is not None]
 
-            raise ContractFail("unknown url")
+        assert len(race_shutuba_requests) == 58
 
 
 class RaceProgramContract(Contract):
@@ -110,19 +109,28 @@ class RaceProgramContract(Contract):
 
         requests = [o for o in output if isinstance(o, Request)]
 
-        horse_requests = [r for r in requests if r.url.startswith("https://db.netkeiba.com/horse/")]
+        horse_url_re = re.compile(r"^https:\/\/db\.netkeiba\.com\/horse\/[a-z0-9]+\/?$")
+        horse_requests = [r for r in requests if horse_url_re.fullmatch(r.url) is not None]
+
         assert len(horse_requests) == 16
 
-        jockey_requests = [r for r in requests if r.url.startswith("https://db.netkeiba.com/jockey/")]
+        jockey_url_re = re.compile(r"^https:\/\/db\.netkeiba\.com\/jockey/[a-z0-9]+\/?$")
+        jockey_requests = [r for r in requests if jockey_url_re.fullmatch(r.url) is not None]
+
         assert len(jockey_requests) == 16
 
-        trainer_requests = [r for r in requests if r.url.startswith("https://db.netkeiba.com/trainer/")]
+        trainer_url_re = re.compile(r"^https:\/\/db\.netkeiba\.com\/trainer\/[a-z0-9]+\/?$")
+        trainer_requests = [r for r in requests if trainer_url_re.fullmatch(r.url) is not None]
+
         assert len(trainer_requests) == 16
 
-        odds_requests = [r for r in requests if r.url.startswith("https://nar.netkeiba.com/odds/odds_get_form.html?")]
+        odds_url_re = re.compile(r"^https:\/\/nar\.netkeiba\.com\/odds\/odds_get_form.html\?type=b[0-9]&race_id=[0-9]+(&jiku=[0-9]+)?$")
+        odds_requests = [r for r in requests if odds_url_re.fullmatch(r.url) is not None]
         assert len(odds_requests) == 36
 
-        result_requests = [r for r in requests if r.url.startswith("https://nar.netkeiba.com/race/result.html?race_id=")]
+        result_url_re = re.compile(r"^https:\/\/nar\.netkeiba\.com\/race\/result\.html\?race_id=[0-9]+$")
+        result_requests = [r for r in requests if result_url_re.fullmatch(r.url)]
+
         assert len(result_requests) == 1
 
 
@@ -150,7 +158,9 @@ class HorseContract(Contract):
         # Check requests
         requests = [o for o in output if isinstance(o, Request)]
 
-        parent_requests = [r for r in requests if r.url.startswith("https://db.netkeiba.com/horse/ped/")]
+        parent_horse_url_re = re.compile(r"^https:\/\/db\.netkeiba\.com\/horse\/ped\/[a-z0-9]+\/?$")
+        parent_requests = [r for r in requests if parent_horse_url_re.fullmatch(r.url) is not None]
+
         assert len(parent_requests) == 1
 
 
@@ -166,68 +176,76 @@ class ParentHorseContract(Contract):
         i = items[0]
         assert i["url"] == ["https://db.netkeiba.com/horse/ped/2017103463/"]
         assert i["horse_id"] == ["2017103463"]
-        assert i["parent_horse_url_m"] == ["/horse/2009110009/"]
-        assert i["parent_horse_url_f"] == ["/horse/2011101929/"]
-        assert i["parent_horse_url_m_m"] == ["/horse/000a010a65/"]
-        assert i["parent_horse_url_m_f"] == ["/horse/1997102034/"]
-        assert i["parent_horse_url_f_m"] == ["/horse/2007110008/"]
-        assert i["parent_horse_url_f_f"] == ["/horse/1999100314/"]
-        assert i["parent_horse_url_m_m_m"] == ["/horse/000a001fb5/"]
-        assert i["parent_horse_url_m_m_f"] == ["/horse/000a010a72/"]
-        assert i["parent_horse_url_m_f_m"] == ["/horse/000a000013/"]
-        assert i["parent_horse_url_m_f_f"] == ["/horse/1989107125/"]
-        assert i["parent_horse_url_f_m_m"] == ["/horse/000a010dc8/"]
-        assert i["parent_horse_url_f_m_f"] == ["/horse/1999100306/"]
-        assert i["parent_horse_url_f_f_m"] == ["/horse/1988109110/"]
-        assert i["parent_horse_url_f_f_f"] == ["/horse/000a0061c1/"]
-        assert i["parent_horse_url_m_m_m_m"] == ["/horse/000a00185d/"]
-        assert i["parent_horse_url_m_m_m_f"] == ["/horse/000a00940f/"]
-        assert i["parent_horse_url_m_m_f_m"] == ["/horse/000a001907/"]
-        assert i["parent_horse_url_m_m_f_f"] == ["/horse/000a010a71/"]
-        assert i["parent_horse_url_m_f_m_m"] == ["/horse/000a001607/"]
-        assert i["parent_horse_url_m_f_m_f"] == ["/horse/000a009232/"]
-        assert i["parent_horse_url_m_f_f_m"] == ["/horse/000a0016eb/"]
-        assert i["parent_horse_url_m_f_f_f"] == ["/horse/000a0002c5/"]
-        assert i["parent_horse_url_f_m_m_m"] == ["/horse/000a010a96/"]
-        assert i["parent_horse_url_f_m_m_f"] == ["/horse/000a010e19/"]
-        assert i["parent_horse_url_f_m_f_m"] == ["/horse/1985109002/"]
-        assert i["parent_horse_url_f_m_f_f"] == ["/horse/1984100409/"]
-        assert i["parent_horse_url_f_f_m_m"] == ["/horse/000a0017b0/"]
-        assert i["parent_horse_url_f_f_m_f"] == ["/horse/000a00977a/"]
-        assert i["parent_horse_url_f_f_f_m"] == ["/horse/000a0010fa/"]
-        assert i["parent_horse_url_f_f_f_f"] == ["/horse/000a00890e/"]
-        assert i["parent_horse_url_m_m_m_m_m"] == ["/horse/000a000e04/"]
-        assert i["parent_horse_url_m_m_m_m_f"] == ["/horse/000a008892/"]
-        assert i["parent_horse_url_m_m_m_f_m"] == ["/horse/000a000dd9/"]
-        assert i["parent_horse_url_m_m_m_f_f"] == ["/horse/000a0081b6/"]
-        assert i["parent_horse_url_m_m_f_m_m"] == ["/horse/000a0010a8/"]
-        assert i["parent_horse_url_m_m_f_m_f"] == ["/horse/000a008740/"]
-        assert i["parent_horse_url_m_m_f_f_m"] == ["/horse/000a000ddb/"]
-        assert i["parent_horse_url_m_m_f_f_f"] == ["/horse/000a00ad62/"]
-        assert i["parent_horse_url_m_f_m_m_m"] == ["/horse/000a000e46/"]
-        assert i["parent_horse_url_m_f_m_m_f"] == ["/horse/000a007e0c/"]
-        assert i["parent_horse_url_m_f_m_f_m"] == ["/horse/000a001bd8/"]
-        assert i["parent_horse_url_m_f_m_f_f"] == ["/horse/000a009231/"]
-        assert i["parent_horse_url_m_f_f_m_m"] == ["/horse/000a000dfe/"]
-        assert i["parent_horse_url_m_f_f_m_f"] == ["/horse/000a0083a6/"]
-        assert i["parent_horse_url_m_f_f_f_m"] == ["/horse/000a001343/"]
-        assert i["parent_horse_url_m_f_f_f_f"] == ["/horse/000a0084ec/"]
-        assert i["parent_horse_url_f_m_m_m_m"] == ["/horse/000a000013/"]
-        assert i["parent_horse_url_f_m_m_m_f"] == ["/horse/000a010ab2/"]
-        assert i["parent_horse_url_f_m_m_f_m"] == ["/horse/1986109000/"]
-        assert i["parent_horse_url_f_m_m_f_f"] == ["/horse/000a010e18/"]
-        assert i["parent_horse_url_f_m_f_m_m"] == ["/horse/000a00193a/"]
-        assert i["parent_horse_url_f_m_f_m_f"] == ["/horse/000a008d39/"]
-        assert i["parent_horse_url_f_m_f_f_m"] == ["/horse/000a0003f6/"]
-        assert i["parent_horse_url_f_m_f_f_f"] == ["/horse/1955105352/"]
-        assert i["parent_horse_url_f_f_m_m_m"] == ["/horse/000a001607/"]
-        assert i["parent_horse_url_f_f_m_m_f"] == ["/horse/000a0081ee/"]
-        assert i["parent_horse_url_f_f_m_f_m"] == ["/horse/000a000de7/"]
-        assert i["parent_horse_url_f_f_m_f_f"] == ["/horse/000a009779/"]
-        assert i["parent_horse_url_f_f_f_m_m"] == ["/horse/000a000e94/"]
-        assert i["parent_horse_url_f_f_f_m_f"] == ["/horse/000a007cd4/"]
-        assert i["parent_horse_url_f_f_f_f_m"] == ["/horse/000a000407/"]
-        assert i["parent_horse_url_f_f_f_f_f"] == ["/horse/000a007237/"]
+        assert i["parent_horse_url_m"] == ["https://db.netkeiba.com/horse/2009110009/"]
+        assert i["parent_horse_url_f"] == ["https://db.netkeiba.com/horse/2011101929/"]
+        assert i["parent_horse_url_m_m"] == ["https://db.netkeiba.com/horse/000a010a65/"]
+        assert i["parent_horse_url_m_f"] == ["https://db.netkeiba.com/horse/1997102034/"]
+        assert i["parent_horse_url_f_m"] == ["https://db.netkeiba.com/horse/2007110008/"]
+        assert i["parent_horse_url_f_f"] == ["https://db.netkeiba.com/horse/1999100314/"]
+        assert i["parent_horse_url_m_m_m"] == ["https://db.netkeiba.com/horse/000a001fb5/"]
+        assert i["parent_horse_url_m_m_f"] == ["https://db.netkeiba.com/horse/000a010a72/"]
+        assert i["parent_horse_url_m_f_m"] == ["https://db.netkeiba.com/horse/000a000013/"]
+        assert i["parent_horse_url_m_f_f"] == ["https://db.netkeiba.com/horse/1989107125/"]
+        assert i["parent_horse_url_f_m_m"] == ["https://db.netkeiba.com/horse/000a010dc8/"]
+        assert i["parent_horse_url_f_m_f"] == ["https://db.netkeiba.com/horse/1999100306/"]
+        assert i["parent_horse_url_f_f_m"] == ["https://db.netkeiba.com/horse/1988109110/"]
+        assert i["parent_horse_url_f_f_f"] == ["https://db.netkeiba.com/horse/000a0061c1/"]
+        assert i["parent_horse_url_m_m_m_m"] == ["https://db.netkeiba.com/horse/000a00185d/"]
+        assert i["parent_horse_url_m_m_m_f"] == ["https://db.netkeiba.com/horse/000a00940f/"]
+        assert i["parent_horse_url_m_m_f_m"] == ["https://db.netkeiba.com/horse/000a001907/"]
+        assert i["parent_horse_url_m_m_f_f"] == ["https://db.netkeiba.com/horse/000a010a71/"]
+        assert i["parent_horse_url_m_f_m_m"] == ["https://db.netkeiba.com/horse/000a001607/"]
+        assert i["parent_horse_url_m_f_m_f"] == ["https://db.netkeiba.com/horse/000a009232/"]
+        assert i["parent_horse_url_m_f_f_m"] == ["https://db.netkeiba.com/horse/000a0016eb/"]
+        assert i["parent_horse_url_m_f_f_f"] == ["https://db.netkeiba.com/horse/000a0002c5/"]
+        assert i["parent_horse_url_f_m_m_m"] == ["https://db.netkeiba.com/horse/000a010a96/"]
+        assert i["parent_horse_url_f_m_m_f"] == ["https://db.netkeiba.com/horse/000a010e19/"]
+        assert i["parent_horse_url_f_m_f_m"] == ["https://db.netkeiba.com/horse/1985109002/"]
+        assert i["parent_horse_url_f_m_f_f"] == ["https://db.netkeiba.com/horse/1984100409/"]
+        assert i["parent_horse_url_f_f_m_m"] == ["https://db.netkeiba.com/horse/000a0017b0/"]
+        assert i["parent_horse_url_f_f_m_f"] == ["https://db.netkeiba.com/horse/000a00977a/"]
+        assert i["parent_horse_url_f_f_f_m"] == ["https://db.netkeiba.com/horse/000a0010fa/"]
+        assert i["parent_horse_url_f_f_f_f"] == ["https://db.netkeiba.com/horse/000a00890e/"]
+        assert i["parent_horse_url_m_m_m_m_m"] == ["https://db.netkeiba.com/horse/000a000e04/"]
+        assert i["parent_horse_url_m_m_m_m_f"] == ["https://db.netkeiba.com/horse/000a008892/"]
+        assert i["parent_horse_url_m_m_m_f_m"] == ["https://db.netkeiba.com/horse/000a000dd9/"]
+        assert i["parent_horse_url_m_m_m_f_f"] == ["https://db.netkeiba.com/horse/000a0081b6/"]
+        assert i["parent_horse_url_m_m_f_m_m"] == ["https://db.netkeiba.com/horse/000a0010a8/"]
+        assert i["parent_horse_url_m_m_f_m_f"] == ["https://db.netkeiba.com/horse/000a008740/"]
+        assert i["parent_horse_url_m_m_f_f_m"] == ["https://db.netkeiba.com/horse/000a000ddb/"]
+        assert i["parent_horse_url_m_m_f_f_f"] == ["https://db.netkeiba.com/horse/000a00ad62/"]
+        assert i["parent_horse_url_m_f_m_m_m"] == ["https://db.netkeiba.com/horse/000a000e46/"]
+        assert i["parent_horse_url_m_f_m_m_f"] == ["https://db.netkeiba.com/horse/000a007e0c/"]
+        assert i["parent_horse_url_m_f_m_f_m"] == ["https://db.netkeiba.com/horse/000a001bd8/"]
+        assert i["parent_horse_url_m_f_m_f_f"] == ["https://db.netkeiba.com/horse/000a009231/"]
+        assert i["parent_horse_url_m_f_f_m_m"] == ["https://db.netkeiba.com/horse/000a000dfe/"]
+        assert i["parent_horse_url_m_f_f_m_f"] == ["https://db.netkeiba.com/horse/000a0083a6/"]
+        assert i["parent_horse_url_m_f_f_f_m"] == ["https://db.netkeiba.com/horse/000a001343/"]
+        assert i["parent_horse_url_m_f_f_f_f"] == ["https://db.netkeiba.com/horse/000a0084ec/"]
+        assert i["parent_horse_url_f_m_m_m_m"] == ["https://db.netkeiba.com/horse/000a000013/"]
+        assert i["parent_horse_url_f_m_m_m_f"] == ["https://db.netkeiba.com/horse/000a010ab2/"]
+        assert i["parent_horse_url_f_m_m_f_m"] == ["https://db.netkeiba.com/horse/1986109000/"]
+        assert i["parent_horse_url_f_m_m_f_f"] == ["https://db.netkeiba.com/horse/000a010e18/"]
+        assert i["parent_horse_url_f_m_f_m_m"] == ["https://db.netkeiba.com/horse/000a00193a/"]
+        assert i["parent_horse_url_f_m_f_m_f"] == ["https://db.netkeiba.com/horse/000a008d39/"]
+        assert i["parent_horse_url_f_m_f_f_m"] == ["https://db.netkeiba.com/horse/000a0003f6/"]
+        assert i["parent_horse_url_f_m_f_f_f"] == ["https://db.netkeiba.com/horse/1955105352/"]
+        assert i["parent_horse_url_f_f_m_m_m"] == ["https://db.netkeiba.com/horse/000a001607/"]
+        assert i["parent_horse_url_f_f_m_m_f"] == ["https://db.netkeiba.com/horse/000a0081ee/"]
+        assert i["parent_horse_url_f_f_m_f_m"] == ["https://db.netkeiba.com/horse/000a000de7/"]
+        assert i["parent_horse_url_f_f_m_f_f"] == ["https://db.netkeiba.com/horse/000a009779/"]
+        assert i["parent_horse_url_f_f_f_m_m"] == ["https://db.netkeiba.com/horse/000a000e94/"]
+        assert i["parent_horse_url_f_f_f_m_f"] == ["https://db.netkeiba.com/horse/000a007cd4/"]
+        assert i["parent_horse_url_f_f_f_f_m"] == ["https://db.netkeiba.com/horse/000a000407/"]
+        assert i["parent_horse_url_f_f_f_f_f"] == ["https://db.netkeiba.com/horse/000a007237/"]
+
+        # Check requests
+        requests = [o for o in output if isinstance(o, Request)]
+
+        parent_horse_url_re = re.compile(r"^https:\/\/db\.netkeiba\.com\/horse\/[a-z0-9]+\/?$")
+        parent_requests = [r for r in requests if parent_horse_url_re.fullmatch(r.url) is not None]
+
+        assert len(parent_requests) == 62
 
 
 class JockeyContract(Contract):

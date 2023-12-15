@@ -111,7 +111,7 @@ class NetkeibaSpider(scrapy.Spider):
             if url.hostname == "nar.netkeiba.com" and url.path == "/top/race_list.html" and "kaisai_date" in qs and "kaisai_id" in qs:
                 self.logger.debug(f"#parse_calendar: a={url.geturl()}")
 
-                follow_url = f"https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date={qs['kaisai_date']}"
+                follow_url = f"https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date={qs['kaisai_date'][0]}"
                 yield self._follow(follow_url)
 
     def parse_race_list(self, response):
@@ -132,7 +132,7 @@ class NetkeibaSpider(scrapy.Spider):
             if url.hostname == "nar.netkeiba.com" and (url.path == "/race/result.html" or url.path == "/race/shutuba.html") and "race_id" in qs:
                 self.logger.debug(f"#parse_race_list: a={url.geturl()}")
 
-                follow_url = f"https://nar.netkeiba.com/race/shutuba.html?race_id={qs['race_id']}"
+                follow_url = f"https://nar.netkeiba.com/race/shutuba.html?race_id={qs['race_id'][0]}"
                 yield self._follow(follow_url)
 
     def parse_race_program(self, response):
@@ -221,29 +221,29 @@ class NetkeibaSpider(scrapy.Spider):
         self.logger.debug("#parse_race_program: parse odds link")
         #
 
-        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b1&race_id={race_program_qs['race_id']}"
+        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b1&race_id={race_program_qs['race_id'][0]}"
         self.logger.debug(f"#parse_race_program: odds_win_place link={follow_url}")
         yield self._follow(follow_url)
 
-        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b6&race_id={race_program_qs['race_id']}"
+        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b6&race_id={race_program_qs['race_id'][0]}"
         self.logger.debug(f"#parse_race_program: odds_exacta link={follow_url}")
         yield self._follow(follow_url)
 
-        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id={race_program_qs['race_id']}"
+        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id={race_program_qs['race_id'][0]}"
         self.logger.debug(f"#parse_race_program: odds_quinella link={follow_url}")
         yield self._follow(follow_url)
 
-        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b5&race_id={race_program_qs['race_id']}"
+        follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b5&race_id={race_program_qs['race_id'][0]}"
         self.logger.debug(f"#parse_race_program: odds_quinella_place link={follow_url}")
         yield self._follow(follow_url)
 
         for i in range(horse_count):
-            follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b8&race_id={race_program_qs['race_id']}&jiku={i+1}"
+            follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b8&race_id={race_program_qs['race_id'][0]}&jiku={i+1}"
             self.logger.debug(f"#parse_race_program: odds_trifecta link={follow_url}")
             yield self._follow(follow_url)
 
         for i in range(horse_count):
-            follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b7&race_id={race_program_qs['race_id']}&jiku={i+1}"
+            follow_url = f"https://nar.netkeiba.com/odds/odds_get_form.html?type=b7&race_id={race_program_qs['race_id'][0]}&jiku={i+1}"
             self.logger.debug(f"#parse_race_program: odds_trio link={follow_url}")
             yield self._follow(follow_url)
 
@@ -251,7 +251,7 @@ class NetkeibaSpider(scrapy.Spider):
         self.logger.debug("#parse_race_program: parse race result link")
         #
 
-        follow_url = f"https://nar.netkeiba.com/race/result.html?race_id={race_program_qs['race_id']}"
+        follow_url = f"https://nar.netkeiba.com/race/result.html?race_id={race_program_qs['race_id'][0]}"
         self.logger.debug(f"#parse_race_program: race_result link={follow_url}")
         yield self._follow(follow_url)
 
@@ -316,7 +316,7 @@ class NetkeibaSpider(scrapy.Spider):
 
         @url https://db.netkeiba.com/horse/ped/2017103463/
         @returns items 1 1
-        @returns requests 0 0
+        @returns requests 62 62
         @parent_horse_contract
         """
         self.logger.info(f"#parse_parent_horse: start: response={response.url}")
@@ -327,68 +327,254 @@ class NetkeibaSpider(scrapy.Spider):
         loader = ItemLoader(item=ParentHorseItem(), response=response)
         loader.add_value("url", response.url)
         loader.add_value("horse_id", horse_id)
-        loader.add_xpath("parent_horse_url_m", "//table[contains(@class, 'blood_table')]/tr[1]/td[1]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_f", "//table[contains(@class, 'blood_table')]/tr[17]/td[1]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_m_m", "//table[contains(@class, 'blood_table')]/tr[1]/td[2]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_m_f", "//table[contains(@class, 'blood_table')]/tr[9]/td[1]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_f_m", "//table[contains(@class, 'blood_table')]/tr[17]/td[2]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_f_f", "//table[contains(@class, 'blood_table')]/tr[25]/td[1]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_m_m_m", "//table[contains(@class, 'blood_table')]/tr[1]/td[3]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_m_m_f", "//table[contains(@class, 'blood_table')]/tr[5]/td[1]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_m_f_m", "//table[contains(@class, 'blood_table')]/tr[9]/td[2]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_m_f_f", "//table[contains(@class, 'blood_table')]/tr[13]/td[1]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_f_m_m", "//table[contains(@class, 'blood_table')]/tr[17]/td[3]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_f_m_f", "//table[contains(@class, 'blood_table')]/tr[21]/td[1]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_f_f_m", "//table[contains(@class, 'blood_table')]/tr[25]/td[2]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_f_f_f", "//table[contains(@class, 'blood_table')]/tr[29]/td[1]/a[1]/@href")
-        loader.add_xpath("parent_horse_url_m_m_m_m", "//table[contains(@class, 'blood_table')]/tr[1]/td[4]/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_m_f", "//table[contains(@class, 'blood_table')]/tr[3]/td[1]/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_f_m", "//table[contains(@class, 'blood_table')]/tr[5]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_f_f", "//table[contains(@class, 'blood_table')]/tr[7]/td[1]/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_m_m", "//table[contains(@class, 'blood_table')]/tr[9]/td[3]/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_m_f", "//table[contains(@class, 'blood_table')]/tr[11]/td[1]/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_f_m", "//table[contains(@class, 'blood_table')]/tr[13]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_f_f", "//table[contains(@class, 'blood_table')]/tr[15]/td[1]/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_m_m", "//table[contains(@class, 'blood_table')]/tr[17]/td[4]/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_m_f", "//table[contains(@class, 'blood_table')]/tr[19]/td[1]/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_f_m", "//table[contains(@class, 'blood_table')]/tr[21]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_f_f", "//table[contains(@class, 'blood_table')]/tr[23]/td[1]/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_m_m", "//table[contains(@class, 'blood_table')]/tr[25]/td[3]/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_m_f", "//table[contains(@class, 'blood_table')]/tr[27]/td[1]/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_f_m", "//table[contains(@class, 'blood_table')]/tr[29]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_f_f", "//table[contains(@class, 'blood_table')]/tr[31]/td[1]/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_m_m_m", "//table[contains(@class, 'blood_table')]/tr[1]/td[5]/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_m_m_f", "//table[contains(@class, 'blood_table')]/tr[2]/td/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_m_f_m", "//table[contains(@class, 'blood_table')]/tr[3]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_m_f_f", "//table[contains(@class, 'blood_table')]/tr[4]/td/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_f_m_m", "//table[contains(@class, 'blood_table')]/tr[5]/td[3]/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_f_m_f", "//table[contains(@class, 'blood_table')]/tr[6]/td/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_f_f_m", "//table[contains(@class, 'blood_table')]/tr[7]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_m_m_f_f_f", "//table[contains(@class, 'blood_table')]/tr[8]/td/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_m_m_m", "//table[contains(@class, 'blood_table')]/tr[9]/td[4]/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_m_m_f", "//table[contains(@class, 'blood_table')]/tr[10]/td/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_m_f_m", "//table[contains(@class, 'blood_table')]/tr[11]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_m_f_f", "//table[contains(@class, 'blood_table')]/tr[12]/td/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_f_m_m", "//table[contains(@class, 'blood_table')]/tr[13]/td[3]/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_f_m_f", "//table[contains(@class, 'blood_table')]/tr[14]/td/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_f_f_m", "//table[contains(@class, 'blood_table')]/tr[15]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_m_f_f_f_f", "//table[contains(@class, 'blood_table')]/tr[16]/td/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_m_m_m", "//table[contains(@class, 'blood_table')]/tr[17]/td[5]/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_m_m_f", "//table[contains(@class, 'blood_table')]/tr[18]/td/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_m_f_m", "//table[contains(@class, 'blood_table')]/tr[19]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_m_f_f", "//table[contains(@class, 'blood_table')]/tr[20]/td/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_f_m_m", "//table[contains(@class, 'blood_table')]/tr[21]/td[3]/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_f_m_f", "//table[contains(@class, 'blood_table')]/tr[22]/td/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_f_f_m", "//table[contains(@class, 'blood_table')]/tr[23]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_f_m_f_f_f", "//table[contains(@class, 'blood_table')]/tr[24]/td/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_m_m_m", "//table[contains(@class, 'blood_table')]/tr[25]/td[4]/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_m_m_f", "//table[contains(@class, 'blood_table')]/tr[26]/td/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_m_f_m", "//table[contains(@class, 'blood_table')]/tr[27]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_m_f_f", "//table[contains(@class, 'blood_table')]/tr[28]/td/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_f_m_m", "//table[contains(@class, 'blood_table')]/tr[29]/td[3]/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_f_m_f", "//table[contains(@class, 'blood_table')]/tr[30]/td/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_f_f_m", "//table[contains(@class, 'blood_table')]/tr[31]/td[2]/a/@href")
-        loader.add_xpath("parent_horse_url_f_f_f_f_f", "//table[contains(@class, 'blood_table')]/tr[32]/td/a/@href")
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[1]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[1]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[2]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[9]/td[1]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[2]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[25]/td[1]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[3]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_m_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[5]/td[1]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_m_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[9]/td[2]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_m_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[13]/td[1]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_m_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[3]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_f_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[21]/td[1]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_f_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[25]/td[2]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_f_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[29]/td[1]/a[1]/@href").get())
+        loader.add_value("parent_horse_url_f_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[4]/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[3]/td[1]/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[5]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[7]/td[1]/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[9]/td[3]/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[11]/td[1]/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[13]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[15]/td[1]/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[4]/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[19]/td[1]/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[21]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[23]/td[1]/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[25]/td[3]/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[27]/td[1]/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[29]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[31]/td[1]/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[5]/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_m_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[2]/td/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_m_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[3]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_m_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[4]/td/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_m_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[5]/td[3]/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_f_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[6]/td/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_f_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[7]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_f_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[8]/td/a/@href").get())
+        loader.add_value("parent_horse_url_m_m_f_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[9]/td[4]/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_m_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[10]/td/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_m_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[11]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_m_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[12]/td/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_m_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[13]/td[3]/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_f_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[14]/td/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_f_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[15]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_f_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[16]/td/a/@href").get())
+        loader.add_value("parent_horse_url_m_f_f_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[5]/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_m_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[18]/td/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_m_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[19]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_m_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[20]/td/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_m_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[21]/td[3]/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_f_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[22]/td/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_f_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[23]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_f_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[24]/td/a/@href").get())
+        loader.add_value("parent_horse_url_f_m_f_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[25]/td[4]/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_m_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[26]/td/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_m_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[27]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_m_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[28]/td/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_m_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[29]/td[3]/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_f_m_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[30]/td/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_f_m_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[31]/td[2]/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_f_f_m", parent_horse_url)
+        yield self._follow(parent_horse_url)
+
+        parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[32]/td/a/@href").get())
+        loader.add_value("parent_horse_url_f_f_f_f_f", parent_horse_url)
+        yield self._follow(parent_horse_url)
 
         i = loader.load_item()
 
