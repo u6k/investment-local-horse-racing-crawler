@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 import scrapy
 from scrapy.loader import ItemLoader
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem, JockeyItem, TrainerItem, OddsItem
+from local_horse_racing_crawler.items import HorseItem, JockeyItem, OddsItem, ParentHorseItem, RaceBracketItem, RaceCornerPassingOrderItem, RaceInfoItem, RaceLaptimeItem, RacePayoffItem, RaceResultItem, TrainerItem
 
 
 class NetkeibaSpider(scrapy.Spider):

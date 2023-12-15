@@ -2,7 +2,7 @@ from scrapy.contracts import Contract
 from scrapy.exceptions import ContractFail
 from scrapy.http import Request
 
-from local_horse_racing_crawler.items import RaceInfoItem, RaceBracketItem, RaceResultItem, RacePayoffItem, RaceCornerPassingOrderItem, RaceLaptimeItem, HorseItem, ParentHorseItem, JockeyItem, TrainerItem, OddsItem
+from local_horse_racing_crawler.items import HorseItem, JockeyItem, OddsItem, ParentHorseItem, RaceBracketItem, RaceCornerPassingOrderItem, RaceInfoItem, RaceLaptimeItem, RacePayoffItem, RaceResultItem, TrainerItem
 
 
 class CalendarContract(Contract):
