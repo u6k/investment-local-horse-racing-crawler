@@ -6,4 +6,6 @@ sleep 120
 privoxy /etc/privoxy/config &
 sleep 10
 
-scrapy crawl "$@"
+curl -x 127.0.0.1:8118 httpbin.org/get
+
+scrapy $@

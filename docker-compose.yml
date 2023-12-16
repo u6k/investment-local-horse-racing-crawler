@@ -2,16 +2,16 @@ version: '3'
 
 services:
   app:
-    build: .
-    env_file:
-      - ./.env
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     volumes:
-      - .:/var/myapp
+      - ".:/var/myapp"
+    env_file: .env
     depends_on:
       - "s3"
 
   s3:
-    image: minio/minio
-    env_file:
-      - ./.env
+    image: quay.io/minio/minio
+    env_file: .env
     command: server /data

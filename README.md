@@ -47,7 +47,7 @@ Server: Docker Engine - Community
 `docker pull`します。
 
 ```bash
-docker pull ghcr.io/u6k/investment-local-horse-racing-crawler
+docker pull ghcr.io/u6k/local-horse-racing-crawler
 ```
 
 ## Usage
@@ -57,20 +57,7 @@ docker pull ghcr.io/u6k/investment-local-horse-racing-crawler
 クロールを開始する。
 
 ```bash
-docker run ghcr.io/u6k/investment-local-horse-racing-crawler \
-    scrapy crawl local_horse_racing
-```
-
-引数を指定してクロールする場合は、次のように実行する。
-
-```bash
-docker run \
-    -v $(pwd)/.scrapy:/var/myapp/.scrapy \
-    ghcr.io/u6k/investment-local-horse-racing-crawler \
-        scrapy crawl local_horse_racing \
-            -a start_url=https://xxx.com/xxx \
-            -a recache_race=true \
-            -O .scrapy/result/result.json
+docker compose run app poe crawl -a start_url='https://xxx.example.com'
 ```
 
 ### 構文チェック、整形
@@ -78,17 +65,13 @@ docker run \
 ソースコードを構文チェック(Lint)する。
 
 ```bash
-docker compose run app flake8 .
+docker compose run app poe lint
 ```
 
 ソースコードを整形する。
 
 ```bash
-docker compose run app isort .
-```
-
-```bash
-docker compose run app autopep8 -ivr .
+docker compose run app poe fix
 ```
 
 ### テスト
@@ -96,11 +79,7 @@ docker compose run app autopep8 -ivr .
 スクレイピング機能をテストする。
 
 ```bash
-docker compose run app scrapy check local_horse_racing -L DEBUG
-```
-
-```bash
-docker compose run app pytest
+docker compose run app poe test
 ```
 
 ## Other
