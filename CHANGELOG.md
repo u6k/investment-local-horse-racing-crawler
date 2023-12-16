@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [#10228: Poetryに移行する](https://redmine.u6k.me/issues/10228)
 - [#10230: netkeibaからクロールする](https://redmine.u6k.me/issues/10230)
+- [#10231: ビルドプロセスを最新化する](https://redmine.u6k.me/issues/10231)
 
 ## [2.1.0] - 2022-08-23
 
