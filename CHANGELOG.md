@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- [#9687: S3ストレージにキャッシュする](https://redmine.u6k.me/issues/9687)
+
 ### Changed
 
 - [#10228: Poetryに移行する](https://redmine.u6k.me/issues/10228)
