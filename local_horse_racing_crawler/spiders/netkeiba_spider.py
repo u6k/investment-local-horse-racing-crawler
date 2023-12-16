@@ -1,3 +1,4 @@
+import re
 from urllib.parse import parse_qs, urlparse
 
 import scrapy
@@ -10,7 +11,24 @@ class NetkeibaSpider(scrapy.Spider):
     name = "netkeiba_spider"
     allowed_domains = ["nar.netkeiba.com", "db.netkeiba.com"]
 
-    def __init__(self, start_url="https://nar.netkeiba.com/top/calendar.html?year=2023&month=11", *args, **kwargs):
+    calendar_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/top\/calendar\.html\?year=([0-9]{4})&month=([0-9]{1,2})$")
+    race_list_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/top\/race_list_sub\.html\?kaisai_date=([0-9]{8})$")
+    race_program_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/race\/shutuba\.html\?race_id=([0-9]+)$")
+    horse_url_pattern = re.compile(r"^https:\/\/db\.netkeiba\.com\/horse\/([a-z0-9]+)\/?$")
+    parent_horse_url_pattern = re.compile(r"^https:\/\/db\.netkeiba\.com\/horse\/ped\/([a-z0-9]+)\/?$")
+    jockey_url_pattern = re.compile(r"^https:\/\/db\.netkeiba\.com\/jockey\/([a-z0-9]+)\/?$")
+    jockey_recent_url_pattern = re.compile(r"^https:\/\/db\.netkeiba\.com\/jockey\/result\/recent\/([a-z0-9]+)\/?$")
+    trainer_url_pattern = re.compile(r"^https:\/\/db\.netkeiba\.com\/trainer\/([a-z0-9]+)\/?$")
+    trainer_recent_url_pattern = re.compile(r"^https:\/\/db\.netkeiba\.com\/trainer\/result\/recent\/([a-z0-9]+)\/?$")
+    odds_win_place_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/odds\/odds_get_form\.html\?type=b1&race_id=([0-9]+)$")
+    odds_exacta_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/odds\/odds_get_form\.html\?type=b6&race_id=([0-9]+)$")
+    odds_quinella_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/odds\/odds_get_form\.html\?type=b4&race_id=([0-9]+)$")
+    odds_quinella_place_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/odds\/odds_get_form\.html\?type=b5&race_id=([0-9]+)$")
+    odds_trifecta_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/odds\/odds_get_form\.html\?type=b8&race_id=([0-9]+)&jiku=([0-9]+)$")
+    odds_trio_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/odds\/odds_get_form\.html\?type=b7&race_id=([0-9]+)&jiku=([0-9]+)$")
+    race_result_url_pattern = re.compile(r"^https:\/\/nar\.netkeiba\.com\/race\/result\.html\?race_id=([0-9]+)$")
+
+    def __init__(self, start_url="https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date=20231114", *args, **kwargs):
         super(NetkeibaSpider, self).__init__(*args, **kwargs)
 
         self.start_urls = [start_url]
@@ -34,59 +52,59 @@ class NetkeibaSpider(scrapy.Spider):
         self.logger.debug(f"#_follow: start: meta={meta}")
 
         # Build request
-        if url.startswith("https://nar.netkeiba.com/top/calendar.html?"):
+        if self.calendar_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow calendar page")
             return scrapy.Request(url, callback=self.parse_calendar, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date="):
+        elif self.race_list_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow race_list page")
             return scrapy.Request(url, callback=self.parse_race_list, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/race/shutuba.html?race_id="):
+        elif self.race_program_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow race_program page")
             return scrapy.Request(url, callback=self.parse_race_program, meta=meta)
 
-        elif url.startswith("https://db.netkeiba.com/horse/"):
+        elif self.horse_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow horse page")
             return scrapy.Request(url, callback=self.parse_horse, meta=meta)
 
-        elif url.startswith("https://db.netkeiba.com/horse/ped/"):
+        elif self.parent_horse_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow parent_horse page")
             return scrapy.Request(url, callback=self.parse_parent_horse, meta=meta)
 
-        elif url.startswith("https://db.netkeiba.com/jockey/"):
+        elif self.jockey_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow jockey page")
             return scrapy.Request(url, callback=self.parse_jockey, meta=meta)
 
-        elif url.startswith("https://db.netkeiba.com/trainer/"):
+        elif self.trainer_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow trainer page")
             return scrapy.Request(url, callback=self.parse_trainer, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/odds/odds_get_form.html?type=b1&race_id="):
+        elif self.odds_win_place_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow odds_win_place page")
             return scrapy.Request(url, callback=self.parse_odds_win_place, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/odds/odds_get_form.html?type=b6&race_id="):
+        elif self.odds_exacta_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow odds_exacta page")
             return scrapy.Request(url, callback=self.parse_odds_exacta, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/odds/odds_get_form.html?type=b4&race_id="):
+        elif self.odds_quinella_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow odds_quinella page")
             return scrapy.Request(url, callback=self.parse_odds_quinella, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/odds/odds_get_form.html?type=b5&race_id="):
+        elif self.odds_quinella_place_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow odds_quinella_place page")
             return scrapy.Request(url, callback=self.parse_odds_quinella_place, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/odds/odds_get_form.html?type=b8&race_id="):
+        elif self.odds_trifecta_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow odds_trifecta page")
             return scrapy.Request(url, callback=self.parse_odds_trifecta, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/odds/odds_get_form.html?type=b7&race_id="):
+        elif self.odds_trio_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow odds_trio page")
             return scrapy.Request(url, callback=self.parse_odds_trio, meta=meta)
 
-        elif url.startswith("https://nar.netkeiba.com/race/result.html?race_id="):
+        elif self.race_result_url_pattern.fullmatch(url) is not None:
             self.logger.debug("#_follow: follow race_result page")
             return scrapy.Request(url, callback=self.parse_race_result, meta=meta)
 
@@ -196,25 +214,24 @@ class NetkeibaSpider(scrapy.Spider):
         for a in response.xpath("//table[contains(@class, 'ShutubaTable')]//tr[@class='HorseList']//a"):
             url = urlparse(a.xpath("@href").get())
 
-            if url.geturl().startswith("https://db.netkeiba.com/horse/"):
+            horse_url_re = self.horse_url_pattern.fullmatch(url.geturl())
+            jockey_recent_url_re = self.jockey_recent_url_pattern.fullmatch(url.geturl())
+            trainer_recent_url_re = self.trainer_recent_url_pattern.fullmatch(url.geturl())
+
+            if horse_url_re is not None:
                 self.logger.debug(f"#parse_race_program: horse link={url.geturl()}")
 
-                follow_url = url.geturl()
-
+                follow_url = f"https://db.netkeiba.com/horse/{horse_url_re.group(1)}"
                 yield self._follow(follow_url)
-            elif url.geturl().startswith("https://db.netkeiba.com/jockey/result/recent/"):
+            elif jockey_recent_url_re is not None:
                 self.logger.debug(f"#parse_race_program: jockey link={url.geturl()}")
 
-                parts = [p for p in url.geturl().split("/") if len(p) > 0]
-                follow_url = f"https://db.netkeiba.com/jockey/{parts[-1]}/"
-
+                follow_url = f"https://db.netkeiba.com/jockey/{jockey_recent_url_re.group(1)}/"
                 yield self._follow(follow_url)
-            elif url.geturl().startswith("https://db.netkeiba.com/trainer/result/recent/"):
+            elif trainer_recent_url_re is not None:
                 self.logger.debug(f"#parse_race_program: trainer link={url.geturl()}")
 
-                parts = [p for p in url.geturl().split("/") if len(p) > 0]
-                follow_url = f"https://db.netkeiba.com/trainer/{parts[-1]}/"
-
+                follow_url = f"https://db.netkeiba.com/trainer/{trainer_recent_url_re.group(1)}/"
                 yield self._follow(follow_url)
 
         #
@@ -265,8 +282,8 @@ class NetkeibaSpider(scrapy.Spider):
         """
         self.logger.info(f"#parse_horse: start: response={response.url}")
 
-        parts = [p for p in response.url.split("/") if len(p) > 0]
-        horse_id = parts[-1]
+        horse_url_re = self.horse_url_pattern.fullmatch(response.url)
+        horse_id = horse_url_re.group(1)
 
         #
         self.logger.debug("#parse_horse: parse horse")
@@ -321,8 +338,8 @@ class NetkeibaSpider(scrapy.Spider):
         """
         self.logger.info(f"#parse_parent_horse: start: response={response.url}")
 
-        parts = [p for p in response.url.split("/") if len(p) > 0]
-        horse_id = parts[-1]
+        horse_url_re = self.horse_url_pattern.fullmatch(response.url)
+        horse_id = horse_url_re.group(1)
 
         loader = ItemLoader(item=ParentHorseItem(), response=response)
         loader.add_value("url", response.url)
@@ -591,8 +608,8 @@ class NetkeibaSpider(scrapy.Spider):
         """
         self.logger.info(f"#parse_jockey: start: response={response.url}")
 
-        parts = [p for p in response.url.split("/") if len(p) > 0]
-        jockey_id = parts[-1]
+        jockey_url_re = self.jockey_url_pattern.fullmatch(response.url)
+        jockey_id = jockey_url_re.group(1)
 
         loader = ItemLoader(item=JockeyItem(), response=response)
         loader.add_value("url", response.url)
@@ -618,8 +635,8 @@ class NetkeibaSpider(scrapy.Spider):
         """
         self.logger.info(f"#parse_trainer: start: response={response.url}")
 
-        parts = [p for p in response.url.split("/") if len(p) > 0]
-        trainer_id = parts[-1]
+        trainer_url_re = self.trainer_url_pattern.fullmatch(response.url)
+        trainer_id = trainer_url_re.group(1)
 
         loader = ItemLoader(item=TrainerItem(), response=response)
         loader.add_value("url", response.url)
