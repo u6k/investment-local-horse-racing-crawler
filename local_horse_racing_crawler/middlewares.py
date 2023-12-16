@@ -3,99 +3,137 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-# useful for handling different item types with a single interface
-from scrapy import signals
+
+import io
+from pathlib import Path
+
+import boto3
+import joblib
+from botocore.exceptions import ClientError
+from scrapy.http import Headers
+from scrapy.responsetypes import responsetypes
 
 
-class InvestmentLocalHorseRacingCrawlerSpiderMiddleware:
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the spider middleware does not modify the
-    # passed objects.
+class S3Client:
+    def __init__(self, settings):
+        self.s3_endpoint = settings["AWS_ENDPOINT_URL"]
+        self.s3_access_key = settings["AWS_ACCESS_KEY_ID"]
+        self.s3_secret_key = settings["AWS_SECRET_ACCESS_KEY"]
+        self.s3_bucket = settings["AWS_S3_CACHE_BUCKET"]
 
-    @classmethod
-    def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
-        s = cls()
-        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        return s
+        self.s3_client = boto3.resource("s3", endpoint_url=self.s3_endpoint, aws_access_key_id=self.s3_access_key, aws_secret_access_key=self.s3_secret_key)
 
-    def process_spider_input(self, response, spider):
-        # Called for each response that goes through the spider
-        # middleware and into the spider.
+        self.s3_bucket_obj = self.s3_client.Bucket(self.s3_bucket)
+        if not self.s3_bucket_obj.creation_date:
+            self.s3_bucket_obj.create()
 
-        # Should return None or raise an exception.
-        return None
+    def get_joblib(self, key):
+        data_bytes = self.get_bytes(key)
 
-    def process_spider_output(self, response, result, spider):
-        # Called with the results returned from the Spider, after
-        # it has processed the response.
+        if data_bytes is not None:
+            with io.BytesIO(data_bytes) as b:
+                data = joblib.load(b)
+        else:
+            data = None
 
-        # Must return an iterable of Request, or item objects.
-        for i in result:
-            yield i
+        return data
 
-    def process_spider_exception(self, response, exception, spider):
-        # Called when a spider or process_spider_input() method
-        # (from other spider middleware) raises an exception.
+    def get_bytes(self, key):
+        s3_obj = self.s3_bucket_obj.Object(key)
 
-        # Should return either None or an iterable of Request or item objects.
+        try:
+            data_bytes = s3_obj.get()["Body"].read()
+        except ClientError as err:
+            if err.response["Error"]["Code"] == "404" or err.response["Error"]["Code"] == "NoSuchKey":
+                data_bytes = None
+            else:
+                raise err
+
+        return data_bytes
+
+    def put_joblib(self, key, data):
+        with io.BytesIO() as b:
+            joblib.dump(data, b, compress=True)
+            self.s3_bucket_obj.Object(key).put(Body=b.getvalue())
+
+    def put_bytes(self, key, data_bytes):
+        self.s3_bucket_obj.Object(key).put(Body=data_bytes)
+
+
+class S3CacheStorage:
+    def __init__(self, settings):
+        # Store parameters
+        self.s3_folder = settings["AWS_S3_CACHE_FOLDER"]
+
+        self.recache_race = settings["RECACHE_RACE"]
+        self.recache_data = settings["RECACHE_DATA"]
+
+        # Setup s3 client
+        self.s3_client = S3Client(settings)
+
+    def open_spider(self, spider):
+        self._fingerprinter = spider.crawler.request_fingerprinter
+
+    def close_spider(self, spider):
         pass
 
-    def process_start_requests(self, start_requests, spider):
-        # Called with the start requests of the spider, and works
-        # similarly to the process_spider_output() method, except
-        # that it doesn’t have a response associated.
+    def retrieve_response(self, spider, request):
+        spider.logger.debug(f"#retrieve_response: start: url={request.url}")
 
-        # Must return only requests (not items).
-        for r in start_requests:
-            yield r
+        # 再キャッシュする
+        if self.recache_race and request.url.startswith("https://nar.netkeiba.com"):
+            spider.logger.debug("#retrieve_response: re-cache race")
+            return
 
-    def spider_opened(self, spider):
-        spider.logger.info('Spider opened: %s' % spider.name)
+        if self.recache_data and request.url.startswith("https://db.netkeiba.com"):
+            spider.logger.debug("#retrieve_response: re-cache data")
+            return
 
+        # キャッシュから取得する
+        rpath = self._get_request_path(spider, request)
+        spider.logger.debug(f"#retrieve_response: cache path={rpath}")
 
-class InvestmentLocalHorseRacingCrawlerDownloaderMiddleware:
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the downloader middleware does not modify the
-    # passed objects.
+        data = self.s3_client.get_joblib(rpath + ".joblib")
+        if data is None:
+            spider.logger.debug("#retrieve_response: cache not found")
+            return
 
-    @classmethod
-    def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
-        s = cls()
-        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        return s
+        url = data["response"]["url"]
+        status = data["response"]["status"]
+        headers = Headers(data["response"]["headers"])
+        body = data["response"]["body"]
+        respcls = responsetypes.from_args(headers=headers, url=url)
+        response = respcls(url=url, headers=headers, status=status, body=body)
 
-    def process_request(self, request, spider):
-        # Called for each request that goes through the downloader
-        # middleware.
+        spider.logger.debug("#retrieve_response: cache exist")
 
-        # Must either:
-        # - return None: continue processing this request
-        # - or return a Response object
-        # - or return a Request object
-        # - or raise IgnoreRequest: process_exception() methods of
-        #   installed downloader middleware will be called
-        return None
-
-    def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-
-        # Must either;
-        # - return a Response object
-        # - return a Request object
-        # - or raise IgnoreRequest
         return response
 
-    def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
+    def store_response(self, spider, request, response):
+        spider.logger.debug(f"#store_response: start: url={response.url}, status={response.status}")
 
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
-        pass
+        rpath = self._get_request_path(spider, request)
+        spider.logger.debug(f"#store_response: cache path={rpath}")
 
-    def spider_opened(self, spider):
-        spider.logger.info('Spider opened: %s' % spider.name)
+        data = {
+            "request": {
+                "url": request.url,
+                "method": request.method,
+                "headers": request.headers,
+                "body": request.body,
+            },
+            "response": {
+                "url": response.url,
+                "status": response.status,
+                "headers": response.headers,
+                "body": response.body,
+            },
+        }
+
+        self.s3_client.put_joblib(rpath + ".joblib", data)
+
+    def _get_request_path(self, spider, request):
+        key = self._fingerprinter.fingerprint(request).hex()
+        path = str(Path(self.s3_folder, spider.name, key[0:2], key))
+
+        return path
