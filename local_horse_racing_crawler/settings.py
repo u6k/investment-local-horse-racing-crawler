@@ -2,12 +2,12 @@ import logging
 import os
 from distutils.util import strtobool
 
-BOT_NAME = 'investment_local_horse_racing_crawler'
+BOT_NAME = 'local_horse_racing_crawler'
 USER_AGENT = os.environ.get("USER_AGENT", "local_horse_racing_crawler/1.0 (+https://github.com/u6k/investment-local-horse-racing-crawler)")
 CRAWL_HTTP_PROXY = os.environ.get("CRAWL_HTTP_PROXY")
 
-SPIDER_MODULES = ['investment_local_horse_racing_crawler.spiders']
-NEWSPIDER_MODULE = 'investment_local_horse_racing_crawler.spiders'
+SPIDER_MODULES = ['local_horse_racing_crawler.spiders']
+NEWSPIDER_MODULE = 'local_horse_racing_crawler.spiders'
 
 ROBOTSTXT_OBEY = True
 
@@ -33,19 +33,19 @@ TELNETCONSOLE_ENABLED = False
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 # SPIDER_MIDDLEWARES = {
-#    'investment_local_horse_racing_crawler.middlewares.InvestmentLocalHorseRacingCrawlerSpiderMiddleware': 543,
+#    'local_horse_racing_crawler.middlewares.InvestmentLocalHorseRacingCrawlerSpiderMiddleware': 543,
 # }
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 # DOWNLOADER_MIDDLEWARES = {
-#    'investment_local_horse_racing_crawler.middlewares.InvestmentLocalHorseRacingCrawlerDownloaderMiddleware': 543,
+#    'local_horse_racing_crawler.middlewares.InvestmentLocalHorseRacingCrawlerDownloaderMiddleware': 543,
 # }
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 # ITEM_PIPELINES = {
-#    'investment_local_horse_racing_crawler.pipelines.InvestmentLocalHorseRacingCrawlerPipeline': 300,
+#    'local_horse_racing_crawler.pipelines.InvestmentLocalHorseRacingCrawlerPipeline': 300,
 # }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -65,20 +65,20 @@ HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 HTTPCACHE_GZIP = True
 
 SPIDER_CONTRACTS = {
-    "investment_local_horse_racing_crawler.contracts.CalendarContract": 10,
-    "investment_local_horse_racing_crawler.contracts.KaisaiRaceListContract": 10,
-    "investment_local_horse_racing_crawler.contracts.OneDayRaceListContract": 10,
-    "investment_local_horse_racing_crawler.contracts.RaceDenmaContract": 10,
-    "investment_local_horse_racing_crawler.contracts.RaceResultContract": 10,
-    "investment_local_horse_racing_crawler.contracts.HorseContract": 10,
-    "investment_local_horse_racing_crawler.contracts.JockeyContract": 10,
-    "investment_local_horse_racing_crawler.contracts.TrainerContract": 10,
-    "investment_local_horse_racing_crawler.contracts.OddsWinPlaceContract": 10,
-    "investment_local_horse_racing_crawler.contracts.OddsQuinellaContract": 10,
-    "investment_local_horse_racing_crawler.contracts.OddsExactaContract": 10,
-    "investment_local_horse_racing_crawler.contracts.OddsQuinellaPlaceContract": 10,
-    "investment_local_horse_racing_crawler.contracts.OddsTrioContract": 10,
-    "investment_local_horse_racing_crawler.contracts.OddsTrifectaContract": 10,
+    "local_horse_racing_crawler.contracts.CalendarContract": 10,
+    "local_horse_racing_crawler.contracts.RaceListContract": 10,
+    "local_horse_racing_crawler.contracts.RaceProgramContract": 10,
+    "local_horse_racing_crawler.contracts.HorseContract": 10,
+    "local_horse_racing_crawler.contracts.ParentHorseContract": 10,
+    "local_horse_racing_crawler.contracts.JockeyContract": 10,
+    "local_horse_racing_crawler.contracts.TrainerContract": 10,
+    "local_horse_racing_crawler.contracts.OddsWinPlaceContract": 10,
+    "local_horse_racing_crawler.contracts.OddsExactaContract": 10,
+    "local_horse_racing_crawler.contracts.OddsQuinellaContract": 10,
+    "local_horse_racing_crawler.contracts.OddsQuinellaPlaceContract": 10,
+    "local_horse_racing_crawler.contracts.OddsTrifectaContract": 10,
+    "local_horse_racing_crawler.contracts.OddsTrioContract": 10,
+    "local_horse_racing_crawler.contracts.RaceResultContract": 10,
 }
 
 logging.getLogger("boto3").setLevel(logging.INFO)

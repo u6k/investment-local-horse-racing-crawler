@@ -18,9 +18,8 @@ jobs:
         run: cp .env.original .env
       - name: Lint
         run: docker-compose run app poe lint
-      # TODO
-      # - name: Check
-      #   run: docker-compose run app scrapy check local_horse_racing -L DEBUG
+      - name: Check
+        run: docker-compose run app poe test
 
       # Slack notification
       - name: Slack notification on success
