@@ -239,14 +239,6 @@ class ParentHorseContract(Contract):
         assert i["parent_horse_url_f_f_f_f_m"] == ["https://db.netkeiba.com/horse/000a000407/"]
         assert i["parent_horse_url_f_f_f_f_f"] == ["https://db.netkeiba.com/horse/000a007237/"]
 
-        # Check requests
-        requests = [o for o in output if isinstance(o, Request)]
-
-        parent_horse_url_re = re.compile(r"^https:\/\/db\.netkeiba\.com\/horse\/[a-z0-9]+\/?$")
-        parent_requests = [r for r in requests if parent_horse_url_re.fullmatch(r.url) is not None]
-
-        assert len(parent_requests) == 62
-
 
 class JockeyContract(Contract):
     name = "jockey_contract"

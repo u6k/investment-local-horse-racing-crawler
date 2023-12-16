@@ -333,13 +333,13 @@ class NetkeibaSpider(scrapy.Spider):
 
         @url https://db.netkeiba.com/horse/ped/2017103463/
         @returns items 1 1
-        @returns requests 62 62
+        @returns requests 0 0
         @parent_horse_contract
         """
         self.logger.info(f"#parse_parent_horse: start: response={response.url}")
 
-        horse_url_re = self.horse_url_pattern.fullmatch(response.url)
-        horse_id = horse_url_re.group(1)
+        parent_horse_url_re = self.parent_horse_url_pattern.fullmatch(response.url)
+        horse_id = parent_horse_url_re.group(1)
 
         loader = ItemLoader(item=ParentHorseItem(), response=response)
         loader.add_value("url", response.url)
@@ -347,251 +347,189 @@ class NetkeibaSpider(scrapy.Spider):
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[1]/a[1]/@href").get())
         loader.add_value("parent_horse_url_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[1]/a[1]/@href").get())
         loader.add_value("parent_horse_url_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[2]/a[1]/@href").get())
         loader.add_value("parent_horse_url_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[9]/td[1]/a[1]/@href").get())
         loader.add_value("parent_horse_url_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[2]/a[1]/@href").get())
         loader.add_value("parent_horse_url_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[25]/td[1]/a[1]/@href").get())
         loader.add_value("parent_horse_url_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[3]/a[1]/@href").get())
         loader.add_value("parent_horse_url_m_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[5]/td[1]/a[1]/@href").get())
         loader.add_value("parent_horse_url_m_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[9]/td[2]/a[1]/@href").get())
         loader.add_value("parent_horse_url_m_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[13]/td[1]/a[1]/@href").get())
         loader.add_value("parent_horse_url_m_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[3]/a[1]/@href").get())
         loader.add_value("parent_horse_url_f_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[21]/td[1]/a[1]/@href").get())
         loader.add_value("parent_horse_url_f_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[25]/td[2]/a[1]/@href").get())
         loader.add_value("parent_horse_url_f_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[29]/td[1]/a[1]/@href").get())
         loader.add_value("parent_horse_url_f_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[4]/a/@href").get())
         loader.add_value("parent_horse_url_m_m_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[3]/td[1]/a/@href").get())
         loader.add_value("parent_horse_url_m_m_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[5]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_m_m_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[7]/td[1]/a/@href").get())
         loader.add_value("parent_horse_url_m_m_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[9]/td[3]/a/@href").get())
         loader.add_value("parent_horse_url_m_f_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[11]/td[1]/a/@href").get())
         loader.add_value("parent_horse_url_m_f_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[13]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_m_f_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[15]/td[1]/a/@href").get())
         loader.add_value("parent_horse_url_m_f_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[4]/a/@href").get())
         loader.add_value("parent_horse_url_f_m_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[19]/td[1]/a/@href").get())
         loader.add_value("parent_horse_url_f_m_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[21]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_f_m_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[23]/td[1]/a/@href").get())
         loader.add_value("parent_horse_url_f_m_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[25]/td[3]/a/@href").get())
         loader.add_value("parent_horse_url_f_f_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[27]/td[1]/a/@href").get())
         loader.add_value("parent_horse_url_f_f_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[29]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_f_f_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[31]/td[1]/a/@href").get())
         loader.add_value("parent_horse_url_f_f_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[5]/a/@href").get())
         loader.add_value("parent_horse_url_m_m_m_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[2]/td/a/@href").get())
         loader.add_value("parent_horse_url_m_m_m_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[3]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_m_m_m_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[4]/td/a/@href").get())
         loader.add_value("parent_horse_url_m_m_m_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[5]/td[3]/a/@href").get())
         loader.add_value("parent_horse_url_m_m_f_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[6]/td/a/@href").get())
         loader.add_value("parent_horse_url_m_m_f_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[7]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_m_m_f_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[8]/td/a/@href").get())
         loader.add_value("parent_horse_url_m_m_f_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[9]/td[4]/a/@href").get())
         loader.add_value("parent_horse_url_m_f_m_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[10]/td/a/@href").get())
         loader.add_value("parent_horse_url_m_f_m_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[11]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_m_f_m_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[12]/td/a/@href").get())
         loader.add_value("parent_horse_url_m_f_m_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[13]/td[3]/a/@href").get())
         loader.add_value("parent_horse_url_m_f_f_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[14]/td/a/@href").get())
         loader.add_value("parent_horse_url_m_f_f_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[15]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_m_f_f_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[16]/td/a/@href").get())
         loader.add_value("parent_horse_url_m_f_f_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[17]/td[5]/a/@href").get())
         loader.add_value("parent_horse_url_f_m_m_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[18]/td/a/@href").get())
         loader.add_value("parent_horse_url_f_m_m_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[19]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_f_m_m_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[20]/td/a/@href").get())
         loader.add_value("parent_horse_url_f_m_m_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[21]/td[3]/a/@href").get())
         loader.add_value("parent_horse_url_f_m_f_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[22]/td/a/@href").get())
         loader.add_value("parent_horse_url_f_m_f_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[23]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_f_m_f_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[24]/td/a/@href").get())
         loader.add_value("parent_horse_url_f_m_f_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[25]/td[4]/a/@href").get())
         loader.add_value("parent_horse_url_f_f_m_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[26]/td/a/@href").get())
         loader.add_value("parent_horse_url_f_f_m_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[27]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_f_f_m_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[28]/td/a/@href").get())
         loader.add_value("parent_horse_url_f_f_m_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[29]/td[3]/a/@href").get())
         loader.add_value("parent_horse_url_f_f_f_m_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[30]/td/a/@href").get())
         loader.add_value("parent_horse_url_f_f_f_m_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[31]/td[2]/a/@href").get())
         loader.add_value("parent_horse_url_f_f_f_f_m", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[32]/td/a/@href").get())
         loader.add_value("parent_horse_url_f_f_f_f_f", parent_horse_url)
-        yield self._follow(parent_horse_url)
 
         i = loader.load_item()
 
