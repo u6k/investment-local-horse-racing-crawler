@@ -3,7 +3,7 @@ import os
 from distutils.util import strtobool
 
 BOT_NAME = 'local_horse_racing_crawler'
-USER_AGENT = os.environ.get("USER_AGENT", "local_horse_racing_crawler/1.0 (+https://github.com/u6k/investment-local-horse-racing-crawler)")
+USER_AGENT = os.environ.get("USER_AGENT", "local_horse_racing_crawler/3.0.0 (+https://github.com/u6k/investment-local-horse-racing-crawler)")
 CRAWL_HTTP_PROXY = os.environ.get("CRAWL_HTTP_PROXY")
 
 SPIDER_MODULES = ['local_horse_racing_crawler.spiders']
