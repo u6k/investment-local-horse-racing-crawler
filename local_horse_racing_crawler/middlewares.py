@@ -51,12 +51,13 @@ class S3Client:
 
         return data_bytes
 
-    def put_joblib(self, key, data):
+    def put_joblib(self, data, key):
         with io.BytesIO() as b:
             joblib.dump(data, b, compress=True)
+            self.put_bytes(b.getvalue(), key)
             self.s3_bucket_obj.Object(key).put(Body=b.getvalue())
 
-    def put_bytes(self, key, data_bytes):
+    def put_bytes(self, data_bytes, key):
         self.s3_bucket_obj.Object(key).put(Body=data_bytes)
 
 
@@ -130,7 +131,7 @@ class S3CacheStorage:
             },
         }
 
-        self.s3_client.put_joblib(rpath + ".joblib", data)
+        self.s3_client.put_joblib(data, rpath + ".joblib")
 
     def _get_request_path(self, spider, request):
         key = self._fingerprinter.fingerprint(request).hex()
