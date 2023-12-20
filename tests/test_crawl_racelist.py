@@ -11,15 +11,17 @@ aws_settings = {
     "AWS_S3_CACHE_BUCKET": os.environ["AWS_S3_CACHE_BUCKET"],
     "AWS_S3_CACHE_FOLDER": os.environ["AWS_S3_CACHE_FOLDER"],
     "AWS_S3_FEED_URL": os.environ["AWS_S3_FEED_URL"],
+    "AWS_S3_RACELIST_FOLDER": os.environ["AWS_S3_RACELIST_FOLDER"],
 }
 
 s3_client = middlewares.S3Client(aws_settings)
 
+s3_feed_url = urlparse(aws_settings["AWS_S3_FEED_URL"])
+s3_feed_path = s3_feed_url.path[1:]
+target_date = datetime(2023, 12, 15)
+
 
 def test_get_feed():
-    s3_feed_url = urlparse(aws_settings["AWS_S3_FEED_URL"])
-    s3_feed_path = s3_feed_url.path[1:]
-
     json_data = crawl_racelist.get_feed(s3_client, s3_feed_path)
 
     assert len(json_data) > 0
@@ -56,9 +58,6 @@ def test_parse_race_info():
 
 
 def test_parse_feed():
-    s3_feed_url = urlparse(aws_settings["AWS_S3_FEED_URL"])
-    s3_feed_path = s3_feed_url.path[1:]
-
     json_data = crawl_racelist.get_feed(s3_client, s3_feed_path)
 
     df_race_info = crawl_racelist.parse_feed(json_data)
@@ -67,9 +66,6 @@ def test_parse_feed():
 
 
 def test_extract_racelist():
-    s3_feed_url = urlparse(aws_settings["AWS_S3_FEED_URL"])
-    s3_feed_path = s3_feed_url.path[1:]
-
     json_data = crawl_racelist.get_feed(s3_client, s3_feed_path)
     df_race_info = crawl_racelist.parse_feed(json_data)
 
@@ -78,3 +74,79 @@ def test_extract_racelist():
 
     df_tmp = crawl_racelist.extract_racelist(df_race_info, datetime(2023, 1, 1))
     assert len(df_tmp) == 0
+
+
+def test_create_racelist():
+    crawl_racelist.create_racelist(s3_client, s3_feed_path, target_date, aws_settings["AWS_S3_RACELIST_FOLDER"])
+
+
+def test_find_target_racelist():
+    df_racelist = crawl_racelist.get_racelist(s3_client, aws_settings["AWS_S3_RACELIST_FOLDER"], target_date)
+    df_racelist.loc[df_racelist["crawl_start_datetime"] < "2023-12-15 12:00:00", "crawl_finish_datetime"] = datetime(2023, 12, 15, 12, 10, 0)
+
+    now_datetime = datetime(2023, 12, 15, 14, 0, 0)
+    df_target_racelist = crawl_racelist.find_target_racelist(df_racelist, now_datetime)
+
+    assert len(df_target_racelist) == 19
+
+
+def test_crawl_race_in_subprocess():
+    df_racelist = crawl_racelist.get_racelist(s3_client, aws_settings["AWS_S3_RACELIST_FOLDER"], target_date)
+    df_racelist.loc[df_racelist["crawl_start_datetime"] < "2023-12-15 12:00:00", "crawl_finish_datetime"] = datetime(2023, 12, 15, 12, 10, 0)
+
+    now_datetime = datetime(2023, 12, 15, 14, 0, 0)
+    df_target_racelist = crawl_racelist.find_target_racelist(df_racelist, now_datetime)
+
+    crawl_queue = {}
+    queue_count = 3
+
+    crawl_queue = crawl_racelist.crawl_race_in_subprocess(df_target_racelist, crawl_queue, queue_count)
+
+    assert len(crawl_queue) == 3
+
+
+def test_find_crawl_finished_race_items():
+    df_racelist = crawl_racelist.get_racelist(s3_client, aws_settings["AWS_S3_RACELIST_FOLDER"], target_date)
+    df_racelist.loc[df_racelist["crawl_start_datetime"] < "2023-12-15 12:00:00", "crawl_finish_datetime"] = datetime(2023, 12, 15, 12, 10, 0)
+
+    now_datetime = datetime(2023, 12, 15, 14, 0, 0)
+    df_target_racelist = crawl_racelist.find_target_racelist(df_racelist, now_datetime)
+
+    crawl_queue = {}
+    queue_count = 3
+
+    crawl_queue = crawl_racelist.crawl_race_in_subprocess(df_target_racelist, crawl_queue, queue_count)
+
+    finished_race_items = crawl_racelist.find_crawl_finished_race_items(crawl_queue)
+
+    assert len(finished_race_items) == 3
+
+
+def test_update_racelist():
+    df_racelist = crawl_racelist.get_racelist(s3_client, aws_settings["AWS_S3_RACELIST_FOLDER"], target_date)
+    df_racelist.loc[df_racelist["crawl_start_datetime"] < "2023-12-15 12:00:00", "crawl_finish_datetime"] = datetime(2023, 12, 15, 12, 10, 0)
+
+    now_datetime = datetime(2023, 12, 15, 14, 0, 0)
+    df_target_racelist = crawl_racelist.find_target_racelist(df_racelist, now_datetime)
+
+    crawl_queue = {}
+    queue_count = 3
+
+    crawl_queue = crawl_racelist.crawl_race_in_subprocess(df_target_racelist, crawl_queue, queue_count)
+
+    finished_race_items = crawl_racelist.find_crawl_finished_race_items(crawl_queue)
+
+    df_racelist, crawl_queue = crawl_racelist.update_racelist(s3_client, finished_race_items, datetime.now(), df_racelist, crawl_queue, aws_settings["AWS_S3_RACELIST_FOLDER"], target_date)
+
+    assert len(crawl_racelist.find_target_racelist(df_racelist, datetime.now())) == 102
+    assert len(crawl_queue) == 0
+
+
+def test_find_crawl_unfinished_racelist():
+    df_racelist = crawl_racelist.get_racelist(s3_client, aws_settings["AWS_S3_RACELIST_FOLDER"], target_date)
+    df_racelist["crawl_finish_datetime"] = None
+    df_racelist.loc[df_racelist["crawl_start_datetime"] < "2023-12-15 12:00:00", "crawl_finish_datetime"] = datetime(2023, 12, 15, 12, 10, 0)
+
+    df_unfinished_racelist = crawl_racelist.find_crawl_unfinished_racelist(df_racelist)
+
+    assert len(df_unfinished_racelist) == 105
