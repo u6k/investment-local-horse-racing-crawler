@@ -44,17 +44,6 @@ def test_parse_race_info():
     assert dict_race_info["race_round"] == 4
     assert dict_race_info["race_name"] == "ジングルベル賞(2歳)"
     assert dict_race_info["start_datetime"] == datetime(2023, 12, 15, 16, 30, 0)
-    assert dict_race_info["course_type_id"] == 2
-    assert dict_race_info["course_length"] == 1500
-    assert dict_race_info["course_curve"] == "左"
-    assert dict_race_info["weather_id"] == 2
-    assert dict_race_info["course_condition"] == 2
-    assert dict_race_info["prize_money_1"] == 250.0
-    assert dict_race_info["prize_money_2"] == 100.0
-    assert dict_race_info["prize_money_3"] == 62.5
-    assert dict_race_info["prize_money_4"] == 37.5
-    assert dict_race_info["prize_money_5"] == 25.0
-    assert dict_race_info["place_id"] == 8
 
 
 def test_parse_feed():

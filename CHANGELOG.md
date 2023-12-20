@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- [#10237: レース情報のパースでエラーになる](https://redmine.u6k.me/issues/10237)
+
 ### Added
 
 - [#10210: 出走前レースをクロールする](https://redmine.u6k.me/issues/10210)
