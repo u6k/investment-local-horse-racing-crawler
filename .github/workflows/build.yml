@@ -6,7 +6,7 @@ on:
 env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
   IMAGE_NAME: local-horse-racing-crawler
-  IMAGE_VERSION: 3.0.0
+  IMAGE_VERSION: 3.1.0
 
 jobs:
   build:
@@ -23,7 +23,8 @@ jobs:
       - name: Lint
         run: docker-compose run app poe lint
       - name: Test
-        run: docker-compose run app poe test
+        run: docker-compose run app poe check
+        # TODO: docker-compose run app poe test
       - name: Login to GitHub Container Repository
         uses: docker/login-action@v2
         with:

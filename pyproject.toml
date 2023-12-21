@@ -21,6 +21,7 @@ isort = "^5.12.0"
 flake8 = "^6.0.0"
 pyproject-flake8 = "^6.0.0.post1"
 autopep8 = "^2.0.4"
+pytest = "^7.4.3"
 
 [build-system]
 requires = ["poetry-core"]
@@ -40,5 +41,8 @@ line_length = 1000
 [tool.poe.tasks]
 lint = "pflake8 ./local_horse_racing_crawler/ ./tests/"
 fix = [{cmd="autopep8 -ivr ./local_horse_racing_crawler/ ./tests/"}, {cmd="isort ./local_horse_racing_crawler/ ./tests/"}]
-test = {cmd="bin/scrapy_proxy.sh check netkeiba_spider -L DEBUG"}
-crawl = {cmd="bin/scrapy_proxy.sh crawl netkeiba_spider"}
+check = "bin/scrapy_proxy.sh check netkeiba_spider -L DEBUG"
+test = "pytest -s"
+crawl = "bin/scrapy_proxy.sh crawl netkeiba_spider"
+create_racelist = "python -m local_horse_racing_crawler --task create_racelist"
+crawl_race = "bin/python_proxy.sh -m local_horse_racing_crawler --task crawl_race"
