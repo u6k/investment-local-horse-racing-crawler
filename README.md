@@ -1,7 +1,6 @@
 # 地方競馬データ・クローラー _(investment-local-horse-racing-crawler)_
 
 [![.github/workflows/build.yml](https://github.com/u6k/investment-local-horse-racing-crawler/actions/workflows/build.yml/badge.svg)](https://github.com/u6k/investment-local-horse-racing-crawler/actions/workflows/build.yml)
-[![.github/workflows/build-and-push.yml](https://github.com/u6k/investment-local-horse-racing-crawler/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/u6k/investment-local-horse-racing-crawler/actions/workflows/build-and-push.yml)
 [![license](https://img.shields.io/github/license/u6k/investment-local-horse-racing-crawler.svg)](https://github.com/u6k/investment-local-horse-racing-crawler/blob/master/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/u6k/investment-local-horse-racing-crawler.svg)](https://github.com/u6k/investment-local-horse-racing-crawler/releases)
 [![WebSite](https://img.shields.io/website-up-down-green-red/https/shields.io.svg?label=u6k.Redmine)](https://redmine.u6k.me/projects/investment-local-horse-racing-crawler)
