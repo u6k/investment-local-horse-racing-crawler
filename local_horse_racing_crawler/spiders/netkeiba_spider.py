@@ -1,6 +1,7 @@
 import re
-from urllib.parse import parse_qs, urlparse
 from datetime import datetime
+from urllib.parse import parse_qs, urlparse
+
 import scrapy
 from scrapy.loader import ItemLoader
 

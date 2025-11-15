@@ -1,7 +1,5 @@
 import logging
-import logging.config
 import os
-import warnings
 from distutils.util import strtobool
 
 BOT_NAME = 'local_horse_racing_crawler'
