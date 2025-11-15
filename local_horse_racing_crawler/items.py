@@ -5,6 +5,7 @@ class RaceInfoItem(Item):
     """レース情報
     """
     url = Field()
+    timestamp = Field()
     race_id = Field()
     race_round = Field()
     race_name = Field()
@@ -17,6 +18,7 @@ class RaceBracketItem(Item):
     """枠データ
     """
     url = Field()
+    timestamp = Field()
     race_id = Field()
     bracket_number = Field()
     horse_number = Field()
@@ -31,6 +33,7 @@ class HorseItem(Item):
     """競走馬
     """
     url = Field()
+    timestamp = Field()
     horse_id = Field()
     horse_name = Field()
     gender_coat_color = Field()
@@ -46,6 +49,7 @@ class ParentHorseItem(Item):
     """競走馬血統
     """
     url = Field()
+    timestamp = Field()
     horse_id = Field()
     parent_horse_url_m = Field()
     parent_horse_url_f = Field()
@@ -115,6 +119,7 @@ class JockeyItem(Item):
     """騎手
     """
     url = Field()
+    timestamp = Field()
     jockey_id = Field()
     jockey_name = Field()
     debut_year = Field()
@@ -124,6 +129,7 @@ class TrainerItem(Item):
     """調教師
     """
     url = Field()
+    timestamp = Field()
     trainer_id = Field()
     trainer_name = Field()
     debut_year = Field()
@@ -133,6 +139,7 @@ class OddsItem(Item):
     """オッズ
     """
     url = Field()
+    timestamp = Field()
     race_id = Field()
     horse_number_1 = Field()
     horse_number_2 = Field()
@@ -144,6 +151,7 @@ class RaceResultItem(Item):
     """レース結果
     """
     url = Field()
+    timestamp = Field()
     race_id = Field()
     result = Field()
     bracket_number = Field()
@@ -158,6 +166,7 @@ class RacePayoffItem(Item):
     """払戻し
     """
     url = Field()
+    timestamp = Field()
     race_id = Field()
     bet_type = Field()
     horse_number = Field()
@@ -169,6 +178,7 @@ class RaceCornerPassingOrderItem(Item):
     """コーナー通過順位
     """
     url = Field()
+    timestamp = Field()
     race_id = Field()
     corner_name = Field()
     passing_order = Field()
@@ -178,5 +188,6 @@ class RaceLaptimeItem(Item):
     """ラップタイム
     """
     url = Field()
+    timestamp = Field()
     race_id = Field()
     data = Field()
