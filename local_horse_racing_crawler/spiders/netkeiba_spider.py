@@ -293,7 +293,7 @@ class NetkeibaSpider(scrapy.Spider):
         loader.add_value("url", response.url)
         loader.add_value("horse_id", horse_id)
         loader.add_xpath("horse_name", "normalize-space(//div[@class='horse_title']/h1/text())")
-        loader.add_xpath("gender_coat_color", "normalize-space(//div[@class='horse_title']/p/text())")
+        loader.add_xpath("gender_coat_color", "normalize-space(//div[@class='horse_title']/p[@class='txt_01']/text())")
 
         for tr in response.xpath("//table[contains(@class, 'db_prof_table')]//tr"):
             if tr.xpath("th/text()").get() == "生年月日":

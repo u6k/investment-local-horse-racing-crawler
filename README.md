@@ -51,34 +51,21 @@ docker pull ghcr.io/u6k/local-horse-racing-crawler
 
 ## Usage
 
-### クロール
-
-クロールを開始する。
+クローラーを起動する。
 
 ```bash
-docker compose run app poe crawl -a start_url='https://xxx.example.com'
+docker compose up
 ```
 
-### 構文チェック、整形
+RabbitMQからメッセージを受信してクロールを開始する。MQに投入するメッセージは以下の形式。
 
-ソースコードを構文チェック(Lint)する。
-
-```bash
-docker compose run app poe lint
 ```
-
-ソースコードを整形する。
-
-```bash
-docker compose run app poe fix
-```
-
-### テスト
-
-スクレイピング機能をテストする。
-
-```bash
-docker compose run app poe test
+{
+"start_url": "https://nar.netkeiba.com/top/race_list_sub.html?kaisai_date=20231114",
+"AWS_S3_FEED_URL": "s3://local-horse-racing/feed/calendar/calendar_20231114.json",
+"RECACHE_RACE": "True",
+"RECACHE_DATA": "False"
+}
 ```
 
 ## Other
