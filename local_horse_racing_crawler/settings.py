@@ -6,7 +6,6 @@ from distutils.util import strtobool
 
 BOT_NAME = 'local_horse_racing_crawler'
 USER_AGENT = os.environ.get("USER_AGENT", "local_horse_racing_crawler/3.2.0-dev (+https://github.com/u6k/investment-local-horse-racing-crawler)")
-CRAWL_HTTP_PROXY = os.environ.get("CRAWL_HTTP_PROXY")
 
 SPIDER_MODULES = ['local_horse_racing_crawler.spiders']
 NEWSPIDER_MODULE = 'local_horse_racing_crawler.spiders'
@@ -46,16 +45,8 @@ REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
-logging.config.fileConfig("./logging.conf")
 logging.getLogger("boto3").setLevel(logging.INFO)
 logging.getLogger("botocore").setLevel(logging.INFO)
-
-
-def get_logger(task_name):
-    return logging.getLogger(f"crawler.{task_name}")
-
-
-warnings.simplefilter("ignore")
 
 AWS_ENDPOINT_URL = os.environ["AWS_ENDPOINT_URL"]
 AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
