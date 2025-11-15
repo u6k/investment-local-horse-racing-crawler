@@ -1,6 +1,6 @@
 import re
 from urllib.parse import parse_qs, urlparse
-
+from datetime import datetime
 import scrapy
 from scrapy.loader import ItemLoader
 
@@ -172,6 +172,7 @@ class NetkeibaSpider(scrapy.Spider):
 
         loader = ItemLoader(item=RaceInfoItem(), response=response)
         loader.add_value("url", response.url + "#race_info")
+        loader.add_value("timestamp", datetime.now())
         loader.add_value("race_id", race_program_qs["race_id"])
         loader.add_xpath("race_round", "normalize-space(//div[contains(@class, 'Race_Num')])")
         loader.add_xpath("race_name", "normalize-space(//div[@class='RaceName'])")
@@ -192,6 +193,7 @@ class NetkeibaSpider(scrapy.Spider):
         for tr in response.xpath("//table[contains(@class, 'ShutubaTable')]//tr[@class='HorseList']"):
             loader = ItemLoader(item=RaceBracketItem(), selector=tr)
             loader.add_value("url", response.url + "#race_bracket")
+            loader.add_value("timestamp", datetime.now())
             loader.add_value("race_id", race_program_qs["race_id"])
             loader.add_xpath("bracket_number", "normalize-space(td[1]/text())")
             loader.add_xpath("horse_number", "normalize-space(td[2]/text())")
@@ -291,6 +293,7 @@ class NetkeibaSpider(scrapy.Spider):
 
         loader = ItemLoader(item=HorseItem(), response=response)
         loader.add_value("url", response.url)
+        loader.add_value("timestamp", datetime.now())
         loader.add_value("horse_id", horse_id)
         loader.add_xpath("horse_name", "normalize-space(//div[@class='horse_title']/h1/text())")
         loader.add_xpath("gender_coat_color", "normalize-space(//div[@class='horse_title']/p[@class='txt_01']/text())")
@@ -343,6 +346,7 @@ class NetkeibaSpider(scrapy.Spider):
 
         loader = ItemLoader(item=ParentHorseItem(), response=response)
         loader.add_value("url", response.url)
+        loader.add_value("timestamp", datetime.now())
         loader.add_value("horse_id", horse_id)
 
         parent_horse_url = response.urljoin(response.xpath("//table[contains(@class, 'blood_table')]/tr[1]/td[1]/a[1]/@href").get())
@@ -551,6 +555,7 @@ class NetkeibaSpider(scrapy.Spider):
 
         loader = ItemLoader(item=JockeyItem(), response=response)
         loader.add_value("url", response.url)
+        loader.add_value("timestamp", datetime.now())
         loader.add_value("jockey_id", jockey_id)
         loader.add_xpath("jockey_name", "normalize-space(string(//div[@class='Name']/h1))")
 
@@ -578,6 +583,7 @@ class NetkeibaSpider(scrapy.Spider):
 
         loader = ItemLoader(item=TrainerItem(), response=response)
         loader.add_value("url", response.url)
+        loader.add_value("timestamp", datetime.now())
         loader.add_value("trainer_id", trainer_id)
         loader.add_xpath("trainer_name", "normalize-space(string(//div[@class='Name']/h1))")
 
@@ -614,6 +620,7 @@ class NetkeibaSpider(scrapy.Spider):
 
             loader = ItemLoader(item=OddsItem(), selector=tr)
             loader.add_value("url", response.url + "#win")
+            loader.add_value("timestamp", datetime.now())
             loader.add_value("race_id", odds_qs["race_id"])
             loader.add_xpath("horse_number_1", "td[2]/text()")
             loader.add_value("horse_number_2", "")
@@ -635,6 +642,7 @@ class NetkeibaSpider(scrapy.Spider):
 
             loader = ItemLoader(item=OddsItem(), selector=tr)
             loader.add_value("url", response.url + "#place")
+            loader.add_value("timestamp", datetime.now())
             loader.add_value("race_id", odds_qs["race_id"])
             loader.add_xpath("horse_number_1", "td[2]/text()")
             loader.add_value("horse_number_2", "")
@@ -667,6 +675,7 @@ class NetkeibaSpider(scrapy.Spider):
                 else:
                     loader = ItemLoader(item=OddsItem(), selector=tr)
                     loader.add_value("url", response.url)
+                    loader.add_value("timestamp", datetime.now())
                     loader.add_value("race_id", odds_qs["race_id"])
                     loader.add_value("horse_number_1", horse_number_1)
                     loader.add_xpath("horse_number_2", "normalize-space(string(td[1]))")
@@ -699,6 +708,7 @@ class NetkeibaSpider(scrapy.Spider):
                 else:
                     loader = ItemLoader(item=OddsItem(), selector=tr)
                     loader.add_value("url", response.url)
+                    loader.add_value("timestamp", datetime.now())
                     loader.add_value("race_id", odds_qs["race_id"])
                     loader.add_value("horse_number_1", horse_number_1)
                     loader.add_xpath("horse_number_2", "normalize-space(string(td[1]))")
@@ -731,6 +741,7 @@ class NetkeibaSpider(scrapy.Spider):
                 else:
                     loader = ItemLoader(item=OddsItem(), selector=tr)
                     loader.add_value("url", response.url)
+                    loader.add_value("timestamp", datetime.now())
                     loader.add_value("race_id", odds_qs["race_id"])
                     loader.add_value("horse_number_1", horse_number_1)
                     loader.add_xpath("horse_number_2", "normalize-space(string(td[1]))")
@@ -765,6 +776,7 @@ class NetkeibaSpider(scrapy.Spider):
                 else:
                     loader = ItemLoader(item=OddsItem(), selector=tr)
                     loader.add_value("url", response.url)
+                    loader.add_value("timestamp", datetime.now())
                     loader.add_value("race_id", odds_qs["race_id"])
                     loader.add_value("horse_number_1", horse_number_1)
                     loader.add_value("horse_number_2", horse_number_2)
@@ -799,6 +811,7 @@ class NetkeibaSpider(scrapy.Spider):
                 else:
                     loader = ItemLoader(item=OddsItem(), selector=tr)
                     loader.add_value("url", response.url)
+                    loader.add_value("timestamp", datetime.now())
                     loader.add_value("race_id", odds_qs["race_id"])
                     loader.add_value("horse_number_1", horse_number_1)
                     loader.add_value("horse_number_2", horse_number_2)
@@ -833,6 +846,7 @@ class NetkeibaSpider(scrapy.Spider):
 
             loader = ItemLoader(item=RaceResultItem(), selector=tr)
             loader.add_value("url", response.url + "#race_result")
+            loader.add_value("timestamp", datetime.now())
             loader.add_value("race_id", race_result_qs["race_id"])
             loader.add_xpath("result", "normalize-space(string(td[1]))")
             loader.add_xpath("bracket_number", "normalize-space(string(td[2]))")
@@ -853,6 +867,7 @@ class NetkeibaSpider(scrapy.Spider):
         for tr in response.xpath("//table[@class='Payout_Detail_Table']//tr"):
             loader = ItemLoader(item=RacePayoffItem(), selector=tr)
             loader.add_value("url", response.url + "#race_payoff")
+            loader.add_value("timestamp", datetime.now())
             loader.add_value("race_id", race_result_qs["race_id"])
             loader.add_xpath("bet_type", "normalize-space(string(th))")
             loader.add_xpath("horse_number", "normalize-space(string(td[1]))")
@@ -870,6 +885,7 @@ class NetkeibaSpider(scrapy.Spider):
         for tr in response.xpath("//table[contains(@class, 'Corner_Num')]//tr"):
             loader = ItemLoader(item=RaceCornerPassingOrderItem(), selector=tr)
             loader.add_value("url", response.url + "#race_corner_passing_order")
+            loader.add_value("timestamp", datetime.now())
             loader.add_value("race_id", race_result_qs["race_id"])
             loader.add_xpath("corner_name", "normalize-space(string(th))")
             loader.add_xpath("passing_order", "normalize-space(string(td))")
@@ -885,6 +901,7 @@ class NetkeibaSpider(scrapy.Spider):
         for tr in response.xpath("//table[contains(@class, 'Race_HaronTime')]//tr"):
             loader = ItemLoader(item=RaceLaptimeItem(), selector=tr)
             loader.add_value("url", response.url + "#race_laptime")
+            loader.add_value("timestamp", datetime.now())
             loader.add_value("race_id", race_result_qs["race_id"])
 
             if len(tr.xpath("th")) > 0:
