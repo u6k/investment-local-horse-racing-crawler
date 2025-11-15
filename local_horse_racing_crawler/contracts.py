@@ -52,7 +52,7 @@ class RaceProgramContract(Contract):
         assert i["race_name"] == ["八潮パークタウン40周年特別競走(B2)"]
         assert i["race_data1"] == ["19:30発走 / ダ1200m (右) / 天候:晴 / 馬場:良 \xa0"]
         assert i["race_data2"] == ["13回 大井 2日目 サラ系一般 B2 \xa0\xa0\xa0\xa0\xa0 16頭 本賞金:270.0、108.0、67.5、40.5、27.0万円"]
-        assert i["race_data3"] == ["八潮パークタウン40 出馬表 | 2023年11月14日 大井10R 地方競馬レース情報 - netkeiba.com"]
+        assert i["race_data3"] == ["八潮パークタウン40 出馬表 | 2023年11月14日 大井10R 地方競馬レース情報 - netkeiba"]
 
         # 枠データ
         items = [o for o in output if isinstance(o, RaceBracketItem)]
@@ -253,7 +253,7 @@ class JockeyContract(Contract):
         assert i["url"] == ["https://db.netkeiba.com/jockey/05590"]
         assert i["jockey_id"] == ["05590"]
         assert i["jockey_name"] == ["藤本現暉\xa0 (フジモトゲンキ)"]
-        assert i["debut_year"] == ["2015年(9年目)"]
+        assert i["debut_year"] == ["2015年(11年目)"]
 
 
 class TrainerContract(Contract):
@@ -268,8 +268,8 @@ class TrainerContract(Contract):
         i = items[0]
         assert i["url"] == ["https://db.netkeiba.com/trainer/05655"]
         assert i["trainer_id"] == ["05655"]
-        assert i["trainer_name"] == ["蛯名雄太\xa0 (エビナユウタ)"]
-        assert i["debut_year"] == ["2010年(14年目)"]
+        assert i["trainer_name"] == ["蛯名雄太\xa0 （エビナユウタ）"]
+        assert i["debut_year"] == ["2010年(16年目)"]
 
 
 class OddsWinPlaceContract(Contract):
