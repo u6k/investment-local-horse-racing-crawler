@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - [#10608: スクレイピング時にtimestampを付与する](https://redmine.u6k.me/issues/10608)
+- [#10556: メッセージ駆動でクロールする](https://redmine.u6k.me/issues/10556)
 
 ## [3.1.0] - 2023-12-22
 
