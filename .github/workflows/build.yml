@@ -3,7 +3,7 @@ on:
 
 env:
   IMAGE_NAME: local-horse-racing-crawler
-  IMAGE_VERSION: 4.0.0
+  IMAGE_VERSION: 4.1.0-dev
 
 jobs:
   build:
